@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Museo 3D</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  
   <script type="importmap">
   {
     "imports": {
@@ -12,12 +13,31 @@
     }
   }
   </script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
+
   <style>
-    body { margin: 0; overflow: hidden; background: #000; }
+    body { margin: 0; overflow: hidden; background: #000; touch-action: none; }
+    
+    /* Zona donde aparecerá el Joystick (toda la pantalla, pero se crea abajo) */
+    #joystick-zone {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      /* Permitimos que los clicks pasen a través si no tocan el joystick */
+      pointer-events: none; 
+    }
+    /* El joystick en sí necesita capturar eventos */
+    #joystick-zone .nipple {
+      pointer-events: auto; 
+    }
   </style>
 </head>
 <body>
-  <div id="joystick" style="display: none;"></div>
+  <div id="joystick-zone"></div>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

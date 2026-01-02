@@ -6,17 +6,22 @@ import { loadPaintings } from './museum/paintings.js';
 import { createControls } from './controls/controls.js';
 import { setupInteractions } from './controls/interactions.js';
 import { createWalkControls } from './controls/walkControls.js';
+// Importamos el nuevo joystick
+import { createJoystick } from './controls/joystick.js';
 
 const scene = createScene();
 const camera = createCamera();
 const renderer = createRenderer();
 
 createLights(scene);
-createRoom(scene);      // Crea el pasillo
-loadPaintings(scene);   // Cuelga los cuadros
+createRoom(scene);      
+loadPaintings(scene);   
 
 const orbitControls = createControls(camera, renderer.domElement);
 const walkControls = createWalkControls(camera, orbitControls);
+
+// Iniciamos el joystick pasándole los controles de movimiento
+createJoystick(walkControls);
 
 const updateInteractionCamera = setupInteractions({
   camera,

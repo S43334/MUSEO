@@ -33,7 +33,7 @@
       pointer-events: auto; 
     }
 
-    /* --- PANTALLA DE BIENVENIDA --- */
+    /* --- PANTALLA DE BIENVENIDA (CORREGIDA PARA CELULAR) --- */
     #intro-screen {
       position: absolute;
       top: 0;
@@ -45,53 +45,77 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 100; 
+      z-index: 9999; /* Z-index muy alto para asegurar que esté encima de todo */
       color: white;
       text-align: center;
       transition: opacity 1s ease; 
     }
 
     #intro-content {
-      max-width: 600px;
-      padding: 40px;
+      width: 90%;          /* Ocupa el 90% del ancho de la pantalla */
+      max-width: 600px;    /* Pero no más de 600px en PC */
+      max-height: 90vh;    /* IMPORTANTE: No más alto que el 90% de la pantalla */
+      overflow-y: auto;    /* IMPORTANTE: Permite hacer scroll si el texto es largo */
+      padding: 30px;
+      box-sizing: border-box; /* Asegura que el padding no rompa el ancho */
+      
       border: 1px solid #333;
-      background: rgba(20, 20, 40, 0.8); 
+      background: rgba(20, 20, 40, 0.95); /* Un poco más opaco para leer mejor */
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-      border-radius: 8px;
+      border-radius: 12px;
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 2em;
       margin-bottom: 20px;
       font-weight: lighter;
-      letter-spacing: 5px;
+      letter-spacing: 3px;
       color: #ffaa00; 
+      margin-top: 0;
     }
 
     p {
       font-size: 1.1em;
-      line-height: 1.6;
+      line-height: 1.5;
       color: #ccc;
-      margin-bottom: 40px;
-      text-align: left; /* Alineado a la izquierda para mejor lectura del mensaje largo */
+      margin-bottom: 30px;
+      text-align: left; 
     }
 
     #start-btn {
       padding: 15px 40px;
       font-size: 1.2em;
-      background: transparent;
+      background: rgba(255, 170, 0, 0.1); /* Fondo sutil para que se note que es botón */
       color: #ffaa00;
       border: 2px solid #ffaa00;
       cursor: pointer;
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 2px;
+      border-radius: 4px;
+      margin-bottom: 10px; /* Margen extra abajo por si acaso */
+      width: 100%;         /* Botón ancho en móviles para facilitar el toque */
+      max-width: 250px;
     }
 
-    #start-btn:hover {
+    #start-btn:hover, #start-btn:active {
       background: #ffaa00;
       color: #000;
       box-shadow: 0 0 20px #ffaa00;
+    }
+
+    /* Ajustes específicos para pantallas pequeñas (Celulares) */
+    @media (max-width: 600px) {
+      #intro-content {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 1.5em; /* Título más pequeño */
+        letter-spacing: 2px;
+      }
+      p {
+        font-size: 1em; /* Texto más pequeño */
+      }
     }
 
   </style>
@@ -100,12 +124,12 @@
 
   <div id="intro-screen">
     <div id="intro-content">
-      <h1>GALERIA PARA ISABELLA</h1>
+      <h1>GALERÍA PARA ISABELLA</h1>
       
       <p id="welcome-message">
         Hola Isabella.<br><br>
         Quería darte las gracias otra vez por el dibujo que me hiciste. Me gustó mucho que te tomaras el tiempo para hacerlo.<br><br>
-        Como yo no sé dibujar, quise usar lo que sí sé hacer para agradecerte. Te preparé una pequeña galeria virtual. Es un espacio para que puedas exponer tus dibujos y que se vean bien ahí. Espero que te guste el detalle.<br><br>
+        Como yo no sé dibujar, quise usar lo que sí sé hacer para agradecerte. Te preparé una pequeña galería virtual. Es un espacio para que puedas exponer tus dibujos y que se vean bien ahí. Espero que te guste el detalle.<br><br>
         Te deseo un feliz año nuevo 2026. Ojalá que logres las metas que te propongas y que vengan cosas buenas para ti.
       </p>
 
@@ -128,6 +152,12 @@
       setTimeout(() => {
         introScreen.style.display = 'none';
       }, 1000);
+    });
+    
+    // Soporte para touch en móviles (por si el click no responde rápido)
+    startBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // Evita doble disparo
+      startBtn.click();
     });
   </script>
 </body>

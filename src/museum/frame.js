@@ -1,29 +1,30 @@
 import * as THREE from 'three';
-import { createPlaque } from './plaque.js';
 
-export function createFramedPainting({
-  texture,
-  title,
-  author,
-  width = 1.4,
-  height = 1.4,
-  frameThickness = 0.08,
-  frameDepth = 0.1
-}) {
+export function createFramedPainting(texture, width, height) {
   const group = new THREE.Group();
 
-  // 🖼️ Obra
-  const canvas = new THREE.Mesh(
-    new THREE.PlaneGeometry(width, height),
-    new THREE.MeshStandardMaterial({
-      map: texture,
-      transparent: true
-    })
-  );
-  canvas.position.z = frameDepth / 2 + 0.001;
-  group.add(canvas);
+  // 🎨 Material del cuadro (imagen)
+  const paintingMaterial = new THREE.MeshStandardMaterial({
+    map: texture
+  });
 
-  // 🪵 Marco
+  const painting = new THREE.Mesh(
+    new THREE.PlaneGeometry(width, height),
+    paintingMaterial
+  );
+  painting.position.z = 0.01;
+  group.add(painting);
+
+  // 🪵 Material del marco (AQUÍ estaba el error)
+  const frameMaterial = new THREE.MeshStandardMaterial({
+    color: 0x4b2e1e,
+    roughness: 0.6,
+    metalness: 0.1
+  });
+
+  const frameThickness = 0.12;
+  const frameDepth = 0.08;
+
   const frame = new THREE.Mesh(
     new THREE.BoxGeometry(
       width + frameThickness,
@@ -35,11 +36,6 @@ export function createFramedPainting({
 
   frame.userData.isFrame = true;
   group.add(frame);
-
-  // 🏷️ Placa
-  const plaque = createPlaque({ title, author });
-  plaque.position.set(0, -height / 2 - 0.35, frameDepth / 2);
-  group.add(plaque);
 
   return group;
 }

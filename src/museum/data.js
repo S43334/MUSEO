@@ -2,7 +2,7 @@ export const paintings = [
   // --- PARED IZQUIERDA (X = -2.4, Rotación 90°) ---
   {
     id: 1,
-    title: "Obra 1",
+    title: "Obra: Sebastian",
     author: "Dinorah Isabella Domínguez Ruiz",
     image: "textures/paintings/dibujo1.png",
     position: { x: -2.4, y: 1.8, z: -5 },
@@ -10,41 +10,41 @@ export const paintings = [
   },
   {
     id: 2,
-    title: "Obra 2",
+    title: "Obra: DESCONOCIDA",
     author: "Dinorah Isabella Domínguez Ruiz",
-    image: "textures/paintings/dibujo1.png",
+    image: "textures/paintings/dibujo2.jpg",
     position: { x: -2.4, y: 1.8, z: -10 },
     rotationY: Math.PI / 2
   },
   {
     id: 3,
-    title: "Obra 3",
+    title: "Obra: WandaVisión",
     author: "Dinorah Isabella Domínguez Ruiz",
-    image: "textures/paintings/dibujo1.png",
+    image: "textures/paintings/dibujo3.jpg",
     position: { x: -2.4, y: 1.8, z: -15 },
     rotationY: Math.PI / 2
   },
   {
     id: 4,
-    title: "Obra 4",
+    title: "Obra: Scarlet Witch",
     author: "Dinorah Isabella Domínguez Ruiz",
-    image: "textures/paintings/dibujo1.png",
+    image: "textures/paintings/dibujo4.jpg",
     position: { x: -2.4, y: 1.8, z: -20 },
     rotationY: Math.PI / 2
   },
   {
     id: 5,
-    title: "Obra 5",
+    title: "Obra: Gallo",
     author: "Dinorah Isabella Domínguez Ruiz",
-    image: "textures/paintings/dibujo1.png",
+    image: "textures/paintings/dibujo5.jpg",
     position: { x: -2.4, y: 1.8, z: -25 },
     rotationY: Math.PI / 2
   },
   {
     id: 6,
-    title: "Obra 6",
+    title: "Obra: Desconocida",
     author: "Dinorah Isabella Domínguez Ruiz",
-    image: "textures/paintings/dibujo1.png",
+    image: "textures/paintings/dibujo6.png",
     position: { x: -2.4, y: 1.8, z: -30 },
     rotationY: Math.PI / 2
   },

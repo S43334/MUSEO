@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 export function createScene() {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf2f2f2);
+  scene.background = new THREE.Color(0x000000);
   return scene;
 }
 

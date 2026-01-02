@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Museo Virtual</title>
+  <title>Galeria Virtual</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   
   <script type="importmap">
@@ -17,6 +17,7 @@
   <script src="./nipplejs.min.js"></script>
 
   <style>
+    /* El body bloquea el scroll general para el juego (correcto) */
     body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: 'Arial', sans-serif; }
     
     /* --- ESTILOS DEL JOYSTICK --- */
@@ -33,7 +34,7 @@
       pointer-events: auto; 
     }
 
-    /* --- PANTALLA DE BIENVENIDA (CORREGIDA PARA CELULAR) --- */
+    /* --- PANTALLA DE BIENVENIDA --- */
     #intro-screen {
       position: absolute;
       top: 0;
@@ -45,29 +46,34 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 9999; /* Z-index muy alto para asegurar que esté encima de todo */
+      z-index: 9999; 
       color: white;
       text-align: center;
       transition: opacity 1s ease; 
     }
 
     #intro-content {
-      width: 90%;          /* Ocupa el 90% del ancho de la pantalla */
-      max-width: 600px;    /* Pero no más de 600px en PC */
-      max-height: 90vh;    /* IMPORTANTE: No más alto que el 90% de la pantalla */
-      overflow-y: auto;    /* IMPORTANTE: Permite hacer scroll si el texto es largo */
-      padding: 30px;
-      box-sizing: border-box; /* Asegura que el padding no rompa el ancho */
+      width: 90%;          
+      max-width: 600px;    
+      max-height: 85vh;    /* Un poco más corto para asegurar que quepa */
+      overflow-y: auto;    /* Barra de scroll si hace falta */
       
+      /* --- CORRECCIÓN CLAVE --- */
+      touch-action: pan-y; /* PERMITE deslizar el dedo verticalmente (scroll) */
+      -webkit-overflow-scrolling: touch; /* Scroll suave en iPhone */
+      pointer-events: auto;
+      
+      padding: 30px;
+      box-sizing: border-box; 
       border: 1px solid #333;
-      background: rgba(20, 20, 40, 0.95); /* Un poco más opaco para leer mejor */
+      background: rgba(20, 20, 40, 0.95); 
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
       border-radius: 12px;
     }
 
     h1 {
       font-size: 2em;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       font-weight: lighter;
       letter-spacing: 3px;
       color: #ffaa00; 
@@ -78,14 +84,14 @@
       font-size: 1.1em;
       line-height: 1.5;
       color: #ccc;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       text-align: left; 
     }
 
     #start-btn {
       padding: 15px 40px;
       font-size: 1.2em;
-      background: rgba(255, 170, 0, 0.1); /* Fondo sutil para que se note que es botón */
+      background: rgba(255, 170, 0, 0.1); 
       color: #ffaa00;
       border: 2px solid #ffaa00;
       cursor: pointer;
@@ -93,9 +99,10 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       border-radius: 4px;
-      margin-bottom: 10px; /* Margen extra abajo por si acaso */
-      width: 100%;         /* Botón ancho en móviles para facilitar el toque */
+      width: 100%;
       max-width: 250px;
+      /* Asegura que el botón responda bien al tacto */
+      touch-action: manipulation; 
     }
 
     #start-btn:hover, #start-btn:active {
@@ -104,17 +111,23 @@
       box-shadow: 0 0 20px #ffaa00;
     }
 
-    /* Ajustes específicos para pantallas pequeñas (Celulares) */
+    /* Ajustes específicos para celulares */
     @media (max-width: 600px) {
       #intro-content {
         padding: 20px;
+        max-height: 80vh; /* Más margen arriba/abajo en móviles */
       }
       h1 {
-        font-size: 1.5em; /* Título más pequeño */
-        letter-spacing: 2px;
+        font-size: 1.5em;
+        margin-bottom: 10px;
       }
       p {
-        font-size: 1em; /* Texto más pequeño */
+        font-size: 1em; 
+        margin-bottom: 20px;
+      }
+      #start-btn {
+        padding: 12px 30px;
+        font-size: 1.1em;
       }
     }
 
@@ -144,21 +157,22 @@
     const startBtn = document.getElementById('start-btn');
     const introScreen = document.getElementById('intro-screen');
 
-    startBtn.addEventListener('click', () => {
+    // Función para iniciar
+    const startGame = (e) => {
+      if(e) e.preventDefault(); // Evita comportamientos raros del navegador
+      
       // 1. Desvanecer la pantalla
       introScreen.style.opacity = '0';
       
-      // 2. Quitarla del DOM después de 1 segundo
+      // 2. Quitarla del DOM
       setTimeout(() => {
         introScreen.style.display = 'none';
       }, 1000);
-    });
-    
-    // Soporte para touch en móviles (por si el click no responde rápido)
-    startBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault(); // Evita doble disparo
-      startBtn.click();
-    });
+    };
+
+    // Escuchamos ambos eventos para asegurar respuesta rápida
+    startBtn.addEventListener('click', startGame);
+    startBtn.addEventListener('touchend', startGame);
   </script>
 </body>
 </html>

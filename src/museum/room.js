@@ -11,7 +11,7 @@ export function createRoom(scene) {
 
   // --- MATERIALES ---
   
-  // 1. SUELO (Madera)
+  // 1. SUELO (Mantenemos la madera, ¡queda genial con luz cálida!)
   const woodTexture = textureLoader.load('textures/wood.webp');
   woodTexture.wrapS = THREE.RepeatWrapping;
   woodTexture.wrapT = THREE.RepeatWrapping;
@@ -20,26 +20,29 @@ export function createRoom(scene) {
   
   const floorMaterial = new THREE.MeshStandardMaterial({ 
     map: woodTexture, 
-    roughness: 0.8 
+    roughness: 0.8,
+    metalness: 0.1
   });
 
-  // 2. PAREDES (Azul Marino)
+  // 2. PAREDES (Color Sólido)
+  // RECOMENDACIÓN: Azul Medianoche Profundo.
+  // Con luz naranja (0xffaa00), este azul se ve increíblemente elegante.
   const wallMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x000080,    // Azul Marino (Navy Blue)
-      roughness: 0.5,     // Un poco menos rugoso para que la luz rebote suavemente
+      color: 0x001133,    // Azul muy oscuro
+      roughness: 0.6,     // Un poco de brillo para que la luz "lame" la pared
       side: THREE.DoubleSide 
   });
 
-  // 3. TECHO
-  const ceilingTex = textureLoader.load('textures/ceiling.jpg');
-  ceilingTex.wrapS = THREE.RepeatWrapping;
-  ceilingTex.wrapT = THREE.RepeatWrapping;
-  ceilingTex.repeat.set(4, 30);
-  ceilingTex.colorSpace = THREE.SRGBColorSpace;
+  /* OTRAS OPCIONES (Si quieres probar, cambia el valor de 'color' arriba):
+     - Gris Moderno: 0x333333
+     - Rojo Vino (Dramático): 0x440000
+     - Blanco Galería (Clásico): 0xeeeeee
+  */
 
+  // 3. TECHO (Color Sólido)
+  // Lo ponemos oscuro para que no distraiga y oculte el "fin del mundo"
   const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-      map: ceilingTex,
-      color: 0xffffff,
+      color: 0x050505,    // Casi negro
       side: THREE.DoubleSide
   });
 

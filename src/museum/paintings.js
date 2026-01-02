@@ -24,11 +24,16 @@ export function loadPaintings(scene) {
         title: data.title, 
         author: data.author || "Artista" 
       });
+      
+      // Posición
       plaque.position.y = -1.4; // Debajo del cuadro
-      plaque.position.z = 0.06;
-      // Ajuste visual para que se lea bien
-      plaque.rotation.y = Math.PI; 
-      plaque.rotation.x = -Math.PI / 12; // Un poco inclinada hacia arriba
+      plaque.position.z = 0.06; // Un poco al frente
+      
+      // --- CORRECCIÓN PLACAS ---
+      // Eliminamos 'plaque.rotation.y = Math.PI' para que no miren a la pared.
+      // Solo dejamos una leve inclinación hacia arriba para facilitar la lectura.
+      plaque.rotation.x = -Math.PI / 12; 
+      
       paintingGroup.add(plaque);
     }
 

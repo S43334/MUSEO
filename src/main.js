@@ -7,23 +7,17 @@ import { createControls } from './controls/controls.js';
 import { setupInteractions } from './controls/interactions.js';
 import { createWalkControls } from './controls/walkControls.js';
 
-// 1️⃣ Escena, cámara y renderer
 const scene = createScene();
 const camera = createCamera();
 const renderer = createRenderer();
 
-// 2️⃣ Contenido del museo
 createLights(scene);
-createRoom(scene);
-loadPaintings(scene);
+createRoom(scene);      // Crea el pasillo
+loadPaintings(scene);   // Cuelga los cuadros
 
-// 3️⃣ Controles base
 const orbitControls = createControls(camera, renderer.domElement);
+const walkControls = createWalkControls(camera, orbitControls); // Conecta los controles
 
-// 4️⃣ Modo caminar (CORREGIDO: Pasamos orbitControls aquí)
-const walkControls = createWalkControls(camera, orbitControls);
-
-// 5️⃣ Interacciones (highlight + zoom cinematográfico)
 const updateInteractionCamera = setupInteractions({
   camera,
   controls: orbitControls,
@@ -31,27 +25,18 @@ const updateInteractionCamera = setupInteractions({
   renderer
 });
 
-// 6️⃣ Resize
 setupResize(camera, renderer);
 
-// 7️⃣ Loop principal
 let lastTime = performance.now();
 
 function animate(time) {
   requestAnimationFrame(animate);
-
   const delta = (time - lastTime) / 1000;
   lastTime = time;
 
-  // 🚶 Movimiento tipo museo
   walkControls.update(delta);
-
-  // 🎬 Zoom / Highlight
   updateInteractionCamera(delta);
-
-  // 🎥 Rotación cámara
   orbitControls.update();
-
   renderer.render(scene, camera);
 }
 

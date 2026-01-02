@@ -1,42 +1,41 @@
 import * as THREE from 'three';
 
-// 1. Recibimos un OBJETO desestructurado con valores por defecto para width/height
-export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
+const textureLoader = new THREE.TextureLoader();
+// Cargamos la madera (asegúrate de que wood.webp esté en la carpeta textures)
+const woodTexture = textureLoader.load('textures/wood.webp');
+woodTexture.wrapS = THREE.RepeatWrapping;
+woodTexture.wrapT = THREE.RepeatWrapping;
+woodTexture.repeat.set(1, 1);
+woodTexture.colorSpace = THREE.SRGBColorSpace;
+
+export function createFramedPainting(width = 1.5, height = 2, paintingTexture) {
   const group = new THREE.Group();
 
-  // 🎨 Material del cuadro
+  // 1. EL DIBUJO
   const paintingMaterial = new THREE.MeshStandardMaterial({
-    map: texture,
-    roughness: 0.4
+    map: paintingTexture,
+    roughness: 0.4,
+    side: THREE.FrontSide
   });
-
-  const painting = new THREE.Mesh(
-    new THREE.PlaneGeometry(width, height),
-    paintingMaterial
-  );
+  const painting = new THREE.Mesh(new THREE.PlaneGeometry(width, height), paintingMaterial);
   painting.position.z = 0.01;
+  painting.rotation.y = Math.PI; // Importante para que mire al frente correcto
   group.add(painting);
 
-  // 🪵 Material del marco
+  // 2. EL MARCO DE MADERA
   const frameMaterial = new THREE.MeshStandardMaterial({
-    color: 0x4b2e1e,
-    roughness: 0.6,
+    map: woodTexture,
+    roughness: 0.8,
     metalness: 0.1
   });
 
-  const frameThickness = 0.12;
-  const frameDepth = 0.08;
-
+  const frameThickness = 0.15;
+  const frameDepth = 0.1;
   const frame = new THREE.Mesh(
-    new THREE.BoxGeometry(
-      width + frameThickness,
-      height + frameThickness,
-      frameDepth
-    ),
+    new THREE.BoxGeometry(width + frameThickness, height + frameThickness, frameDepth),
     frameMaterial
   );
-
-  frame.userData.isFrame = true;
+  frame.position.z = -frameDepth / 2 + 0.005; 
   group.add(frame);
 
   return group;

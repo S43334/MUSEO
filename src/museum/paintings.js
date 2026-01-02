@@ -1,26 +1,35 @@
 import * as THREE from 'three';
-import { paintings } from './data.js';
+import { paintingsData } from './data.js';
 import { createFramedPainting } from './frame.js';
+import { createPlaque } from './plaque.js';
 
 export function loadPaintings(scene) {
   const loader = new THREE.TextureLoader();
 
-  paintings.forEach(p => {
-    const texture = loader.load(p.image);
+  paintingsData.forEach((data) => {
+    const texture = loader.load(data.imageUrl);
     texture.colorSpace = THREE.SRGBColorSpace;
 
-    const painting = createFramedPainting({
-      texture,
-      title: p.title,
-      author: p.author
-    });
+    // Crear cuadro + marco
+    const paintingGroup = createFramedPainting(1.5, 2, texture);
 
-    painting.position.set(
-      p.position.x,
-      p.position.y,
-      p.position.z
-    );
+    // Crear placa
+    if (data.title) {
+      const plaque = createPlaque({ 
+        title: data.title, 
+        author: data.author || "Artista" 
+      });
+      plaque.position.y = -1.4; 
+      plaque.position.z = 0.06;
+      paintingGroup.add(plaque);
+    }
 
-    scene.add(painting);
+    // Posición y Rotación
+    paintingGroup.position.set(data.position.x, data.position.y, data.position.z);
+    if (data.rotationY) {
+      paintingGroup.rotation.y = data.rotationY;
+    }
+
+    scene.add(paintingGroup);
   });
 }

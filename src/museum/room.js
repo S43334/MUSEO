@@ -40,7 +40,7 @@ export function createRoom(scene) {
   // 3. TECHO (Color Sólido)
   // Lo ponemos oscuro para que no distraiga y oculte el "fin del mundo"
   const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x050505,    // Casi negro
+      color: 0xeeeeee,    // Casi negro
       side: THREE.DoubleSide
   });
 

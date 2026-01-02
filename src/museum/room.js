@@ -7,7 +7,7 @@ export function createRoom(scene) {
   // Dimensiones del pasillo
   const width = 5;
   const height = 4;
-  const depth = 40; // 40 metros de largo
+  const depth = 90; // 90 metros de largo
 
   // --- MATERIALES ---
   

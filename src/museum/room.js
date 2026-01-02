@@ -24,19 +24,19 @@ export function createRoom(scene) {
   });
 
   // 2. PAREDES
-  // CAMBIO: Ahora carga la imagen 'gris.jpg' desde la carpeta 'textures/walls/'
+  // Cargamos la textura gris
   const wallTex = textureLoader.load('textures/walls/gris.jpg');
   wallTex.wrapS = THREE.RepeatWrapping;
   wallTex.wrapT = THREE.RepeatWrapping;
-  
-  // Ajusta la repetición si la textura se ve muy estirada o muy pequeña
   wallTex.repeat.set(4, 15); 
   wallTex.colorSpace = THREE.SRGBColorSpace;
   
   const wallMaterial = new THREE.MeshStandardMaterial({ 
       map: wallTex,       
-      color: 0xffffff,    // Base blanca para que se vea el color real de la imagen
-      roughness: 0.9 
+      color: 0xffffff,
+      roughness: 0.9,
+      // CORRECCIÓN IMPORTANTE: Restauramos DoubleSide para asegurar que la pared se vea por ambos lados
+      side: THREE.DoubleSide 
   });
 
   // 3. TECHO

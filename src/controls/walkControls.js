@@ -7,14 +7,16 @@ export function createWalkControls(camera, controls) {
   
   let joystickInput = { x: 0, y: 0 };
   
-  const speed = 2.5;
+  const speed = 5;
 
-  // --- LÍMITES ACTUALIZADOS (Ancho 10m) ---
+  // --- LÍMITES DEL MUSEO (Colisiones) ---
+  // El pasillo mide 10m de ancho (paredes en -5 y 5).
+  // Dejamos 0.5m de margen (padding) para que la cámara no se pegue y atraviese la textura.
   const BOUNDS = {
-    minX: -4.5, // Antes -2.0
-    maxX: 4.5,  // Antes 2.0
-    minZ: -84.0, 
-    maxZ: 4.5    
+    minX: -4.5, // Pared Izquierda
+    maxX: 4.5,  // Pared Derecha
+    minZ: -89.0,// Pared del Fondo (Final del pasillo)
+    maxZ: 4.5   // Pared Trasera (Inicio)
   };
 
   window.addEventListener('keydown', e => {
@@ -37,10 +39,11 @@ export function createWalkControls(camera, controls) {
   }
 
   function update(delta) {
-    if (!controls.enabled) return;
+    if (!controls.enabled) return; // Si estás en zoom, no te muevas
 
     direction.set(0, 0, 0);
 
+    // Vectores de dirección
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
     forward.y = 0;
     forward.normalize();
@@ -49,35 +52,34 @@ export function createWalkControls(camera, controls) {
     right.y = 0;
     right.normalize();
 
+    // Entradas
     if (keys.forward) direction.add(forward);
     if (keys.backward) direction.sub(forward);
     if (keys.left) direction.sub(right);
     if (keys.right) direction.add(right);
 
-    if (joystickInput.y !== 0) {
-      const moveForward = forward.clone().multiplyScalar(joystickInput.y);
-      direction.add(moveForward);
-    }
-    if (joystickInput.x !== 0) {
-      const moveRight = right.clone().multiplyScalar(joystickInput.x);
-      direction.add(moveRight);
-    }
+    if (joystickInput.y !== 0) direction.add(forward.clone().multiplyScalar(joystickInput.y));
+    if (joystickInput.x !== 0) direction.add(right.clone().multiplyScalar(joystickInput.x));
 
-    if (direction.length() > 1) {
-      direction.normalize();
-    }
+    if (direction.length() > 1) direction.normalize();
 
     if (direction.length() > 0) {
       velocity.copy(direction).multiplyScalar(speed * delta);
       
+      // --- DETECCIÓN DE COLISIONES ---
+      // Calculamos dónde ESTARÍA la cámara si nos movemos
       const nextX = camera.position.x + velocity.x;
       const nextZ = camera.position.z + velocity.z;
 
+      // 1. Verificamos Paredes Laterales (X)
+      // Solo nos movemos en X si estamos DENTRO de los límites
       if (nextX >= BOUNDS.minX && nextX <= BOUNDS.maxX) {
         camera.position.x += velocity.x;
         controls.target.x += velocity.x;
       }
 
+      // 2. Verificamos Paredes Fondo/Inicio (Z)
+      // Solo nos movemos en Z si estamos DENTRO de los límites
       if (nextZ >= BOUNDS.minZ && nextZ <= BOUNDS.maxZ) {
         camera.position.z += velocity.z;
         controls.target.z += velocity.z;

@@ -4,10 +4,10 @@ export function createRoom(scene) {
   const group = new THREE.Group();
   const textureLoader = new THREE.TextureLoader();
 
-  // CAMBIO: Aumentamos el ancho de 5 a 10 metros
-  const width = 10;
-  const height = 4;
-  const depth = 90;
+  // CAMBIOS:
+  const width = 10;   // Ancho del pasillo (mantenemos los 10m)
+  const height = 7;   // NUEVO: Techo mucho más alto (antes 4)
+  const depth = 90;   // Largo
 
   const zOffset = 5; 
 

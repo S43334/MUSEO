@@ -4,7 +4,7 @@ export function createRoom(scene) {
   const group = new THREE.Group();
   const textureLoader = new THREE.TextureLoader();
 
-  // Dimensiones
+  // Dimensiones del pasillo
   const width = 5;
   const height = 4;
   const depth = 90;
@@ -24,17 +24,18 @@ export function createRoom(scene) {
   });
 
   // 2. PAREDES
-  // Cargamos la textura directamente sin lógica compleja.
-  // Si no existe la imagen, se verá blanca (por el color base) en vez de negra.
-  const wallTex = textureLoader.load('textures/wall.jpg');
+  // CAMBIO: Ahora carga la imagen 'gris.jpg' desde la carpeta 'textures/walls/'
+  const wallTex = textureLoader.load('textures/walls/gris.jpg');
   wallTex.wrapS = THREE.RepeatWrapping;
   wallTex.wrapT = THREE.RepeatWrapping;
-  wallTex.repeat.set(4, 15);
+  
+  // Ajusta la repetición si la textura se ve muy estirada o muy pequeña
+  wallTex.repeat.set(4, 15); 
   wallTex.colorSpace = THREE.SRGBColorSpace;
   
   const wallMaterial = new THREE.MeshStandardMaterial({ 
-      map: wallTex,       // Asignación directa
-      color: 0xffffff,    // Color base blanco
+      map: wallTex,       
+      color: 0xffffff,    // Base blanca para que se vea el color real de la imagen
       roughness: 0.9 
   });
 

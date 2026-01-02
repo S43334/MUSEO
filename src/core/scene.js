@@ -3,8 +3,11 @@ import * as THREE from 'three';
 export function createScene() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000); // Fondo negro
-  // Opcional: Niebla negra al fondo para que el pasillo se desvanezca
-  scene.fog = new THREE.Fog(0x000000, 10, 40); 
+  
+  // CORRECCIÓN: Ajustamos la niebla para el nuevo largo del pasillo (90m)
+  // Antes estaba en (10, 40), por eso se veía negro a la mitad.
+  scene.fog = new THREE.Fog(0x000000, 30, 95); 
+  
   return scene;
 }
 

@@ -21,9 +21,15 @@ export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
     new THREE.PlaneGeometry(width, height),
     paintingMaterial
   );
+  
+  // Posicionamos el dibujo ligeramente al frente
   painting.position.z = 0.01;
-  // Giramos el dibujo 180° porque en Three.js los planos nacen mirando "atrás"
-  painting.rotation.y = Math.PI; 
+  
+  // --- CORRECCIÓN ---
+  // Se eliminó la línea: painting.rotation.y = Math.PI;
+  // Los planos en Three.js ya miran al frente por defecto. 
+  // Al quitar esto, el dibujo mirará hacia el pasillo.
+
   group.add(painting);
 
   // 2. EL MARCO (Con textura de madera)

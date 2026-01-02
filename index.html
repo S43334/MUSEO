@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Museo 3D</title>
+  <title>Museo Virtual</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   
   <script type="importmap">
@@ -17,8 +17,9 @@
   <script src="./nipplejs.min.js"></script>
 
   <style>
-    body { margin: 0; overflow: hidden; background: #000; touch-action: none; }
+    body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: 'Arial', sans-serif; }
     
+    /* --- ESTILOS DEL JOYSTICK --- */
     #joystick-zone {
       position: absolute;
       top: 0;
@@ -31,10 +32,103 @@
     #joystick-zone .nipple {
       pointer-events: auto; 
     }
+
+    /* --- PANTALLA DE BIENVENIDA --- */
+    #intro-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.95); 
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100; 
+      color: white;
+      text-align: center;
+      transition: opacity 1s ease; 
+    }
+
+    #intro-content {
+      max-width: 600px;
+      padding: 40px;
+      border: 1px solid #333;
+      background: rgba(20, 20, 40, 0.8); 
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+      border-radius: 8px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      font-weight: lighter;
+      letter-spacing: 5px;
+      color: #ffaa00; 
+    }
+
+    p {
+      font-size: 1.1em;
+      line-height: 1.6;
+      color: #ccc;
+      margin-bottom: 40px;
+      text-align: left; /* Alineado a la izquierda para mejor lectura del mensaje largo */
+    }
+
+    #start-btn {
+      padding: 15px 40px;
+      font-size: 1.2em;
+      background: transparent;
+      color: #ffaa00;
+      border: 2px solid #ffaa00;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    #start-btn:hover {
+      background: #ffaa00;
+      color: #000;
+      box-shadow: 0 0 20px #ffaa00;
+    }
+
   </style>
 </head>
 <body>
+
+  <div id="intro-screen">
+    <div id="intro-content">
+      <h1>GALERÍA VIRTUAL</h1>
+      
+      <p id="welcome-message">
+        Hola Isabella.<br><br>
+        Quería darte las gracias otra vez por el dibujo que me hiciste. Me gustó mucho que te tomaras el tiempo para hacerlo.<br><br>
+        Como yo no sé dibujar, quise usar lo que sí sé hacer para agradecerte. Te preparé un pequeño 'museo' virtual. Es un espacio para que puedas exponer tus dibujos y que se vean bien ahí. Espero que te guste el detalle.<br><br>
+        Te deseo un feliz año nuevo 2026. Ojalá que logres las metas que te propongas y que vengan cosas buenas para ti.
+      </p>
+
+      <button id="start-btn">ENTRAR</button>
+    </div>
+  </div>
+
   <div id="joystick-zone"></div>
   <script type="module" src="./src/main.js"></script>
+
+  <script>
+    const startBtn = document.getElementById('start-btn');
+    const introScreen = document.getElementById('intro-screen');
+
+    startBtn.addEventListener('click', () => {
+      // 1. Desvanecer la pantalla
+      introScreen.style.opacity = '0';
+      
+      // 2. Quitarla del DOM después de 1 segundo
+      setTimeout(() => {
+        introScreen.style.display = 'none';
+      }, 1000);
+    });
+  </script>
 </body>
 </html>

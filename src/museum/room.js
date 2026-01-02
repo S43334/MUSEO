@@ -25,11 +25,9 @@ export function createRoom(scene) {
   });
 
   // 2. PAREDES (Color Sólido)
-  // RECOMENDACIÓN: Azul Medianoche Profundo.
-  // Con luz naranja (0xffaa00), este azul se ve increíblemente elegante.
   const wallMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x001133,    // Azul muy oscuro
-      roughness: 0.6,     // Un poco de brillo para que la luz "lame" la pared
+      color: 0x440000,    
+      roughness: 0.6,
       side: THREE.DoubleSide 
   });
 

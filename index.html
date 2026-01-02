@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Museo 3D</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-
-  <!-- Import map -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script type="importmap">
   {
     "imports": {
@@ -14,49 +12,12 @@
     }
   }
   </script>
-
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      background: #000;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    /* 🎮 Joystick móvil */
-    #joystick {
-      position: fixed;
-      bottom: 40px;
-      left: 40px;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      touch-action: none;
-      z-index: 10;
-    }
-
-    /* Opcional: ocultar joystick en desktop */
-    @media (hover: hover) and (pointer: fine) {
-      #joystick {
-        display: none;
-      }
-    }
+    body { margin: 0; overflow: hidden; background: #000; }
   </style>
 </head>
-
 <body>
-
-  <!-- 🎮 Joystick táctil -->
   <div id="joystick" style="display: none;"></div>
-
-  <!-- App -->
   <script type="module" src="./src/main.js"></script>
-
 </body>
 </html>

@@ -16,7 +16,7 @@ createRoom(scene);      // Crea el pasillo
 loadPaintings(scene);   // Cuelga los cuadros
 
 const orbitControls = createControls(camera, renderer.domElement);
-const walkControls = createWalkControls(camera, orbitControls); // Conecta los controles
+const walkControls = createWalkControls(camera, orbitControls);
 
 const updateInteractionCamera = setupInteractions({
   camera,

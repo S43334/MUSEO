@@ -17,39 +17,37 @@ export function createRoom(scene) {
   woodTexture.wrapT = THREE.RepeatWrapping;
   woodTexture.repeat.set(4, 30);
   woodTexture.colorSpace = THREE.SRGBColorSpace;
-  const floorMaterial = new THREE.MeshStandardMaterial({ map: woodTexture, roughness: 0.8 });
-
-  // 2. PAREDES (Ej. Hormigón/Concreto)
-  // ¡Asegúrate de tener un archivo 'wall.jpg' en tu carpeta textures!
-  // Si no tienes imagen, usa: const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xeeeeee });
-  const wallTex = textureLoader.load('textures/wall.jpg', (tex) => {
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(4, 15); // Ajusta según tu imagen
-      tex.colorSpace = THREE.SRGBColorSpace;
-  }, undefined, () => {
-      console.warn("Falta textures/wall.jpg, usando color gris");
+  
+  const floorMaterial = new THREE.MeshStandardMaterial({ 
+    map: woodTexture, 
+    roughness: 0.8 
   });
+
+  // 2. PAREDES
+  // Cargamos la textura directamente sin lógica compleja.
+  // Si no existe la imagen, se verá blanca (por el color base) en vez de negra.
+  const wallTex = textureLoader.load('textures/wall.jpg');
+  wallTex.wrapS = THREE.RepeatWrapping;
+  wallTex.wrapT = THREE.RepeatWrapping;
+  wallTex.repeat.set(4, 15);
+  wallTex.colorSpace = THREE.SRGBColorSpace;
   
   const wallMaterial = new THREE.MeshStandardMaterial({ 
-      map: wallTex.image ? wallTex : null, 
-      color: wallTex.image ? 0xffffff : 0x808080, // Gris si falla la carga
+      map: wallTex,       // Asignación directa
+      color: 0xffffff,    // Color base blanco
       roughness: 0.9 
   });
 
-  // 3. TECHO (Ej. Yeso/Plaster)
-  const ceilingTex = textureLoader.load('textures/ceiling.jpg', (tex) => {
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(4, 30);
-      tex.colorSpace = THREE.SRGBColorSpace;
-  }, undefined, () => {
-       console.warn("Falta textures/ceiling.jpg");
-  });
+  // 3. TECHO
+  const ceilingTex = textureLoader.load('textures/ceiling.jpg');
+  ceilingTex.wrapS = THREE.RepeatWrapping;
+  ceilingTex.wrapT = THREE.RepeatWrapping;
+  ceilingTex.repeat.set(4, 30);
+  ceilingTex.colorSpace = THREE.SRGBColorSpace;
 
   const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-      map: ceilingTex.image ? ceilingTex : null,
-      color: ceilingTex.image ? 0xffffff : 0xdddddd,
+      map: ceilingTex,
+      color: 0xffffff,
       side: THREE.DoubleSide
   });
 

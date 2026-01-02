@@ -1,52 +1,47 @@
 import * as THREE from 'three';
 
 export function createLights(scene) {
-  // Luz ambiente base (necesaria por las paredes oscuras)
-  const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  // 1. Luz Ambiente: La mantenemos moderada (0.5)
+  // Si la subimos mucho, "lava" el color naranja. Queremos contraste.
+  const ambient = new THREE.AmbientLight(0xffffff, 0.5); 
   scene.add(ambient);
 
-  // Configuración del patrón "X"
-  const roomHeight = 7;
-  const bulbY = roomHeight - 0.5; // Pegadas al techo nuevo
-  
-  // Distancia del centro a las esquinas de la X (ancho de la X)
-  const xSpread = 3.5; // Qué tan separadas están hacia las paredes
-  const zSpread = 3.5; // Qué tan separadas están hacia adelante/atrás
-  
-  // Función auxiliar para crear bombillas
-  function createBulb(x, y, z) {
-    const bulb = new THREE.PointLight(0xffaa00, 1.0, 18); // Intensidad 1.0, Alcance 18m
-    bulb.position.set(x, y, z);
-    scene.add(bulb);
+  // CONFIGURACIÓN DE DOBLE FILA
+  // El pasillo mide 10m de ancho (paredes en -5 y 5).
+  // Ponemos las luces en -3 y 3 para que estén cerca de los cuadros.
+  const lightHeight = 5.5; // Un poco más bajas para que la luz pegue fuerte en los cuadros
+  const rowOffset = 3.0;   
+  const spacing = 8;       // Cada 8 metros (más seguidas = más luz continua)
+
+  for (let z = 0; z >= -90; z -= spacing) {
     
-    // (Opcional) Una pequeña esfera brillante para ver de dónde sale la luz
-    /*
-    const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(0.1, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffaa00 })
-    );
-    sphere.position.set(x, y, z);
-    scene.add(sphere);
-    */
-  }
-
-  // Bucle principal: Recorremos el pasillo y ponemos grupos de 5 luces
-  // Paso de 16m para que no se saturen
-  for (let centerZ = 0; centerZ >= -85; centerZ -= 16) {
+    // --- PARAMETROS DE "CALIDEZ" ---
+    // Color: 0xffaa00 (Naranja Ámbar profundo)
+    // Intensidad: 2.5 (Alta potencia para que resalte)
+    // Distancia: 18 (Alcance suficiente para tocar el suelo)
     
-    // 1. Centro de la X
-    createBulb(0, bulbY, centerZ);
+    // Fila Izquierda
+    const leftBulb = new THREE.PointLight(0xffaa00, 2.5, 18);
+    leftBulb.position.set(-rowOffset, lightHeight, z);
+    scene.add(leftBulb);
 
-    // 2. Esquina Superior Izquierda
-    createBulb(-xSpread, bulbY, centerZ - zSpread);
+    // Fila Derecha
+    const rightBulb = new THREE.PointLight(0xffaa00, 2.5, 18);
+    rightBulb.position.set(rowOffset, lightHeight, z);
+    scene.add(rightBulb);
 
-    // 3. Esquina Superior Derecha
-    createBulb(xSpread, bulbY, centerZ - zSpread);
+    // --- EFECTO VISUAL DE "BOMBILLA" ---
+    // Creamos una esfera brillante en el mismo lugar de la luz.
+    // Esto hace que se vea el foco físico brillando.
+    const bulbGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+    const bulbMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc88 }); // Núcleo casi blanco/naranja
+    
+    const leftMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
+    leftMesh.position.copy(leftBulb.position);
+    scene.add(leftMesh);
 
-    // 4. Esquina Inferior Izquierda
-    createBulb(-xSpread, bulbY, centerZ + zSpread);
-
-    // 5. Esquina Inferior Derecha
-    createBulb(xSpread, bulbY, centerZ + zSpread);
+    const rightMesh = new THREE.Mesh(bulbGeometry, bulbMaterial);
+    rightMesh.position.copy(rightBulb.position);
+    scene.add(rightMesh);
   }
 }

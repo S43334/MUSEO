@@ -7,6 +7,9 @@ woodTexture.colorSpace = THREE.SRGBColorSpace;
 
 export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
   const group = new THREE.Group();
+  
+  // ETIQUETA IMPORTANTE: Marcamos el grupo como "Pintura" para detectarlo en el click
+  group.userData.isPainting = true;
 
   // 1. EL DIBUJO
   const paintingMaterial = new THREE.MeshStandardMaterial({
@@ -25,7 +28,7 @@ export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
 
   // 2. EL MARCO (Con textura de madera)
   const frameMaterial = new THREE.MeshStandardMaterial({
-    map: woodTexture, // <--- Aquí usamos la textura
+    map: woodTexture,
     roughness: 0.8,
     metalness: 0.1
   });
@@ -37,6 +40,10 @@ export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
     new THREE.BoxGeometry(width + frameThickness, height + frameThickness, frameDepth),
     frameMaterial
   );
+  
+  // ETIQUETA IMPORTANTE: Marcamos el marco para el efecto "hover" (iluminarse)
+  frame.userData.isFrame = true;
+
   // Empujamos el marco un poquito atrás para que encaje con el dibujo
   frame.position.z = -frameDepth / 2 + 0.005; 
   group.add(frame);

@@ -17,11 +17,11 @@ createLights(scene);
 createRoom(scene);
 loadPaintings(scene);
 
-// 3️⃣ Controles base (rotación cámara)
+// 3️⃣ Controles base
 const orbitControls = createControls(camera, renderer.domElement);
 
-// 4️⃣ Modo caminar
-const walkControls = createWalkControls(camera);
+// 4️⃣ Modo caminar (CORREGIDO: Pasamos orbitControls aquí)
+const walkControls = createWalkControls(camera, orbitControls);
 
 // 5️⃣ Interacciones (highlight + zoom cinematográfico)
 const updateInteractionCamera = setupInteractions({

@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 
-export function createFramedPainting(texture, width, height) {
+// 1. Recibimos un OBJETO desestructurado con valores por defecto para width/height
+export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
   const group = new THREE.Group();
 
-  // 🎨 Material del cuadro (imagen)
+  // 🎨 Material del cuadro
   const paintingMaterial = new THREE.MeshStandardMaterial({
-    map: texture
+    map: texture,
+    roughness: 0.4
   });
 
   const painting = new THREE.Mesh(
@@ -15,7 +17,7 @@ export function createFramedPainting(texture, width, height) {
   painting.position.z = 0.01;
   group.add(painting);
 
-  // 🪵 Material del marco (AQUÍ estaba el error)
+  // 🪵 Material del marco
   const frameMaterial = new THREE.MeshStandardMaterial({
     color: 0x4b2e1e,
     roughness: 0.6,

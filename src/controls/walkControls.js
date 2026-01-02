@@ -1,51 +1,54 @@
 import * as THREE from 'three';
 
-export function createWalkControls(camera) {
+// 1. Añadimos 'controls' (OrbitControls) como argumento
+export function createWalkControls(camera, controls) {
   const velocity = new THREE.Vector3();
   const direction = new THREE.Vector3();
+  const keys = { forward: false, backward: false, left: false, right: false };
+  const speed = 2.5;
 
-  const keys = {
-    forward: false,
-    backward: false,
-    left: false,
-    right: false
-  };
-
-  const speed = 2.2; // metros por segundo
-  const eyeHeight = 1.6;
-
-  camera.position.y = eyeHeight;
-
-  // ⌨️ Desktop
+  // ... (Tus event listeners de keydown/keyup están perfectos, déjalos igual) ...
   window.addEventListener('keydown', e => {
-    if (e.code === 'KeyW') keys.forward = true;
-    if (e.code === 'KeyS') keys.backward = true;
-    if (e.code === 'KeyA') keys.left = true;
-    if (e.code === 'KeyD') keys.right = true;
+    if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = true;
+    if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.backward = true;
+    if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
+    if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
   });
 
   window.addEventListener('keyup', e => {
-    if (e.code === 'KeyW') keys.forward = false;
-    if (e.code === 'KeyS') keys.backward = false;
-    if (e.code === 'KeyA') keys.left = false;
-    if (e.code === 'KeyD') keys.right = false;
+    if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
+    if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.backward = false;
+    if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
+    if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
   });
 
   function update(delta) {
+    if (!controls.enabled) return; // No mover si estamos en zoom
+
     direction.set(0, 0, 0);
 
-    if (keys.forward) direction.z -= 1;
-    if (keys.backward) direction.z += 1;
-    if (keys.left) direction.x -= 1;
-    if (keys.right) direction.x += 1;
+    // Obtenemos la dirección hacia donde mira la cámara (para caminar hacia allá)
+    const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    forward.y = 0; // Para no volar hacia arriba si miras al cielo
+    forward.normalize();
+
+    const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+    right.y = 0;
+    right.normalize();
+
+    if (keys.forward) direction.add(forward);
+    if (keys.backward) direction.sub(forward);
+    if (keys.left) direction.sub(right);
+    if (keys.right) direction.add(right);
 
     direction.normalize();
 
     if (direction.length() > 0) {
       velocity.copy(direction).multiplyScalar(speed * delta);
-      velocity.applyQuaternion(camera.quaternion);
+      
+      // 2. Movemos TANTO la cámara COMO el target de los controles
       camera.position.add(velocity);
-      camera.position.y = eyeHeight;
+      controls.target.add(velocity); 
     }
   }
 

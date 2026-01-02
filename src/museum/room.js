@@ -23,19 +23,10 @@ export function createRoom(scene) {
     roughness: 0.8 
   });
 
-  // 2. PAREDES
-  // Cargamos la textura gris
-  const wallTex = textureLoader.load('textures/walls/gris.jpg');
-  wallTex.wrapS = THREE.RepeatWrapping;
-  wallTex.wrapT = THREE.RepeatWrapping;
-  wallTex.repeat.set(4, 15); 
-  wallTex.colorSpace = THREE.SRGBColorSpace;
-  
+  // 2. PAREDES (Azul Marino)
   const wallMaterial = new THREE.MeshStandardMaterial({ 
-      map: wallTex,       
-      color: 0xffffff,
-      roughness: 0.9,
-      // CORRECCIÓN IMPORTANTE: Restauramos DoubleSide para asegurar que la pared se vea por ambos lados
+      color: 0x000080,    // Azul Marino (Navy Blue)
+      roughness: 0.5,     // Un poco menos rugoso para que la luz rebote suavemente
       side: THREE.DoubleSide 
   });
 

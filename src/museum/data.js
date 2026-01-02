@@ -1,7 +1,7 @@
 export const paintings = [
-  // --- ZIG-ZAG: Intercalando Izquierda y Derecha ---
+  // --- OBRAS REALES (1 al 6) ---
   
-  // 1. Izquierda (Obra: Sebastian)
+  // 1. Izquierda (Sebastian) - MANTENIDA
   {
     id: 1,
     title: "Obra: Sebastian",
@@ -11,7 +11,7 @@ export const paintings = [
     rotationY: Math.PI / 2
   },
   
-  // 2. Derecha (Obra: DESCONOCIDA)
+  // 2. Derecha (DESCONOCIDA) - MANTENIDA
   {
     id: 2,
     title: "Obra: DESCONOCIDA",
@@ -21,7 +21,7 @@ export const paintings = [
     rotationY: -Math.PI / 2
   },
 
-  // 3. Izquierda (Obra: WandaVisión)
+  // 3. Izquierda (WandaVisión) - MANTENIDA
   {
     id: 3,
     title: "Obra: WandaVisión",
@@ -31,7 +31,7 @@ export const paintings = [
     rotationY: Math.PI / 2
   },
 
-  // 4. Derecha (Obra: Scarlet Witch)
+  // 4. Derecha (Scarlet Witch) - MANTENIDA
   {
     id: 4,
     title: "Obra: Scarlet Witch",
@@ -41,7 +41,7 @@ export const paintings = [
     rotationY: -Math.PI / 2
   },
 
-  // 5. Izquierda (Obra: Gallo)
+  // 5. Izquierda (Gallo) - MANTENIDA
   {
     id: 5,
     title: "Obra: Gallo",
@@ -51,7 +51,7 @@ export const paintings = [
     rotationY: Math.PI / 2
   },
 
-  // 6. Derecha (Obra: Desconocida)
+  // 6. Derecha (Desconocida) - MANTENIDA
   {
     id: 6,
     title: "Obra: Desconocida",
@@ -61,42 +61,42 @@ export const paintings = [
     rotationY: -Math.PI / 2
   },
 
-  // --- OBRAS RESTANTES (Placeholders siguiendo el patrón Zig-Zag) ---
-  // Rellenamos hasta la 30 para que el pasillo no se vea vacío.
+  // --- OBRAS "PRÓXIMAMENTE" (7 al 30) ---
+  // Todas estas usan ahora 'comingsoon.png'
   
-  { id: 7, title: "Obra 7", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -20 }, rotationY: Math.PI / 2 },
-  { id: 8, title: "Obra 8", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -22.5 }, rotationY: -Math.PI / 2 },
+  { id: 7, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -20 }, rotationY: Math.PI / 2 },
+  { id: 8, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -22.5 }, rotationY: -Math.PI / 2 },
   
-  { id: 9, title: "Obra 9", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -25 }, rotationY: Math.PI / 2 },
-  { id: 10, title: "Obra 10", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -27.5 }, rotationY: -Math.PI / 2 },
+  { id: 9, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -25 }, rotationY: Math.PI / 2 },
+  { id: 10, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -27.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 11, title: "Obra 11", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -30 }, rotationY: Math.PI / 2 },
-  { id: 12, title: "Obra 12", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -32.5 }, rotationY: -Math.PI / 2 },
+  { id: 11, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -30 }, rotationY: Math.PI / 2 },
+  { id: 12, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -32.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 13, title: "Obra 13", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -35 }, rotationY: Math.PI / 2 },
-  { id: 14, title: "Obra 14", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -37.5 }, rotationY: -Math.PI / 2 },
+  { id: 13, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -35 }, rotationY: Math.PI / 2 },
+  { id: 14, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -37.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 15, title: "Obra 15", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -40 }, rotationY: Math.PI / 2 },
-  { id: 16, title: "Obra 16", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -42.5 }, rotationY: -Math.PI / 2 },
+  { id: 15, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -40 }, rotationY: Math.PI / 2 },
+  { id: 16, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -42.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 17, title: "Obra 17", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -45 }, rotationY: Math.PI / 2 },
-  { id: 18, title: "Obra 18", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -47.5 }, rotationY: -Math.PI / 2 },
+  { id: 17, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -45 }, rotationY: Math.PI / 2 },
+  { id: 18, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -47.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 19, title: "Obra 19", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -50 }, rotationY: Math.PI / 2 },
-  { id: 20, title: "Obra 20", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -52.5 }, rotationY: -Math.PI / 2 },
+  { id: 19, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -50 }, rotationY: Math.PI / 2 },
+  { id: 20, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -52.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 21, title: "Obra 21", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -55 }, rotationY: Math.PI / 2 },
-  { id: 22, title: "Obra 22", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -57.5 }, rotationY: -Math.PI / 2 },
+  { id: 21, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -55 }, rotationY: Math.PI / 2 },
+  { id: 22, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -57.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 23, title: "Obra 23", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -60 }, rotationY: Math.PI / 2 },
-  { id: 24, title: "Obra 24", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -62.5 }, rotationY: -Math.PI / 2 },
+  { id: 23, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -60 }, rotationY: Math.PI / 2 },
+  { id: 24, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -62.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 25, title: "Obra 25", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -65 }, rotationY: Math.PI / 2 },
-  { id: 26, title: "Obra 26", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -67.5 }, rotationY: -Math.PI / 2 },
+  { id: 25, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -65 }, rotationY: Math.PI / 2 },
+  { id: 26, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -67.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 27, title: "Obra 27", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -70 }, rotationY: Math.PI / 2 },
-  { id: 28, title: "Obra 28", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -72.5 }, rotationY: -Math.PI / 2 },
+  { id: 27, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -70 }, rotationY: Math.PI / 2 },
+  { id: 28, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -72.5 }, rotationY: -Math.PI / 2 },
 
-  { id: 29, title: "Obra 29", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: -4.9, y: 1.8, z: -75 }, rotationY: Math.PI / 2 },
-  { id: 30, title: "Obra 30", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/dibujo1.png", position: { x: 4.9, y: 1.8, z: -77.5 }, rotationY: -Math.PI / 2 }
+  { id: 29, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -75 }, rotationY: Math.PI / 2 },
+  { id: 30, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -77.5 }, rotationY: -Math.PI / 2 }
 ];

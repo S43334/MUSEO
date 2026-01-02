@@ -4,12 +4,11 @@ export function createRoom(scene) {
   const group = new THREE.Group();
   const textureLoader = new THREE.TextureLoader();
 
-  // Dimensiones del pasillo
-  const width = 5;
+  // CAMBIO: Aumentamos el ancho de 5 a 10 metros
+  const width = 10;
   const height = 4;
   const depth = 90;
 
-  // Ajuste de posición: Empezamos en Z=5 para que la cámara (en Z=4) quede DENTRO.
   const zOffset = 5; 
 
   // --- MATERIALES ---
@@ -46,7 +45,7 @@ export function createRoom(scene) {
   // Suelo
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(width, depth), floorMaterial);
   floor.rotation.x = -Math.PI / 2;
-  floor.position.z = -depth / 2 + zOffset; // Ajuste Z
+  floor.position.z = -depth / 2 + zOffset;
   floor.receiveShadow = true;
   group.add(floor);
 
@@ -54,7 +53,7 @@ export function createRoom(scene) {
   const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(width, depth), ceilingMaterial);
   ceiling.rotation.x = Math.PI / 2;
   ceiling.position.y = height;
-  ceiling.position.z = -depth / 2 + zOffset; // Ajuste Z
+  ceiling.position.z = -depth / 2 + zOffset;
   group.add(ceiling);
 
   // Pared Izquierda
@@ -71,18 +70,15 @@ export function createRoom(scene) {
   rightWall.receiveShadow = true;
   group.add(rightWall);
 
-  // --- PAREDES NUEVAS (Cierre del pasillo) ---
-
-  // Pared Trasera (Detrás de donde inicias)
+  // Pared Trasera
   const backWall = new THREE.Mesh(new THREE.PlaneGeometry(width, height), wallMaterial);
-  backWall.rotation.y = Math.PI; // Mirando hacia el pasillo
-  backWall.position.set(0, height / 2, zOffset); // En el inicio (Z=5)
+  backWall.rotation.y = Math.PI;
+  backWall.position.set(0, height / 2, zOffset);
   backWall.receiveShadow = true;
   group.add(backWall);
 
-  // Pared Frontal (Al final del pasillo)
+  // Pared Frontal
   const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(width, height), wallMaterial);
-  // Posición: Z inicial (5) - Largo (90) = -85
   frontWall.position.set(0, height / 2, zOffset - depth); 
   frontWall.receiveShadow = true;
   group.add(frontWall);

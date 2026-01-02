@@ -9,13 +9,12 @@ export function createWalkControls(camera, controls) {
   
   const speed = 2.5;
 
-  // --- LÍMITES ACTUALIZADOS ---
-  // Ahora el cuarto va de Z=5 a Z=-85
+  // --- LÍMITES ACTUALIZADOS (Ancho 10m) ---
   const BOUNDS = {
-    minX: -2.0, 
-    maxX: 2.0,  
-    minZ: -84.0, // Pared del fondo (-85 + 1m margen)
-    maxZ: 4.5    // Pared trasera (5 - 0.5m margen)
+    minX: -4.5, // Antes -2.0
+    maxX: 4.5,  // Antes 2.0
+    minZ: -84.0, 
+    maxZ: 4.5    
   };
 
   window.addEventListener('keydown', e => {

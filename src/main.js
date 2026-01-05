@@ -68,8 +68,13 @@ let lastTime = performance.now();
 
 function animate(time) {
   requestAnimationFrame(animate);
-  const delta = (time - lastTime) / 1000;
+
+  if (!time) time = performance.now();
+
+  const rawDelta = (time - lastTime) / 1000;
   lastTime = time;
+
+  const delta = Math.min(Math.max(rawDelta, 0), 0.1);
 
   walkControls.update(delta);
   updateInteractionCamera(delta);
@@ -77,4 +82,4 @@ function animate(time) {
   renderer.render(scene, camera);
 }
 
-animate();
+requestAnimationFrame(animate);

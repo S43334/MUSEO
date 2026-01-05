@@ -15,7 +15,7 @@ export function createWalkControls(camera, controls) {
     minX: -4.8, 
     maxX: 4.8,  
     minZ: -168.0,
-    maxZ: 10.0 
+    maxZ: 15.0 
   };
 
   window.addEventListener('keydown', e => {
@@ -39,8 +39,7 @@ export function createWalkControls(camera, controls) {
 
   function update(delta) {
     if (!controls.enabled) return;
-
-    const safeDelta = Math.min(delta, 0.1);
+    if (isNaN(delta)) return;
 
     inputDirection.set(0, 0, 0);
 
@@ -61,7 +60,7 @@ export function createWalkControls(camera, controls) {
     if (isKeyboardMoving) {
       if (inputDirection.lengthSq() > 0) inputDirection.normalize();
       const targetVel = inputDirection.multiplyScalar(maxSpeed);
-      currentVelocity.lerp(targetVel, keyboardResponse * safeDelta);
+      currentVelocity.lerp(targetVel, keyboardResponse * delta);
     } 
     else if (joystickInput.x !== 0 || joystickInput.y !== 0) {
       const joyMove = new THREE.Vector3(0,0,0);
@@ -69,15 +68,15 @@ export function createWalkControls(camera, controls) {
       joyMove.add(right.clone().multiplyScalar(joystickInput.x));   
       
       const targetVel = joyMove.multiplyScalar(maxSpeed);
-      currentVelocity.lerp(targetVel, joystickSmoothing * safeDelta);
+      currentVelocity.lerp(targetVel, joystickSmoothing * delta);
     } 
     else {
-      currentVelocity.lerp(new THREE.Vector3(0, 0, 0), 10.0 * safeDelta);
+      currentVelocity.lerp(new THREE.Vector3(0, 0, 0), 10.0 * delta);
     }
 
     if (currentVelocity.lengthSq() > 0.001) {
-      const moveX = currentVelocity.x * safeDelta;
-      const moveZ = currentVelocity.z * safeDelta;
+      const moveX = currentVelocity.x * delta;
+      const moveZ = currentVelocity.z * delta;
 
       const nextX = camera.position.x + moveX;
       const nextZ = camera.position.z + moveZ;

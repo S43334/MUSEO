@@ -3,16 +3,18 @@ import * as THREE from 'three';
 export function createScene() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000); 
-  
-  scene.fog = new THREE.Fog(0x000000, 30, 180); 
-  
+  scene.fog = new THREE.Fog(0x000000, 30, 150); 
   return scene;
 }
 
 export function createRenderer() {
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({ 
+    antialias: true, 
+    powerPreference: "high-performance" 
+  });
+  
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   document.body.appendChild(renderer.domElement);
   return renderer;

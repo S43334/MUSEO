@@ -1,37 +1,34 @@
 import * as THREE from 'three';
 
-export function createRoom(scene) {
+export function createRoom(scene, woodTexture) {
   const group = new THREE.Group();
-  const textureLoader = new THREE.TextureLoader();
 
   const width = 10;
   const height = 7;
   const depth = 170;
-
   const zOffset = 5; 
 
-  const woodTexture = textureLoader.load('textures/wood.webp');
-  woodTexture.wrapS = THREE.RepeatWrapping;
-  woodTexture.wrapT = THREE.RepeatWrapping;
-  woodTexture.repeat.set(width / 1.5, depth / 3);
-  woodTexture.colorSpace = THREE.SRGBColorSpace;
-  
+  const floorTexture = woodTexture.clone();
+  floorTexture.wrapS = THREE.RepeatWrapping;
+  floorTexture.wrapT = THREE.RepeatWrapping;
+  floorTexture.repeat.set(width / 1.5, depth / 3);
+  floorTexture.colorSpace = THREE.SRGBColorSpace;
+  floorTexture.needsUpdate = true; 
+
   const floorMaterial = new THREE.MeshStandardMaterial({ 
-    map: woodTexture, 
+    map: floorTexture, 
     roughness: 0.8,
     metalness: 0.1
   });
 
   const wallMaterial = new THREE.MeshStandardMaterial({ 
       color: 0x001133,
-      roughness: 0.7,
-      side: THREE.DoubleSide 
+      roughness: 0.7
   });
 
   const ceilingMaterial = new THREE.MeshStandardMaterial({ 
       color: 0x000000,    
-      roughness: 1.0,
-      side: THREE.DoubleSide
+      roughness: 1.0
   });
 
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(width, depth), floorMaterial);

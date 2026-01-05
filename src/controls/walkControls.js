@@ -1,13 +1,15 @@
 import * as THREE from 'three';
 
 export function createWalkControls(camera, controls) {
-  const velocity = new THREE.Vector3();
-  const direction = new THREE.Vector3();
+  const currentVelocity = new THREE.Vector3(); 
+  const inputDirection = new THREE.Vector3();
   const keys = { forward: false, backward: false, left: false, right: false };
   
   let joystickInput = { x: 0, y: 0 };
   
-  const speed = 5;
+  const maxSpeed = 10.0;
+  const acceleration = 60.0; 
+  const friction = 10.0;     
 
   const BOUNDS = {
     minX: -4.5, 
@@ -38,7 +40,7 @@ export function createWalkControls(camera, controls) {
   function update(delta) {
     if (!controls.enabled) return;
 
-    direction.set(0, 0, 0);
+    inputDirection.set(0, 0, 0);
 
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
     forward.y = 0;
@@ -48,30 +50,50 @@ export function createWalkControls(camera, controls) {
     right.y = 0;
     right.normalize();
 
-    if (keys.forward) direction.add(forward);
-    if (keys.backward) direction.sub(forward);
-    if (keys.left) direction.sub(right);
-    if (keys.right) direction.add(right);
+    if (keys.forward) inputDirection.add(forward);
+    if (keys.backward) inputDirection.sub(forward);
+    if (keys.left) inputDirection.sub(right);
+    if (keys.right) inputDirection.add(right);
 
-    if (joystickInput.y !== 0) direction.add(forward.clone().multiplyScalar(joystickInput.y));
-    if (joystickInput.x !== 0) direction.add(right.clone().multiplyScalar(joystickInput.x));
+    if (joystickInput.y !== 0) inputDirection.add(forward.clone().multiplyScalar(joystickInput.y));
+    if (joystickInput.x !== 0) inputDirection.add(right.clone().multiplyScalar(joystickInput.x));
 
-    if (direction.length() > 1) direction.normalize();
+    if (inputDirection.length() > 1) inputDirection.normalize();
 
-    if (direction.length() > 0) {
-      velocity.copy(direction).multiplyScalar(speed * delta);
-      
-      const nextX = camera.position.x + velocity.x;
-      const nextZ = camera.position.z + velocity.z;
+    if (inputDirection.lengthSq() > 0) {
+      currentVelocity.add(inputDirection.multiplyScalar(acceleration * delta));
+    } else {
+      const damping = currentVelocity.clone().multiplyScalar(friction * delta);
+      if (damping.lengthSq() > currentVelocity.lengthSq()) {
+        currentVelocity.set(0, 0, 0);
+      } else {
+        currentVelocity.sub(damping);
+      }
+    }
+
+    if (currentVelocity.length() > maxSpeed) {
+      currentVelocity.setLength(maxSpeed);
+    }
+
+    if (currentVelocity.lengthSq() > 0.001) {
+      const moveX = currentVelocity.x * delta;
+      const moveZ = currentVelocity.z * delta;
+
+      const nextX = camera.position.x + moveX;
+      const nextZ = camera.position.z + moveZ;
 
       if (nextX >= BOUNDS.minX && nextX <= BOUNDS.maxX) {
-        camera.position.x += velocity.x;
-        controls.target.x += velocity.x;
+        camera.position.x += moveX;
+        controls.target.x += moveX;
+      } else {
+        currentVelocity.x = 0;
       }
 
       if (nextZ >= BOUNDS.minZ && nextZ <= BOUNDS.maxZ) {
-        camera.position.z += velocity.z;
-        controls.target.z += velocity.z;
+        camera.position.z += moveZ;
+        controls.target.z += moveZ;
+      } else {
+        currentVelocity.z = 0;
       }
     }
   }

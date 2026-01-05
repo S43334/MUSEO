@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Galeria Virtual</title>
+  <title>Museo Virtual</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   
   <script type="importmap">
@@ -20,127 +20,80 @@
     body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: 'Arial', sans-serif; }
     
     #joystick-zone {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10;
-      pointer-events: none; 
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; 
     }
-    #joystick-zone .nipple {
-      pointer-events: auto; 
-    }
+    #joystick-zone .nipple { pointer-events: auto; }
 
+    /* PANTALLA DE BIENVENIDA */
     #intro-screen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.95); 
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999; 
-      color: white;
-      text-align: center;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: #000; 
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 9999; color: white; text-align: center;
       transition: opacity 1s ease; 
     }
 
     #intro-content {
-      width: 90%;          
-      max-width: 600px;    
-      max-height: 85vh;    
-      overflow-y: auto;   
+      width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
+      padding: 30px; box-sizing: border-box; 
+      border: 1px solid #333; background: rgba(20, 20, 40, 0.95); 
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8); border-radius: 12px;
       
-      touch-action: pan-y; 
-      -webkit-overflow-scrolling: touch; 
-      pointer-events: auto;
-      
-      padding: 30px;
-      box-sizing: border-box; 
-      border: 1px solid #333;
-      background: rgba(20, 20, 40, 0.95); 
-      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-      border-radius: 12px;
+      touch-action: pan-y; -webkit-overflow-scrolling: touch; pointer-events: auto;
     }
 
-    h1 {
-      font-size: 2em;
-      margin-bottom: 15px;
-      font-weight: lighter;
-      letter-spacing: 3px;
-      color: #ffaa00; 
-      margin-top: 0;
+    h1 { font-size: 2em; margin-bottom: 15px; color: #ffaa00; letter-spacing: 3px; margin-top: 0; }
+    p { font-size: 1.1em; line-height: 1.5; color: #ccc; margin-bottom: 25px; text-align: left; }
+
+    /* BARRA DE CARGA */
+    #loading-container {
+      width: 100%; height: 4px; background: #333; margin-bottom: 20px;
+      border-radius: 2px; overflow: hidden;
+    }
+    #loading-bar {
+      width: 0%; height: 100%; background: #ffaa00; 
+      transition: width 0.2s ease;
+    }
+    #loading-text {
+      color: #888; font-size: 0.9em; margin-bottom: 20px; letter-spacing: 1px;
     }
 
-    p {
-      font-size: 1.1em;
-      line-height: 1.5;
-      color: #ccc;
-      margin-bottom: 25px;
-      text-align: left; 
-    }
-
+    /* BOTÓN ENTRAR */
     #start-btn {
-      padding: 15px 40px;
-      font-size: 1.2em;
-      background: rgba(255, 170, 0, 0.1); 
-      color: #ffaa00;
-      border: 2px solid #ffaa00;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      border-radius: 4px;
-      width: 100%;
-      max-width: 250px;
+      display: none; 
+      padding: 15px 40px; font-size: 1.2em;
+      background: rgba(255, 170, 0, 0.1); color: #ffaa00;
+      border: 2px solid #ffaa00; cursor: pointer;
+      transition: all 0.3s ease; text-transform: uppercase;
+      letter-spacing: 2px; border-radius: 4px; width: 100%; max-width: 250px;
       touch-action: manipulation; 
     }
-
-    #start-btn:hover, #start-btn:active {
-      background: #ffaa00;
-      color: #000;
-      box-shadow: 0 0 20px #ffaa00;
-    }
+    #start-btn:hover { background: #ffaa00; color: #000; box-shadow: 0 0 20px #ffaa00; }
 
     @media (max-width: 600px) {
-      #intro-content {
-        padding: 20px;
-        max-height: 80vh; 
-      }
-      h1 {
-        font-size: 1.5em;
-        margin-bottom: 10px;
-      }
-      p {
-        font-size: 1em; 
-        margin-bottom: 20px;
-      }
-      #start-btn {
-        padding: 12px 30px;
-        font-size: 1.1em;
-      }
+      #intro-content { padding: 20px; }
+      h1 { font-size: 1.5em; }
     }
-
   </style>
 </head>
 <body>
 
   <div id="intro-screen">
     <div id="intro-content">
-      <h1>GALERÍA PARA ISABELLA</h1>
+      <h1>GALERÍA DE ARTE: ISABELLA</h1>
       
-      <p id="welcome-message">
-        Hola Isabella.<br><br>
-        Quería darte las gracias otra vez por el dibujo que me hiciste. Me gustó mucho que te tomaras el tiempo para hacerlo.<br><br>
-        Como yo no sé dibujar, quise usar lo que sí sé hacer para agradecerte. Te preparé una pequeña galería virtual. Es un espacio para que puedas exponer tus dibujos y que se vean bien ahí. Espero que te guste el detalle.<br><br>
-        Te deseo un feliz año nuevo 2026. Ojalá que logres las metas que te propongas y que vengan cosas buenas para ti.
+      <p>
+        Bienvenido/a a la Galería de Arte de Isabella D.<br><br>
+        He creado este espacio dedicado exclusivamente a recopilar y exhibir su arte. Considero que esta es una forma de poder celebrar su gran creatividad y talento, dándole a cada una de sus obras el lugar que se merece.<br><br>
+        Disfruta de esta colección de tu arte creada especialmente para ti, amiga.<br><br>
       </p>
 
-      <button id="start-btn">ENTRAR</button>
+      <div id="loading-container">
+        <div id="loading-bar"></div>
+      </div>
+      <div id="loading-text">PREPARANDO LA SALA...</div>
+
+      <button id="start-btn">ENTRAR A LA GALERÍA</button>
     </div>
   </div>
 
@@ -151,15 +104,10 @@
     const startBtn = document.getElementById('start-btn');
     const introScreen = document.getElementById('intro-screen');
 
-    
     const startGame = (e) => {
       if(e) e.preventDefault();
-      
       introScreen.style.opacity = '0';
-      
-      setTimeout(() => {
-        introScreen.style.display = 'none';
-      }, 1000);
+      setTimeout(() => { introScreen.style.display = 'none'; }, 1000);
     };
 
     startBtn.addEventListener('click', startGame);

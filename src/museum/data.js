@@ -1,7 +1,4 @@
 export const paintings = [
-  // --- OBRAS REALES (1 al 6) ---
-  
-  // 1. Izquierda (Sebastian) - MANTENIDA
   {
     id: 1,
     title: "Obra: Sebastian",
@@ -11,7 +8,6 @@ export const paintings = [
     rotationY: Math.PI / 2
   },
   
-  // 2. Derecha (DESCONOCIDA) - MANTENIDA
   {
     id: 2,
     title: "Obra: DESCONOCIDA",
@@ -21,7 +17,6 @@ export const paintings = [
     rotationY: -Math.PI / 2
   },
 
-  // 3. Izquierda (WandaVisión) - MANTENIDA
   {
     id: 3,
     title: "Obra: WandaVisión",
@@ -31,7 +26,6 @@ export const paintings = [
     rotationY: Math.PI / 2
   },
 
-  // 4. Derecha (Scarlet Witch) - MANTENIDA
   {
     id: 4,
     title: "Obra: Scarlet Witch",
@@ -41,7 +35,6 @@ export const paintings = [
     rotationY: -Math.PI / 2
   },
 
-  // 5. Izquierda (Gallo) - MANTENIDA
   {
     id: 5,
     title: "Obra: Gallo",
@@ -51,7 +44,6 @@ export const paintings = [
     rotationY: Math.PI / 2
   },
 
-  // 6. Derecha (Desconocida) - MANTENIDA
   {
     id: 6,
     title: "Obra: Desconocida",
@@ -60,9 +52,6 @@ export const paintings = [
     position: { x: 4.9, y: 1.8, z: -17.5 },
     rotationY: -Math.PI / 2
   },
-
-  // --- OBRAS "PRÓXIMAMENTE" (7 al 30) ---
-  // Todas estas usan ahora 'comingsoon.png'
   
   { id: 7, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: -4.9, y: 1.8, z: -20 }, rotationY: Math.PI / 2 },
   { id: 8, title: "Próximamente", author: "Dinorah Isabella Domínguez Ruiz", image: "textures/paintings/comingsoon.png", position: { x: 4.9, y: 1.8, z: -22.5 }, rotationY: -Math.PI / 2 },

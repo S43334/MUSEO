@@ -65,7 +65,6 @@ export function setupInteractions({
 
     const hits = raycaster.intersectObjects(scene.children, true);
     
-    // Busca objeto marcado explícitamente como frame (definido en frame.js)
     const frameHit = hits.find(h => h.object.userData.isFrame);
 
     if (frameHit) {
@@ -81,56 +80,42 @@ export function setupInteractions({
 
     const hits = raycaster.intersectObjects(scene.children, true);
 
-    // 1. FILTRO ESTRICTO:
-    // Buscamos si clicamos un objeto que sea parte de un cuadro.
-    // Verificamos si el objeto es un frame O si su padre es un grupo 'isPainting'.
     const paintingHit = hits.find(hit => {
       const isFrame = hit.object.userData.isFrame;
       const parentIsPainting = hit.object.parent && hit.object.parent.userData.isPainting;
       return isFrame || parentIsPainting;
     });
 
-    // Si encontramos un hit válido, obtenemos el grupo padre (donde está la posición/rotación)
     const paintingGroup = paintingHit ? paintingHit.object.parent : null;
 
     if (paintingGroup && !isZoomed) {
-      // --- ENTRAR A ZOOM ---
       startPosition = camera.position.clone();
       startTarget = controls.target.clone();
       startFov = camera.fov;
 
-      // Objetivo: El centro del cuadro
       endTarget = paintingGroup.position.clone();
 
-      // Posición de la cámara: Calculamos una posición "frente" al cuadro
-      // Creamos un vector que apunta 2.5 metros hacia "atrás" (relativo al cuadro)
-      // Ajusta 2.5 según qué tan cerca quieras estar
       const offset = new THREE.Vector3(0, 0, 2.5); 
       
-      // Rotamos ese vector según la rotación del cuadro (para paredes laterales)
       offset.applyQuaternion(paintingGroup.quaternion);
-      
-      // Sumamos el offset rotado a la posición del cuadro
+
       endPosition = paintingGroup.position.clone().add(offset);
 
-      endFov = 45; // Zoom in (FOV más pequeño)
+      endFov = 45; 
 
       progress = 0;
       isZoomed = true;
       controls.enabled = false;
 
     } else if (isZoomed) {
-      // --- SALIR DE ZOOM ---
-      // Si ya estamos en zoom, cualquier click (incluso al vacío) nos saca
       endPosition = startPosition.clone();
       endTarget = startTarget.clone();
-      endFov = 65; // FOV normal
+      endFov = 65; 
 
       progress = 0;
       isZoomed = false;
       controls.enabled = true;
     }
-    // Si NO estamos en zoom y clicamos una pared (paintingGroup es null), no pasa nada.
   }
 
   renderer.domElement.addEventListener('pointermove', checkHover);

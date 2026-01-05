@@ -1,17 +1,14 @@
 import * as THREE from 'three';
 
 const textureLoader = new THREE.TextureLoader();
-// Cargamos la textura de madera para el marco
 const woodTexture = textureLoader.load('textures/wood.webp');
 woodTexture.colorSpace = THREE.SRGBColorSpace;
 
 export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
   const group = new THREE.Group();
   
-  // ETIQUETA IMPORTANTE: Marcamos el grupo como "Pintura" para detectarlo en el click
   group.userData.isPainting = true;
 
-  // 1. EL DIBUJO
   const paintingMaterial = new THREE.MeshStandardMaterial({
     map: texture,
     roughness: 0.4,
@@ -21,18 +18,11 @@ export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
     new THREE.PlaneGeometry(width, height),
     paintingMaterial
   );
-  
-  // Posicionamos el dibujo ligeramente al frente
+
   painting.position.z = 0.01;
-  
-  // --- CORRECCIÓN ---
-  // Se eliminó la línea: painting.rotation.y = Math.PI;
-  // Los planos en Three.js ya miran al frente por defecto. 
-  // Al quitar esto, el dibujo mirará hacia el pasillo.
 
   group.add(painting);
 
-  // 2. EL MARCO (Con textura de madera)
   const frameMaterial = new THREE.MeshStandardMaterial({
     map: woodTexture,
     roughness: 0.8,
@@ -47,10 +37,8 @@ export function createFramedPainting({ texture, width = 1.5, height = 2 }) {
     frameMaterial
   );
   
-  // ETIQUETA IMPORTANTE: Marcamos el marco para el efecto "hover" (iluminarse)
   frame.userData.isFrame = true;
 
-  // Empujamos el marco un poquito atrás para que encaje con el dibujo
   frame.position.z = -frameDepth / 2 + 0.005; 
   group.add(frame);
 

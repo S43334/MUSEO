@@ -7,8 +7,6 @@ import { createControls } from './controls/controls.js';
 import { setupInteractions } from './controls/interactions.js';
 import { createWalkControls } from './controls/walkControls.js';
 
-// --- CORRECCIÓN AQUÍ ---
-// El archivo se llama 'joysticks.js' (plural), así que lo importamos con ese nombre.
 import { createJoystick } from './controls/joysticks.js';
 
 const scene = createScene();
@@ -22,7 +20,6 @@ loadPaintings(scene);
 const orbitControls = createControls(camera, renderer.domElement);
 const walkControls = createWalkControls(camera, orbitControls);
 
-// Iniciamos el joystick
 createJoystick(walkControls);
 
 const updateInteractionCamera = setupInteractions({

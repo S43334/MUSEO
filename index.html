@@ -17,10 +17,8 @@
   <script src="./nipplejs.min.js"></script>
 
   <style>
-    /* El body bloquea el scroll general para el juego (correcto) */
     body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: 'Arial', sans-serif; }
     
-    /* --- ESTILOS DEL JOYSTICK --- */
     #joystick-zone {
       position: absolute;
       top: 0;
@@ -34,7 +32,6 @@
       pointer-events: auto; 
     }
 
-    /* --- PANTALLA DE BIENVENIDA --- */
     #intro-screen {
       position: absolute;
       top: 0;
@@ -55,12 +52,11 @@
     #intro-content {
       width: 90%;          
       max-width: 600px;    
-      max-height: 85vh;    /* Un poco más corto para asegurar que quepa */
-      overflow-y: auto;    /* Barra de scroll si hace falta */
+      max-height: 85vh;    
+      overflow-y: auto;   
       
-      /* --- CORRECCIÓN CLAVE --- */
-      touch-action: pan-y; /* PERMITE deslizar el dedo verticalmente (scroll) */
-      -webkit-overflow-scrolling: touch; /* Scroll suave en iPhone */
+      touch-action: pan-y; 
+      -webkit-overflow-scrolling: touch; 
       pointer-events: auto;
       
       padding: 30px;
@@ -101,7 +97,6 @@
       border-radius: 4px;
       width: 100%;
       max-width: 250px;
-      /* Asegura que el botón responda bien al tacto */
       touch-action: manipulation; 
     }
 
@@ -111,11 +106,10 @@
       box-shadow: 0 0 20px #ffaa00;
     }
 
-    /* Ajustes específicos para celulares */
     @media (max-width: 600px) {
       #intro-content {
         padding: 20px;
-        max-height: 80vh; /* Más margen arriba/abajo en móviles */
+        max-height: 80vh; 
       }
       h1 {
         font-size: 1.5em;
@@ -157,20 +151,17 @@
     const startBtn = document.getElementById('start-btn');
     const introScreen = document.getElementById('intro-screen');
 
-    // Función para iniciar
+    
     const startGame = (e) => {
-      if(e) e.preventDefault(); // Evita comportamientos raros del navegador
+      if(e) e.preventDefault();
       
-      // 1. Desvanecer la pantalla
       introScreen.style.opacity = '0';
       
-      // 2. Quitarla del DOM
       setTimeout(() => {
         introScreen.style.display = 'none';
       }, 1000);
     };
 
-    // Escuchamos ambos eventos para asegurar respuesta rápida
     startBtn.addEventListener('click', startGame);
     startBtn.addEventListener('touchend', startGame);
   </script>

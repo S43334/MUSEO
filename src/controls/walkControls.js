@@ -7,15 +7,15 @@ export function createWalkControls(camera, controls) {
   
   let joystickInput = { x: 0, y: 0 };
   
-  const maxSpeed = 10.0;
-  const acceleration = 60.0; 
-  const friction = 10.0;     
+  const maxSpeed = 8.0;          
+  const joystickSmoothing = 5.0; 
+  const keyboardResponse = 25.0; 
 
   const BOUNDS = {
-    minX: -4.5, 
-    maxX: 4.5,  
-    minZ: -164.0,
-    maxZ: 4.5   
+    minX: -4.8, 
+    maxX: 4.8,  
+    minZ: -168.0,
+    maxZ: 10.0 
   };
 
   window.addEventListener('keydown', e => {
@@ -40,6 +40,8 @@ export function createWalkControls(camera, controls) {
   function update(delta) {
     if (!controls.enabled) return;
 
+    const safeDelta = Math.min(delta, 0.1);
+
     inputDirection.set(0, 0, 0);
 
     const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
@@ -50,34 +52,32 @@ export function createWalkControls(camera, controls) {
     right.y = 0;
     right.normalize();
 
-    if (keys.forward) inputDirection.add(forward);
-    if (keys.backward) inputDirection.sub(forward);
-    if (keys.left) inputDirection.sub(right);
-    if (keys.right) inputDirection.add(right);
+    let isKeyboardMoving = false;
+    if (keys.forward) { inputDirection.add(forward); isKeyboardMoving = true; }
+    if (keys.backward) { inputDirection.sub(forward); isKeyboardMoving = true; }
+    if (keys.left) { inputDirection.sub(right); isKeyboardMoving = true; }
+    if (keys.right) { inputDirection.add(right); isKeyboardMoving = true; }
 
-    if (joystickInput.y !== 0) inputDirection.add(forward.clone().multiplyScalar(joystickInput.y));
-    if (joystickInput.x !== 0) inputDirection.add(right.clone().multiplyScalar(joystickInput.x));
-
-    if (inputDirection.length() > 1) inputDirection.normalize();
-
-    if (inputDirection.lengthSq() > 0) {
-      currentVelocity.add(inputDirection.multiplyScalar(acceleration * delta));
-    } else {
-      const damping = currentVelocity.clone().multiplyScalar(friction * delta);
-      if (damping.lengthSq() > currentVelocity.lengthSq()) {
-        currentVelocity.set(0, 0, 0);
-      } else {
-        currentVelocity.sub(damping);
-      }
-    }
-
-    if (currentVelocity.length() > maxSpeed) {
-      currentVelocity.setLength(maxSpeed);
+    if (isKeyboardMoving) {
+      if (inputDirection.lengthSq() > 0) inputDirection.normalize();
+      const targetVel = inputDirection.multiplyScalar(maxSpeed);
+      currentVelocity.lerp(targetVel, keyboardResponse * safeDelta);
+    } 
+    else if (joystickInput.x !== 0 || joystickInput.y !== 0) {
+      const joyMove = new THREE.Vector3(0,0,0);
+      joyMove.add(forward.clone().multiplyScalar(joystickInput.y)); 
+      joyMove.add(right.clone().multiplyScalar(joystickInput.x));   
+      
+      const targetVel = joyMove.multiplyScalar(maxSpeed);
+      currentVelocity.lerp(targetVel, joystickSmoothing * safeDelta);
+    } 
+    else {
+      currentVelocity.lerp(new THREE.Vector3(0, 0, 0), 10.0 * safeDelta);
     }
 
     if (currentVelocity.lengthSq() > 0.001) {
-      const moveX = currentVelocity.x * delta;
-      const moveZ = currentVelocity.z * delta;
+      const moveX = currentVelocity.x * safeDelta;
+      const moveZ = currentVelocity.z * safeDelta;
 
       const nextX = camera.position.x + moveX;
       const nextZ = camera.position.z + moveZ;
@@ -86,14 +86,14 @@ export function createWalkControls(camera, controls) {
         camera.position.x += moveX;
         controls.target.x += moveX;
       } else {
-        currentVelocity.x = 0;
+        currentVelocity.x = 0; 
       }
 
       if (nextZ >= BOUNDS.minZ && nextZ <= BOUNDS.maxZ) {
         camera.position.z += moveZ;
         controls.target.z += moveZ;
       } else {
-        currentVelocity.z = 0;
+        currentVelocity.z = 0; 
       }
     }
   }

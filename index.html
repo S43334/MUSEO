@@ -20,11 +20,15 @@
     body { margin: 0; overflow: hidden; background: #000; touch-action: none; font-family: 'Arial', sans-serif; }
     
     #joystick-zone {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; 
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 40%;    
+      height: 50%;   
+      z-index: 10;
+      touch-action: none;
     }
-    #joystick-zone .nipple { pointer-events: auto; }
 
-    /* PANTALLA DE BIENVENIDA */
     #intro-screen {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background-color: #000; 
@@ -38,27 +42,23 @@
       padding: 30px; box-sizing: border-box; 
       border: 1px solid #333; background: rgba(20, 20, 40, 0.95); 
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.8); border-radius: 12px;
-      
       touch-action: pan-y; -webkit-overflow-scrolling: touch; pointer-events: auto;
     }
 
     h1 { font-size: 2em; margin-bottom: 15px; color: #ffaa00; letter-spacing: 3px; margin-top: 0; }
     p { font-size: 1.1em; line-height: 1.5; color: #ccc; margin-bottom: 25px; text-align: left; }
 
-    /* BARRA DE CARGA */
     #loading-container {
       width: 100%; height: 4px; background: #333; margin-bottom: 20px;
       border-radius: 2px; overflow: hidden;
     }
     #loading-bar {
-      width: 0%; height: 100%; background: #ffaa00; 
-      transition: width 0.2s ease;
+      width: 0%; height: 100%; background: #ffaa00; transition: width 0.2s ease;
     }
     #loading-text {
       color: #888; font-size: 0.9em; margin-bottom: 20px; letter-spacing: 1px;
     }
 
-    /* BOTÓN ENTRAR */
     #start-btn {
       display: none; 
       padding: 15px 40px; font-size: 1.2em;
@@ -81,18 +81,17 @@
   <div id="intro-screen">
     <div id="intro-content">
       <h1>GALERÍA DE ARTE: ISABELLA</h1>
-      
       <p>
-        Bienvenido/a a la Galería de Arte de Isabella D.<br><br>
-        He creado este espacio dedicado exclusivamente a recopilar y exhibir su arte. Considero que esta es una forma de poder celebrar su gran creatividad y talento, dándole a cada una de sus obras el lugar que se merece.<br><br>
-        Disfruta de esta colección de tu arte creada especialmente para ti, amiga.<br><br>
+        Bienvenida a tu propia exposición virtual.<br><br>
+        He creado este espacio digital dedicado exclusivamente a recopilar y exhibir tu arte. Es una forma de celebrar tu creatividad y talento, dándole a cada una de tus obras el lugar que se merece.<br><br>
+        <b>Instrucciones:</b><br>
+        💻 <b>PC:</b> Usa W, A, S, D para caminar y el Mouse para girar.<br>
+        📱 <b>Móvil:</b> Joystick izquierdo para caminar, dedo derecho para girar.<br><br>
+        ¡Espero que lo disfrutes tanto como yo disfruté construyéndolo!
       </p>
 
-      <div id="loading-container">
-        <div id="loading-bar"></div>
-      </div>
+      <div id="loading-container"><div id="loading-bar"></div></div>
       <div id="loading-text">PREPARANDO LA SALA...</div>
-
       <button id="start-btn">ENTRAR A LA GALERÍA</button>
     </div>
   </div>
@@ -103,13 +102,11 @@
   <script>
     const startBtn = document.getElementById('start-btn');
     const introScreen = document.getElementById('intro-screen');
-
     const startGame = (e) => {
       if(e) e.preventDefault();
       introScreen.style.opacity = '0';
       setTimeout(() => { introScreen.style.display = 'none'; }, 1000);
     };
-
     startBtn.addEventListener('click', startGame);
     startBtn.addEventListener('touchend', startGame);
   </script>

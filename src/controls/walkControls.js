@@ -12,7 +12,7 @@ export function createWalkControls(camera, controls) {
   const BOUNDS = {
     minX: -4.5, 
     maxX: 4.5,  
-    minZ: -89.0,
+    minZ: -164.0,
     maxZ: 4.5   
   };
 

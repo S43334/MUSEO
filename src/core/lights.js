@@ -8,7 +8,7 @@ export function createLights(scene) {
   const rowOffset = 3.0;   
   const spacing = 8;       
 
-  for (let z = 0; z >= -90; z -= spacing) {
+  for (let z = 0; z >= -165; z -= spacing) {
     
     const leftBulb = new THREE.PointLight(0xffaa00, 3.5, 25);
     leftBulb.position.set(-rowOffset, lightHeight, z);

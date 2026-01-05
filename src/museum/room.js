@@ -4,9 +4,9 @@ export function createRoom(scene) {
   const group = new THREE.Group();
   const textureLoader = new THREE.TextureLoader();
 
-  const width = 10;   
-  const height = 7;   
-  const depth = 90;   
+  const width = 10;
+  const height = 7;
+  const depth = 170;
 
   const zOffset = 5; 
 

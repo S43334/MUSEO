@@ -64,17 +64,12 @@ const updateInteractionCamera = setupInteractions({
 
 setupResize(camera, renderer);
 
-let lastTime = performance.now();
+const clock = new THREE.Clock();
 
-function animate(time) {
+function animate() {
   requestAnimationFrame(animate);
-
-  if (!time) time = performance.now();
-
-  const rawDelta = (time - lastTime) / 1000;
-  lastTime = time;
-
-  const delta = Math.min(Math.max(rawDelta, 0), 0.1);
+  
+  const delta = clock.getDelta();
 
   walkControls.update(delta);
   updateInteractionCamera(delta);
@@ -82,4 +77,4 @@ function animate(time) {
   renderer.render(scene, camera);
 }
 
-requestAnimationFrame(animate);
+animate();

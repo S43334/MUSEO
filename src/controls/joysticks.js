@@ -1,9 +1,11 @@
-import nipplejs from 'nipplejs';
-
 export function createJoystick(walkControls) {
   const zone = document.getElementById('joystick-zone');
   
   if (!zone) {
+    return;
+  }
+
+  if (typeof nipplejs === 'undefined') {
     return;
   }
 

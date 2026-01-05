@@ -17,14 +17,23 @@ const startBtn = document.getElementById('start-btn');
 const loadingContainer = document.getElementById('loading-container');
 
 manager.onProgress = function (url, itemsLoaded, itemsTotal) {
-  const progress = (itemsLoaded / itemsTotal) * 100;
-  loadingBar.style.width = progress + '%';
+  if (itemsTotal > 0) {
+    const progress = (itemsLoaded / itemsTotal) * 100;
+    if (loadingBar) loadingBar.style.width = progress + '%';
+  }
 };
 
 manager.onLoad = function () {
-  loadingText.innerText = "¡LISTO PARA ENTRAR!";
-  loadingContainer.style.display = 'none'; 
-  startBtn.style.display = 'inline-block'; 
+  if (loadingText) loadingText.innerText = "¡LISTO PARA ENTRAR!";
+  if (loadingContainer) loadingContainer.style.display = 'none'; 
+  if (startBtn) startBtn.style.display = 'inline-block'; 
+};
+
+manager.onError = function (url) {
+  console.error('Error cargando: ' + url);
+  if (loadingText) loadingText.innerText = "CARGA COMPLETADA (CON AVISOS)";
+  if (loadingContainer) loadingContainer.style.display = 'none'; 
+  if (startBtn) startBtn.style.display = 'inline-block'; 
 };
 
 const scene = createScene();

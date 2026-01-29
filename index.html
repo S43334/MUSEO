@@ -76,4 +76,30 @@
     }
   </style>
 </head>
+<body>
+
+  <div id="intro-screen">
+    <div id="intro-content">
+      <h1>GALERÍA DE ARTE DE ISABELLA</h1>
+      <div id="loading-container"><div id="loading-bar"></div></div>
+      <div id="loading-text">PREPARANDO LA SALA...</div>
+      <button id="start-btn">ENTRAR A LA GALERÍA</button>
+    </div>
+  </div>
+
+  <div id="joystick-zone"></div>
+  <script type="module" src="./src/main.js"></script>
+
+  <script>
+    const startBtn = document.getElementById('start-btn');
+    const introScreen = document.getElementById('intro-screen');
+    const startGame = (e) => {
+      if(e) e.preventDefault();
+      introScreen.style.opacity = '0';
+      setTimeout(() => { introScreen.style.display = 'none'; }, 1000);
+    };
+    startBtn.addEventListener('click', startGame);
+    startBtn.addEventListener('touchend', startGame);
+  </script>
+</body>
 </html>

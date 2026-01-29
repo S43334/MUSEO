@@ -76,35 +76,4 @@
     }
   </style>
 </head>
-<body>
-
-  <div id="intro-screen">
-    <div id="intro-content">
-      <h1>GALERÍA DE ARTE PARA ISABELLA</h1>
-      <p>
-        He creado este espacio dedicado exclusivamente a recopilar y exhibir tu arte. La verdad considero que esta es una forma de celebrar tu gran creatividad y talento, dándole a cada una de tus obras el lugar que se merece.<br><br>
-        Espero que lo disfrutes mucho y que cada vez que entres aquí te sientas inspirada para seguir dibujando.
-      </p>
-
-      <div id="loading-container"><div id="loading-bar"></div></div>
-      <div id="loading-text">PREPARANDO LA SALA...</div>
-      <button id="start-btn">ENTRAR A LA GALERÍA</button>
-    </div>
-  </div>
-
-  <div id="joystick-zone"></div>
-  <script type="module" src="./src/main.js"></script>
-
-  <script>
-    const startBtn = document.getElementById('start-btn');
-    const introScreen = document.getElementById('intro-screen');
-    const startGame = (e) => {
-      if(e) e.preventDefault();
-      introScreen.style.opacity = '0';
-      setTimeout(() => { introScreen.style.display = 'none'; }, 1000);
-    };
-    startBtn.addEventListener('click', startGame);
-    startBtn.addEventListener('touchend', startGame);
-  </script>
-</body>
 </html>

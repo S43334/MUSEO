@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const FOCUS_FOV = 45;
+const FOCUS_FOV = 50;
 const FOCUS_MIN_DISTANCE = 2.45;
 const FOCUS_MAX_DISTANCE = 5.45;
 const FOCUS_TARGET_Y_OFFSET = 0.1;

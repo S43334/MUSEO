@@ -278,7 +278,13 @@ export function createRoom(scene, woodTexture, layout) {
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(width / 2.2, depth / 2.2);
   floorTexture.colorSpace = THREE.SRGBColorSpace;
-  floorTexture.needsUpdate = true;
+  if (woodTexture.image) {
+    floorTexture.needsUpdate = true;
+  } else {
+    woodTexture.addEventListener('update', () => {
+      floorTexture.needsUpdate = true;
+    });
+  }
 
   const floorMaterial = new THREE.MeshStandardMaterial({
     map: floorTexture,

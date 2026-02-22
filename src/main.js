@@ -139,9 +139,10 @@ async function bootstrap() {
   const layout = buildMuseumLayout(rooms, artworks, LAYOUT_CONFIG);
 
   const textureLoader = new THREE.TextureLoader(manager);
-  const woodTexture = textureLoader.load('textures/wood.webp');
-  woodTexture.colorSpace = THREE.SRGBColorSpace;
-  woodTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const woodTexture = textureLoader.load('textures/wood.webp', (loadedTexture) => {
+    loadedTexture.colorSpace = THREE.SRGBColorSpace;
+    loadedTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  });
 
   createRoom(scene, woodTexture, layout);
   const lightsController = createLights(scene, layout, { quality: deviceProfile.initialQuality });

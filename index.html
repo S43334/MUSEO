@@ -163,6 +163,46 @@
       display: block;
     }
 
+    #artwork-nav {
+      left: 50%;
+      bottom: 14px;
+      transform: translate(-50%, 14px);
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    #artwork-nav.visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      pointer-events: auto;
+    }
+
+    #artwork-nav button {
+      min-width: 120px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      font-weight: 700;
+    }
+
+    #artwork-nav button:hover:not(:disabled) {
+      background: var(--accent);
+      color: #121212;
+    }
+
+    #artwork-nav button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
     #private-room-modal[hidden] {
       display: none;
     }
@@ -297,31 +337,6 @@
       overflow-wrap: anywhere;
     }
 
-    .panel-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .panel-actions button {
-      flex: 1;
-      min-width: 120px;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      background: var(--accent-soft);
-      border-radius: 8px;
-      padding: 9px 10px;
-      cursor: pointer;
-      transition: all 0.22s ease;
-      font-weight: 700;
-    }
-
-    .panel-actions button:hover {
-      background: var(--accent);
-      color: #121212;
-    }
-
     @media (max-width: 900px) {
       #room-menu {
         top: 10px;
@@ -342,6 +357,16 @@
       #panel-restore {
         right: 10px;
         bottom: 82px;
+      }
+
+      #artwork-nav {
+        left: 50%;
+        bottom: 16px;
+      }
+
+      #artwork-nav button {
+        min-width: 108px;
+        padding: 8px 10px;
       }
 
       #joystick-zone {
@@ -381,6 +406,11 @@
         top: 8px;
         right: 8px;
         bottom: auto;
+      }
+
+      #artwork-nav {
+        left: 50%;
+        bottom: 8px;
       }
 
       #joystick-zone {
@@ -424,13 +454,14 @@
     <p id="panel-technique">T&eacute;cnica:</p>
     <p id="panel-year">A&ntilde;o:</p>
     <p id="panel-description">Descripci&oacute;n:</p>
-    <div class="panel-actions">
-      <button id="panel-prev" type="button">Anterior</button>
-      <button id="panel-next" type="button">Siguiente</button>
-    </div>
   </aside>
 
   <button id="panel-restore" type="button">Mostrar ficha</button>
+
+  <div id="artwork-nav" class="overlay-card" aria-label="Navegaci&oacute;n de obras">
+    <button id="nav-prev" type="button">Anterior</button>
+    <button id="nav-next" type="button">Siguiente</button>
+  </div>
 
   <div id="private-room-modal" hidden>
     <div class="private-modal-card" role="dialog" aria-modal="true" aria-labelledby="private-room-title">

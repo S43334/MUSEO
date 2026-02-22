@@ -40,6 +40,9 @@ const prevPanelBtn = document.getElementById('panel-prev');
 const nextPanelBtn = document.getElementById('panel-next');
 const togglePanelBtn = document.getElementById('panel-toggle-visibility');
 const restorePanelBtn = document.getElementById('panel-restore');
+const artworkNav = document.getElementById('artwork-nav');
+const prevNavBtn = document.getElementById('nav-prev');
+const nextNavBtn = document.getElementById('nav-next');
 const privateRoomModal = document.getElementById('private-room-modal');
 const privateRoomPasswordInput = document.getElementById('private-room-password');
 const privateRoomError = document.getElementById('private-room-error');
@@ -166,6 +169,13 @@ function setRestorePanelVisible(isVisible) {
     return;
   }
   restorePanelBtn.classList.toggle('visible', Boolean(isVisible));
+}
+
+function setArtworkNavVisible(isVisible) {
+  if (!artworkNav) {
+    return;
+  }
+  artworkNav.classList.toggle('visible', Boolean(isVisible));
 }
 
 function summarizeRoomLabel(room) {
@@ -365,6 +375,14 @@ async function bootstrap() {
     interactionsController.focusPainting(paintingItems[index].group, true);
   }
 
+  function shiftArtworkFocus(step) {
+    if (paintingItems.length === 0 || activeArtworkIndex < 0) {
+      return;
+    }
+    const targetIndex = (activeArtworkIndex + step + paintingItems.length) % paintingItems.length;
+    focusArtworkByIndex(targetIndex);
+  }
+
   function jumpToRoom(roomId) {
     const waypoint = roomWaypointMap.get(roomId);
     if (!waypoint) {
@@ -512,6 +530,7 @@ async function bootstrap() {
         resetPanelHiddenState();
       }
       showArtworkPanel(artwork);
+      setArtworkNavVisible(true);
 
       trackEvent('artwork_focus', {
         artworkId: artwork.id,
@@ -523,6 +542,7 @@ async function bootstrap() {
       activeArtworkIndex = -1;
       hideArtworkPanel();
       resetPanelHiddenState();
+      setArtworkNavVisible(false);
     }
   });
 
@@ -586,23 +606,19 @@ async function bootstrap() {
   }
 
   if (prevPanelBtn) {
-    prevPanelBtn.addEventListener('click', () => {
-      if (paintingItems.length === 0 || activeArtworkIndex < 0) {
-        return;
-      }
-      const prevIndex = (activeArtworkIndex - 1 + paintingItems.length) % paintingItems.length;
-      focusArtworkByIndex(prevIndex);
-    });
+    prevPanelBtn.addEventListener('click', () => shiftArtworkFocus(-1));
   }
 
   if (nextPanelBtn) {
-    nextPanelBtn.addEventListener('click', () => {
-      if (paintingItems.length === 0 || activeArtworkIndex < 0) {
-        return;
-      }
-      const nextIndex = (activeArtworkIndex + 1) % paintingItems.length;
-      focusArtworkByIndex(nextIndex);
-    });
+    nextPanelBtn.addEventListener('click', () => shiftArtworkFocus(1));
+  }
+
+  if (prevNavBtn) {
+    prevNavBtn.addEventListener('click', () => shiftArtworkFocus(-1));
+  }
+
+  if (nextNavBtn) {
+    nextNavBtn.addEventListener('click', () => shiftArtworkFocus(1));
   }
 
   rerenderRoomMenu();
@@ -666,6 +682,7 @@ async function bootstrap() {
 
   updateToggleLabel(togglePanelBtn, panelHiddenWhileFocused);
   setRestorePanelVisible(false);
+  setArtworkNavVisible(false);
 
   const qualityState = createAdaptiveQualityState(deviceProfile);
   applyQualityLevel({

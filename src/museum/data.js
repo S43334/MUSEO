@@ -1,4 +1,4 @@
-const AUTHOR_NAME = 'Dinorah Isabella Domínguez Ruiz';
+const AUTHOR_NAME = 'Dinorah Isabella Dom\u00ednguez Ruiz';
 
 export const ROOMS = [
   {
@@ -9,19 +9,19 @@ export const ROOMS = [
   },
   {
     id: 'fantasia',
-    title: 'Fantasía y color',
+    title: 'Fantas\u00eda y color',
     themeIds: ['fantasia'],
     color: 0x355f4a
   },
   {
     id: 'pop',
-    title: 'Cultura pop y héroes',
+    title: 'Cultura pop y h\u00e9roes',
     themeIds: ['pop'],
     color: 0x6a3f56
   },
   {
     id: 'tradicion',
-    title: 'Tradición, fe y estudio',
+    title: 'Tradici\u00f3n, fe y estudio',
     themeIds: ['tradicion'],
     color: 0x6b5a32
   }
@@ -37,7 +37,7 @@ export const SECTION_DEFINITIONS = {
     color: 0xd7b98d
   },
   fantasia_luminosa: {
-    title: 'Fantasía luminosa',
+    title: 'Fantas\u00eda luminosa',
     color: 0x8ec5df
   },
   aventura_pop: {
@@ -45,7 +45,7 @@ export const SECTION_DEFINITIONS = {
     color: 0x8f86dd
   },
   color_celebracion: {
-    title: 'Color y celebración',
+    title: 'Color y celebraci\u00f3n',
     color: 0xf39fc3
   },
   noches_heroicas: {
@@ -99,8 +99,8 @@ const SECTION_BY_ARTWORK_ID = {
 };
 
 const ARTWORK_BASE = [
-  { id: 1, title: 'Sebastián', file: 'dibujo1.png', themeId: 'retratos' },
-  { id: 2, title: 'La reina de los pájaros canta...', file: 'dibujo2.jpg', themeId: 'fantasia' },
+  { id: 1, title: 'Sebasti\u00e1n', file: 'dibujo1.png', themeId: 'retratos' },
+  { id: 2, title: 'La reina de los p\u00e1jaros canta...', file: 'dibujo2.jpg', themeId: 'fantasia' },
   { id: 3, title: 'WANDAVISION 50s', file: 'dibujo3.jpg', themeId: 'pop' },
   { id: 4, title: '"I KNOW WHO I AM..." - Wanda Maximoff / Scarlet Witch', file: 'dibujo4.jpg', themeId: 'pop' },
   { id: 5, title: 'El gallo', file: 'dibujo5.jpg', themeId: 'tradicion' },
@@ -115,20 +115,20 @@ const ARTWORK_BASE = [
   { id: 14, title: 'NASA', file: 'dibujo14.jpg', themeId: 'fantasia' },
   { id: 15, title: 'La sirena', file: 'dibujo15.jpg', themeId: 'fantasia' },
   { id: 16, title: 'El paraguas', file: 'dibujo16.jpg', themeId: 'fantasia' },
-  { id: 17, title: 'El Catrín', file: 'dibujo17.jpg', themeId: 'tradicion' },
+  { id: 17, title: 'El Catr\u00edn', file: 'dibujo17.jpg', themeId: 'tradicion' },
   { id: 18, title: 'La dama', file: 'dibujo18.jpg', themeId: 'retratos' },
-  { id: 19, title: 'Cómic', file: 'dibujo19.jpg', themeId: 'tradicion' },
-  { id: 20, title: 'Virgen María', file: 'dibujo20.jpg', themeId: 'tradicion' },
+  { id: 19, title: 'C\u00f3mic', file: 'dibujo19.jpg', themeId: 'tradicion' },
+  { id: 20, title: 'Virgen Mar\u00eda', file: 'dibujo20.jpg', themeId: 'tradicion' },
   { id: 21, title: 'Anne of Green Gables', file: 'dibujo21.jpg', themeId: 'retratos' },
-  { id: 22, title: '¡Donaaaa!', file: 'dibujo22.jpg', themeId: 'tradicion' },
+  { id: 22, title: '\u00a1Donaaaa!', file: 'dibujo22.jpg', themeId: 'tradicion' },
   { id: 23, title: 'Jesucristo', file: 'dibujo23.jpg', themeId: 'tradicion' },
-  { id: 24, title: 'Los héroes también toman leche', file: 'dibujo24.jpg', themeId: 'pop' },
+  { id: 24, title: 'Los h\u00e9roes tambi\u00e9n toman leche', file: 'dibujo24.jpg', themeId: 'pop' },
   { id: 25, title: 'Walt Disney', file: 'dibujo25.jpg', themeId: 'pop' },
   { id: 26, title: 'Dibujo de mi abuelita', file: 'dibujo26.jpg', themeId: 'retratos' },
-  { id: 27, title: 'Sueños de cuarentena', file: 'dibujo27.jpg', themeId: 'fantasia' },
+  { id: 27, title: 'Sue\u00f1os de cuarentena', file: 'dibujo27.jpg', themeId: 'fantasia' },
   { id: 28, title: 'Dos granitos de arena', file: 'dibujo28.jpg', themeId: 'fantasia' },
-  { id: 29, title: '¡Yodaaaaaa!', file: 'dibujo29.jpg', themeId: 'pop' },
-  { id: 30, title: '¡Mi perrita Cherry!', file: 'dibujo30.jpg', themeId: 'retratos' },
+  { id: 29, title: '\u00a1Yodaaaaaa!', file: 'dibujo29.jpg', themeId: 'pop' },
+  { id: 30, title: '\u00a1Mi perrita Cherry!', file: 'dibujo30.jpg', themeId: 'retratos' },
   { id: 31, title: 'Sheldon Cooper', file: 'dibujo31.jpg', themeId: 'pop' },
   { id: 32, title: 'Mona Lisa', file: 'dibujo32.jpg', themeId: 'retratos' }
 ];
@@ -146,6 +146,6 @@ export const ARTWORKS = ARTWORK_BASE.map((artwork) => {
     image: `textures/paintings/${artwork.file}`,
     year: 'Sin fecha',
     technique: 'Grafito y color',
-    description: 'Parte de una colección personal creada con dedicación y amor.'
+    description: 'Parte de una colecci\u00f3n personal creada con dedicaci\u00f3n y amor.'
   };
 });

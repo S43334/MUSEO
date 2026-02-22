@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getCorridorHalf, getPortalHalf } from './layout.js';
 
 function toVecXZ(value) {
   return new THREE.Vector3(value.x, 0, value.z);
@@ -28,7 +29,7 @@ function createRoomSign(title) {
 
   ctx.fillStyle = '#d3d3d3';
   ctx.font = '32px Arial';
-  ctx.fillText('Colección Isabella', canvas.width / 2, 188);
+  ctx.fillText('Colecci\u00f3n Isabella', canvas.width / 2, 188);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -43,7 +44,8 @@ function addPortalFrame(group, wing, config, material) {
   const axis = toVecXZ(wing.axis);
   const right = toVecXZ(wing.right);
   const entranceCenter = axis.clone().multiplyScalar((config.lobbySize / 2) + 0.2);
-  const clearWidth = wing.width - 1.2;
+  const corridorHalf = getCorridorHalf(config, wing.width);
+  const clearWidth = Math.min(wing.width - 0.6, (corridorHalf * 2) + 0.18);
   const columnHeight = config.height - 0.2;
 
   const columnGeometry = new THREE.BoxGeometry(0.22, columnHeight, 0.24);
@@ -104,10 +106,10 @@ function addWingAccents(group, wing, config) {
     new THREE.PlaneGeometry(wing.width - 0.2, wing.length - 0.2),
     new THREE.MeshStandardMaterial({
       color: accentColor,
-      roughness: 0.8,
-      metalness: 0.04,
+      roughness: 0.84,
+      metalness: 0.05,
       transparent: true,
-      opacity: 0.09
+      opacity: 0.08
     })
   );
   floorAccent.rotation.x = -Math.PI / 2;
@@ -122,10 +124,40 @@ function addWingAccents(group, wing, config) {
   group.add(sign);
 }
 
+function addWingPrismBands(group, wing, config) {
+  const axis = toVecXZ(wing.axis);
+  const right = toVecXZ(wing.right);
+  const center = toVecXZ(wing.center);
+  const halfWidth = wing.width / 2;
+
+  const bandLength = Math.max(4, wing.length - 1.4);
+  const sideOffset = halfWidth - 0.42;
+
+  const bandMaterial = new THREE.MeshStandardMaterial({
+    color: 0x31538a,
+    roughness: 0.34,
+    metalness: 0.42,
+    emissive: 0x0c1d3b,
+    emissiveIntensity: 0.22,
+    transparent: true,
+    opacity: 0.72
+  });
+
+  const bandGeometry = new THREE.BoxGeometry(0.16, 2.8, bandLength);
+
+  for (const sideSign of [-1, 1]) {
+    const band = new THREE.Mesh(bandGeometry, bandMaterial);
+    band.position.copy(center).add(right.clone().multiplyScalar(sideSign * sideOffset));
+    band.position.y = 2.02;
+    band.rotation.y = yawFromNormal(axis);
+    group.add(band);
+  }
+}
+
 function addLobbyCornerWalls(group, config, wings, wallMaterial) {
   const lobbyHalf = config.lobbySize / 2;
   const maxWingWidth = wings.reduce((acc, wing) => Math.max(acc, wing.width), 0);
-  const portalHalf = Math.min((maxWingWidth / 2) + 0.2, lobbyHalf - 0.9);
+  const portalHalf = getPortalHalf(config, maxWingWidth);
   const segmentLength = Math.max(0.5, lobbyHalf - portalHalf);
   const segmentGeo = new THREE.PlaneGeometry(segmentLength, config.height);
   const cornerGeo = new THREE.BoxGeometry(0.22, config.height, 0.22);
@@ -182,42 +214,14 @@ function addLobbyCornerWalls(group, config, wings, wallMaterial) {
   }
 }
 
-function createSectionBadge(text, colorHex) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 768;
-  canvas.height = 170;
-  const ctx = canvas.getContext('2d');
-
-  ctx.fillStyle = 'rgba(6, 10, 18, 0.9)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
-  ctx.fillStyle = '#f4f4f4';
-  ctx.font = 'bold 44px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-
-  return new THREE.Mesh(
-    new THREE.PlaneGeometry(3.2, 0.72),
-    new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      color: colorHex
-    })
-  );
-}
-
 function addPaintingNiches(group, placements, wings, config) {
   const wingMap = new Map(wings.map((wing) => [wing.id, wing]));
   const dividerMaterial = new THREE.MeshStandardMaterial({
-    color: 0x131a2e,
-    roughness: 0.58,
-    metalness: 0.12
+    color: 0x172238,
+    roughness: 0.68,
+    metalness: 0.08,
+    transparent: true,
+    opacity: 0.62
   });
 
   for (const placement of placements) {
@@ -232,55 +236,32 @@ function addPaintingNiches(group, placements, wings, config) {
     const sideSign = placement.side === 'left' ? -1 : 1;
     const wallOffset = right.clone().multiplyScalar(sideSign * ((wing.width / 2) - 0.03));
     const inwardNormal = right.clone().multiplyScalar(-sideSign);
-    const nicheWidth = placement.nicheLength * 0.78;
+    const nicheWidth = placement.nicheLength * 0.72;
     const yaw = yawFromNormal(inwardNormal);
-    const sectionColor = placement.sectionColor || wing.color;
 
-    const panel = new THREE.Mesh(
-      new THREE.PlaneGeometry(nicheWidth, 3.25),
-      new THREE.MeshStandardMaterial({
-        color: sectionColor,
-        roughness: 0.62,
-        metalness: 0.08,
-        transparent: true,
-        opacity: 0.24
-      })
-    );
-    panel.position.copy(nicheCenter).add(wallOffset).add(inwardNormal.clone().multiplyScalar(0.03));
-    panel.position.y = 2.12;
-    panel.rotation.y = yaw;
-    group.add(panel);
+    const dividerGeometry = new THREE.BoxGeometry(0.14, config.height - 0.4, 0.28);
+    const edgeOffset = (placement.nicheLength / 2) - 0.12;
 
-    const dividerGeometry = new THREE.BoxGeometry(0.16, config.height - 0.25, 0.34);
-    const edgeOffset = (placement.nicheLength / 2) - 0.08;
     for (const edgeSign of [-1, 1]) {
       const divider = new THREE.Mesh(dividerGeometry, dividerMaterial);
       divider.position
         .copy(nicheCenter)
         .add(axis.clone().multiplyScalar(edgeSign * edgeOffset))
         .add(wallOffset)
-        .add(inwardNormal.clone().multiplyScalar(0.14));
-      divider.position.y = (config.height - 0.25) / 2;
+        .add(inwardNormal.clone().multiplyScalar(0.16));
+      divider.position.y = (config.height - 0.4) / 2;
       divider.rotation.y = yaw;
       group.add(divider);
     }
 
     const canopy = new THREE.Mesh(
-      new THREE.BoxGeometry(nicheWidth, 0.12, 0.44),
+      new THREE.BoxGeometry(nicheWidth, 0.09, 0.28),
       dividerMaterial
     );
     canopy.position.copy(nicheCenter).add(wallOffset).add(inwardNormal.clone().multiplyScalar(0.2));
-    canopy.position.y = 3.45;
+    canopy.position.y = 3.4;
     canopy.rotation.y = yaw;
     group.add(canopy);
-
-    if (placement.isSectionStart) {
-      const sectionLabel = createSectionBadge(placement.sectionTitle || 'Sección', sectionColor);
-      const markerPos = nicheCenter.clone().add(axis.clone().multiplyScalar(-0.5));
-      sectionLabel.position.set(markerPos.x, 3.0, markerPos.z);
-      sectionLabel.rotation.y = yawFromNormal(axis.clone().multiplyScalar(-1));
-      group.add(sectionLabel);
-    }
   }
 }
 
@@ -353,10 +334,10 @@ export function createRoom(scene, woodTexture, layout) {
     new THREE.PlaneGeometry(zones.lobby.size - 1.2, zones.lobby.size - 1.2),
     new THREE.MeshStandardMaterial({
       color: 0xf4b241,
-      roughness: 0.6,
+      roughness: 0.68,
       metalness: 0.08,
       transparent: true,
-      opacity: 0.12
+      opacity: 0.1
     })
   );
   lobbyAccent.rotation.x = -Math.PI / 2;
@@ -367,10 +348,10 @@ export function createRoom(scene, woodTexture, layout) {
     new THREE.RingGeometry((zones.lobby.size / 2) - 0.5, (zones.lobby.size / 2) - 0.15, 4),
     new THREE.MeshStandardMaterial({
       color: 0xf4b241,
-      roughness: 0.52,
+      roughness: 0.56,
       metalness: 0.12,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.16,
       side: THREE.DoubleSide
     })
   );
@@ -384,6 +365,7 @@ export function createRoom(scene, woodTexture, layout) {
   for (const wing of wings) {
     addWingEnvelope(group, wing, config, wallMaterial);
     addWingAccents(group, wing, config);
+    addWingPrismBands(group, wing, config);
     addPortalFrame(group, wing, config, frameMaterial);
   }
 

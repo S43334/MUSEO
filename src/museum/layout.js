@@ -1,4 +1,4 @@
-import { ARTWORKS, ROOMS, SECTION_DEFINITIONS, SECTION_ORDER } from './data.js';
+import { ARTWORKS, ROOMS, SECTION_DEFINITIONS } from './data.js';
 
 const WING_DIRECTION_ORDER = ['front', 'left', 'right', 'back'];
 const WING_VECTORS = {
@@ -14,12 +14,33 @@ export const LAYOUT_CONFIG = {
   wingWidth: 8.8,
   wingPadding: 3.4,
   nicheLength: 4.7,
-  sectionGap: 2.2,
+  sectionGap: 0,
   paintingY: 1.8,
   paintingInset: 0.24,
   playerRadius: 0.35,
   wallPadding: 0.24
 };
+
+export function getPortalHalf(config = LAYOUT_CONFIG, wingWidth = config.wingWidth) {
+  const lobbyHalf = config.lobbySize / 2;
+  const wingHalf = wingWidth / 2;
+  const portalHalf = Math.min(
+    wingHalf - (config.wallPadding * 0.5),
+    lobbyHalf - 0.9
+  );
+
+  return Math.max(wingHalf * 0.68, portalHalf);
+}
+
+export function getCorridorHalf(config = LAYOUT_CONFIG, wingWidth = config.wingWidth) {
+  const portalHalf = getPortalHalf(config, wingWidth);
+  const halfWingLimit = (wingWidth / 2) - config.playerRadius - 0.02;
+
+  return Math.max(
+    0.6,
+    Math.min(halfWingLimit, portalHalf - config.playerRadius - 0.04)
+  );
+}
 
 function getRoomById(rooms, roomId) {
   return rooms.find((room) => room.id === roomId) || null;
@@ -42,8 +63,6 @@ function buildRightVector(axis) {
 }
 
 function buildWingDefinitions(rooms, artworks, config) {
-  const sectionPriority = new Map(SECTION_ORDER.map((id, index) => [id, index]));
-
   return WING_DIRECTION_ORDER.map((directionId) => {
     const axis = WING_VECTORS[directionId];
     const room = getRoomById(rooms, directionId === 'front'
@@ -56,28 +75,12 @@ function buildWingDefinitions(rooms, artworks, config) {
 
     const wingArtworks = artworks
       .filter((artwork) => artwork.themeId === room.id)
-      .sort((a, b) => {
-        const aOrder = sectionPriority.get(a.sectionId) ?? 999;
-        const bOrder = sectionPriority.get(b.sectionId) ?? 999;
-        if (aOrder !== bOrder) {
-          return aOrder - bOrder;
-        }
-        return a.id - b.id;
-      });
+      .sort((a, b) => a.id - b.id);
 
-    const sectionIds = [];
-    for (const artwork of wingArtworks) {
-      if (sectionIds.length === 0 || sectionIds[sectionIds.length - 1] !== artwork.sectionId) {
-        sectionIds.push(artwork.sectionId);
-      }
-    }
-
-    const sectionGapCount = Math.max(0, sectionIds.length - 1);
-    const length = (
+    const length =
       (config.wingPadding * 2) +
-      (wingArtworks.length * config.nicheLength) +
-      (sectionGapCount * config.sectionGap)
-    );
+      (wingArtworks.length * config.nicheLength);
+
     const lobbyHalf = config.lobbySize / 2;
     const centerOffset = lobbyHalf + (length / 2);
     const right = buildRightVector(axis);
@@ -95,8 +98,7 @@ function buildWingDefinitions(rooms, artworks, config) {
         x: axis.x * centerOffset,
         z: axis.z * centerOffset
       },
-      artworks: wingArtworks,
-      sectionIds
+      artworks: wingArtworks
     };
   });
 }
@@ -104,19 +106,11 @@ function buildWingDefinitions(rooms, artworks, config) {
 export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
   const halfWidth = wing.width / 2;
   const lobbyHalf = config.lobbySize / 2;
-  let accumulatedSectionGap = 0;
-  let previousSectionId = null;
 
   return wing.artworks.map((artwork, index) => {
-    const isSectionStart = index === 0 || artwork.sectionId !== previousSectionId;
-    if (index > 0 && isSectionStart) {
-      accumulatedSectionGap += config.sectionGap;
-    }
-    previousSectionId = artwork.sectionId;
-
     const side = index % 2 === 0 ? 'left' : 'right';
     const sideSign = side === 'left' ? -1 : 1;
-    const distanceFromLobby = config.wingPadding + accumulatedSectionGap + ((index + 0.5) * config.nicheLength);
+    const distanceFromLobby = config.wingPadding + ((index + 0.5) * config.nicheLength);
 
     const nicheCenter = {
       x: wing.axis.x * (lobbyHalf + distanceFromLobby),
@@ -145,7 +139,7 @@ export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
       sectionId: artwork.sectionId,
       sectionTitle: artwork.sectionTitle,
       sectionColor: artwork.sectionColor,
-      isSectionStart,
+      isSectionStart: false,
       nicheCenter,
       inwardNormal,
       rotationY,
@@ -156,8 +150,8 @@ export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
 
 export function buildWalkableZones(layout, config = LAYOUT_CONFIG) {
   const halfLobby = config.lobbySize / 2;
-  const corridorHalf = (config.wingWidth / 2) - config.wallPadding - config.playerRadius;
-  const overlap = 1;
+  const overlap = 1.2;
+
   const zones = [
     {
       id: 'lobby',
@@ -169,9 +163,9 @@ export function buildWalkableZones(layout, config = LAYOUT_CONFIG) {
   ];
 
   for (const wing of layout.wings) {
-    const wingHalfLength = wing.length / 2;
-    const startDistance = (config.lobbySize / 2) - overlap;
-    const endDistance = (config.lobbySize / 2) + wingHalfLength + wingHalfLength;
+    const corridorHalf = getCorridorHalf(config, wing.width);
+    const startDistance = halfLobby - overlap;
+    const endDistance = halfLobby + wing.length;
 
     if (wing.directionId === 'front') {
       zones.push({
@@ -300,16 +294,16 @@ export function buildMuseumLayout(
         side: niche.side,
         nicheIndex: niche.nicheIndex,
         sectionId: niche.sectionId,
-        sectionTitle: niche.sectionTitle || sectionMeta.title || 'Sección',
+        sectionTitle: niche.sectionTitle || sectionMeta.title || 'Secci\u00f3n',
         sectionColor: niche.sectionColor || sectionMeta.color || wing.color,
-        isSectionStart: niche.isSectionStart,
+        isSectionStart: false,
         nicheCenter: niche.nicheCenter,
         inwardNormal: niche.inwardNormal,
         axis: wing.axis,
         right: wing.right,
         nicheLength: config.nicheLength,
         wingWidth: wing.width,
-        focusDistance: 4.2,
+        focusDistance: 5.6,
         position: niche.position,
         rotationY: niche.rotationY
       });

@@ -1,5 +1,10 @@
 import * as THREE from 'three';
 
+const FOCUS_FOV = 56;
+const FOCUS_MIN_DISTANCE = 5.2;
+const FOCUS_MAX_DISTANCE = 7.2;
+const FOCUS_TARGET_Y_OFFSET = 0.08;
+
 function easeInOut(t) {
   return t < 0.5
     ? 2 * t * t
@@ -24,17 +29,17 @@ function resolvePaintingGroup(object) {
 }
 
 function getFocusDistance(camera, paintingGroup) {
-  const baseDistance = paintingGroup.userData?.artwork?.focusDistance ?? 3.2;
+  const baseDistance = paintingGroup.userData?.artwork?.focusDistance ?? FOCUS_MIN_DISTANCE;
   const frameHeight = 2.15;
   const frameWidth = 1.65;
-  const focusFov = 48;
-  const vFov = THREE.MathUtils.degToRad(focusFov);
+  const vFov = THREE.MathUtils.degToRad(FOCUS_FOV);
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
 
   const fitByHeight = (frameHeight / 2) / Math.tan(vFov / 2);
   const fitByWidth = (frameWidth / 2) / Math.tan(hFov / 2);
 
-  return Math.max(baseDistance, fitByHeight + 0.9, fitByWidth + 1.1);
+  const calculated = Math.max(baseDistance, fitByHeight + 1.2, fitByWidth + 1.35);
+  return THREE.MathUtils.clamp(calculated, FOCUS_MIN_DISTANCE, FOCUS_MAX_DISTANCE);
 }
 
 export function setupInteractions({
@@ -42,11 +47,21 @@ export function setupInteractions({
   controls,
   scene,
   renderer,
+  interactiveObjects = [],
   onSelect,
   onDeselect
 }) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
+  const raycastRoots = interactiveObjects.length > 0 ? interactiveObjects : scene.children;
+
+  const focusSpotTarget = new THREE.Object3D();
+  const focusSpot = new THREE.SpotLight(0xf2f5ff, 1.35, 14, 0.48, 0.38, 1.1);
+  focusSpot.castShadow = false;
+  focusSpot.visible = false;
+  focusSpot.target = focusSpotTarget;
+  scene.add(focusSpotTarget);
+  scene.add(focusSpot);
 
   let highlightedFrame = null;
   let originalEmissive = new THREE.Color();
@@ -60,7 +75,7 @@ export function setupInteractions({
   let startFov = camera.fov;
 
   let endPosition = camera.position.clone();
-  let endTarget = controls.target.clone();
+  let endTarget = camera.position.clone();
   let endFov = camera.fov;
 
   let selectedPainting = null;
@@ -112,6 +127,17 @@ export function setupInteractions({
     progress = 0;
   }
 
+  function hideFocusSpot() {
+    focusSpot.visible = false;
+  }
+
+  function updateFocusSpot(target, inwardNormal) {
+    focusSpotTarget.position.copy(target);
+    focusSpot.position.copy(target).add(inwardNormal.clone().multiplyScalar(2.05));
+    focusSpot.position.y = target.y + 3.15;
+    focusSpot.visible = true;
+  }
+
   function focusPainting(paintingGroup, notify = true) {
     if (!paintingGroup) {
       return;
@@ -129,14 +155,19 @@ export function setupInteractions({
 
     const artwork = paintingGroup.userData?.artwork || {};
     const target = paintingGroup.position.clone();
+    target.y += FOCUS_TARGET_Y_OFFSET;
+
     const focusDistance = getFocusDistance(camera, paintingGroup);
     const inwardNormal = artwork.inwardNormal
       ? new THREE.Vector3(artwork.inwardNormal.x, 0, artwork.inwardNormal.z).normalize()
       : new THREE.Vector3(0, 0, 1).applyQuaternion(paintingGroup.quaternion).normalize();
+
     const offset = inwardNormal.multiplyScalar(focusDistance);
     const destination = target.clone().add(offset);
+    destination.y = Math.max(1.58, target.y + 0.05);
 
-    setTransitionTargets(destination, target, 48);
+    setTransitionTargets(destination, target, FOCUS_FOV);
+    updateFocusSpot(target, inwardNormal);
     isZoomed = true;
     controls.enabled = false;
 
@@ -154,6 +185,7 @@ export function setupInteractions({
     }
 
     clearHighlight();
+    hideFocusSpot();
 
     if (animate) {
       setTransitionTargets(explorePosition, exploreTarget, exploreFov);
@@ -182,7 +214,7 @@ export function setupInteractions({
     getPointer(event);
     raycaster.setFromCamera(pointer, camera);
 
-    const hits = raycaster.intersectObjects(scene.children, true);
+    const hits = raycaster.intersectObjects(raycastRoots, true);
     const frameHit = hits.find((hit) => hit.object.userData?.isFrame);
 
     if (frameHit) {
@@ -200,7 +232,7 @@ export function setupInteractions({
     getPointer(event);
     raycaster.setFromCamera(pointer, camera);
 
-    const hits = raycaster.intersectObjects(scene.children, true);
+    const hits = raycaster.intersectObjects(raycastRoots, true);
     const paintingHit = hits.find((hit) => resolvePaintingGroup(hit.object));
 
     if (paintingHit) {

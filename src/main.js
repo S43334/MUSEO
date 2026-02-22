@@ -50,6 +50,7 @@ const paintingItems = loadPaintings(scene, {
   manager,
   woodTexture
 });
+const interactiveObjects = paintingItems.map((item) => item.group);
 
 const orbitControls = createControls(camera, renderer.domElement);
 const walkControls = createWalkControls(camera, orbitControls, {
@@ -90,7 +91,7 @@ function showArtworkPanel(artwork) {
     panelAuthor.innerText = `Artista: ${artwork.author || 'Artista'}`;
   }
   if (panelSection) {
-    panelSection.innerText = `Secci\u00f3n: ${artwork.sectionTitle || 'Colecci\u00f3n principal'}`;
+    panelSection.innerText = `Secci\u00f3n: ${artwork.roomTitle || 'Colecci\u00f3n principal'}`;
   }
   if (panelTechnique) {
     panelTechnique.innerText = `T\u00e9cnica: ${artwork.technique || 'No especificada'}`;
@@ -171,6 +172,7 @@ interactionsController = setupInteractions({
   controls: orbitControls,
   scene,
   renderer,
+  interactiveObjects,
   onSelect(artwork) {
     activeArtworkIndex = paintingItems.findIndex((item) => item.artwork.id === artwork.id);
     if (panelHiddenWhileFocused) {

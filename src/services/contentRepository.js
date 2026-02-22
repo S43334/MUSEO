@@ -1,7 +1,6 @@
 import { ARTWORKS, ROOMS } from '../museum/data.js';
 import {
-  fetchPublishedArtworks,
-  fetchPublishedRooms,
+  fetchPublicCatalog,
   isBackendConfigured
 } from './backendClient.js';
 
@@ -90,13 +89,15 @@ function normalizeBackendArtworks(rawArtworks = [], normalizedRooms = []) {
     .sort((a, b) => a.id - b.id);
 }
 
-export async function loadMuseumContent({ preferBackend = true } = {}) {
+export async function loadMuseumContent({
+  preferBackend = true,
+  backendTimeoutMs = 6000
+} = {}) {
   if (preferBackend && isBackendConfigured()) {
     try {
-      const [rawRooms, rawArtworks] = await Promise.all([
-        fetchPublishedRooms(),
-        fetchPublishedArtworks()
-      ]);
+      const payload = await fetchPublicCatalog({ timeoutMs: backendTimeoutMs });
+      const rawRooms = Array.isArray(payload?.rooms) ? payload.rooms : [];
+      const rawArtworks = Array.isArray(payload?.artworks) ? payload.artworks : [];
 
       const rooms = normalizeBackendRooms(rawRooms);
       const artworks = normalizeBackendArtworks(rawArtworks, rooms);

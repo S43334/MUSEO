@@ -129,7 +129,10 @@ async function bootstrap() {
   const renderer = createRenderer({ deviceProfile });
   setupResize(camera, renderer);
 
-  const content = await loadMuseumContent({ preferBackend: true });
+  const content = await loadMuseumContent({
+    preferBackend: true,
+    backendTimeoutMs: 6000
+  });
   const rooms = content.rooms;
   const artworks = content.artworks;
 

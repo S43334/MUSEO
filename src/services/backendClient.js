@@ -1,9 +1,11 @@
 const CATALOG_CACHE_TTL_MS = 10000;
+const DEFAULT_EDGE_TIMEOUT_MS = 6000;
 
 let catalogCache = {
   at: 0,
   value: null
 };
+let catalogInFlight = null;
 let trackedSessionId = '';
 
 function getBrowserConfig() {
@@ -38,6 +40,11 @@ async function requestEdge(path, options = {}) {
     throw new Error('Backend no configurado');
   }
 
+  const timeoutMs = Number(options.timeoutMs ?? DEFAULT_EDGE_TIMEOUT_MS);
+  const useTimeout = Number.isFinite(timeoutMs) && timeoutMs > 0;
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  let timeoutId = null;
+
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {})
@@ -48,11 +55,33 @@ async function requestEdge(path, options = {}) {
     headers.Authorization = `Bearer ${cfg.supabaseAnonKey}`;
   }
 
-  const response = await fetch(`${cfg.functionsBaseUrl}/${path}`, {
-    method: options.method || 'GET',
-    headers,
-    body: options.body
-  });
+  if (useTimeout && controller) {
+    timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  }
+
+  let response;
+  try {
+    response = await fetch(`${cfg.functionsBaseUrl}/${path}`, {
+      method: options.method || 'GET',
+      headers,
+      body: options.body,
+      signal: controller?.signal
+    });
+  } catch (error) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    if (error?.name === 'AbortError') {
+      throw new Error(`Edge ${path} timeout after ${timeoutMs}ms`);
+    }
+
+    throw error;
+  }
+
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const message = await response.text();
@@ -62,28 +91,38 @@ async function requestEdge(path, options = {}) {
   return response.json();
 }
 
-export async function fetchPublicCatalog({ force = false } = {}) {
+export async function fetchPublicCatalog({ force = false, timeoutMs } = {}) {
   const now = Date.now();
   if (!force && catalogCache.value && ((now - catalogCache.at) < CATALOG_CACHE_TTL_MS)) {
     return catalogCache.value;
   }
 
-  const payload = await requestEdge('get_public_catalog');
-  catalogCache = {
-    at: now,
-    value: payload
-  };
+  if (!force && catalogInFlight) {
+    return catalogInFlight;
+  }
 
-  return payload;
+  catalogInFlight = requestEdge('get_public_catalog', { timeoutMs })
+    .then((payload) => {
+      catalogCache = {
+        at: Date.now(),
+        value: payload
+      };
+      return payload;
+    })
+    .finally(() => {
+      catalogInFlight = null;
+    });
+
+  return catalogInFlight;
 }
 
-export async function fetchPublishedRooms() {
-  const payload = await fetchPublicCatalog();
+export async function fetchPublishedRooms(options = {}) {
+  const payload = await fetchPublicCatalog(options);
   return Array.isArray(payload.rooms) ? payload.rooms : [];
 }
 
-export async function fetchPublishedArtworks() {
-  const payload = await fetchPublicCatalog();
+export async function fetchPublishedArtworks(options = {}) {
+  const payload = await fetchPublicCatalog(options);
   return Array.isArray(payload.artworks) ? payload.artworks : [];
 }
 

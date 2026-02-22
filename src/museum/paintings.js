@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createFramedPainting } from './frame.js';
+import { createFramedPainting, updateFramedPaintingAspect } from './frame.js';
 import { createPlaque } from './plaque.js';
 
 function applyTextureQuality(texture, maxAnisotropy = 0) {
@@ -34,18 +34,68 @@ function loadTextureAsync(loader, url, maxAnisotropy = 0) {
   });
 }
 
+function resolveArtworkAspect(artwork) {
+  const directAspect = Number(artwork.imageAspect);
+  if (Number.isFinite(directAspect) && directAspect > 0) {
+    return directAspect;
+  }
+
+  const width = Number(artwork.imageWidth);
+  const height = Number(artwork.imageHeight);
+  if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+    return width / height;
+  }
+
+  return null;
+}
+
 export function loadPaintings(scene, { placements, manager, woodTexture, maxAnisotropy = 0 }) {
   const loader = new THREE.TextureLoader(manager);
   const instances = [];
 
   placements.forEach((artwork, index) => {
     const initialUrl = artwork.imageWebUrl || artwork.image;
-    const texture = loader.load(initialUrl);
+    const initialAspect = resolveArtworkAspect(artwork);
+    let paintingGroup = null;
+    let plaque = null;
+
+    const texture = loader.load(
+      initialUrl,
+      () => {
+        applyTextureQuality(texture, maxAnisotropy);
+
+        if (initialAspect || !paintingGroup || !texture.image) {
+          return;
+        }
+
+        const width = Number(texture.image.width);
+        const height = Number(texture.image.height);
+        if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+          return;
+        }
+
+        const fallbackAspect = width / height;
+        const updated = updateFramedPaintingAspect(paintingGroup, fallbackAspect);
+        if (!updated) {
+          return;
+        }
+
+        artwork.imageAspect = fallbackAspect;
+        artwork.imageWidth = width;
+        artwork.imageHeight = height;
+
+        if (plaque) {
+          const frameHeight = paintingGroup.userData?.frameSize?.height || 2.15;
+          plaque.position.y = -(frameHeight / 2) - 0.33;
+        }
+      }
+    );
     applyTextureQuality(texture, maxAnisotropy);
 
-    const paintingGroup = createFramedPainting({
+    paintingGroup = createFramedPainting({
       texture,
-      woodTexture
+      woodTexture,
+      aspect: initialAspect
     });
     const paintingSurface = resolvePaintingSurface(paintingGroup);
 
@@ -112,12 +162,13 @@ export function loadPaintings(scene, { placements, manager, woodTexture, maxAnis
     }
 
     if (artwork.title) {
-      const plaque = createPlaque({
+      plaque = createPlaque({
         title: artwork.title,
         author: artwork.author || 'Artista'
       });
 
-      plaque.position.y = -1.4;
+      const frameHeight = paintingGroup.userData?.frameSize?.height || 2.15;
+      plaque.position.y = -(frameHeight / 2) - 0.33;
       plaque.position.z = 0.06;
       plaque.rotation.x = -Math.PI / 12;
       paintingGroup.add(plaque);

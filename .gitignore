@@ -1,5 +1,8 @@
 backend/node_modules/
 backend/supabase/.temp/
+backend/private-room.selection.json
+backend/.tmp/
+textures/Fotos/
 
 *.log
 npm-debug.log*

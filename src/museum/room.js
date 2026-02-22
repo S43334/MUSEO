@@ -99,6 +99,7 @@ function addWingEnvelope(group, wing, config, wallMaterial) {
 
 function addWingAccents(group, wing, config) {
   const axis = toVecXZ(wing.axis);
+  const right = toVecXZ(wing.right);
   const center = toVecXZ(wing.center);
   const accentColor = new THREE.Color(wing.color);
 
@@ -121,6 +122,72 @@ function addWingAccents(group, wing, config) {
   sign.position.copy(axis.clone().multiplyScalar((config.lobbySize / 2) + 1.85));
   sign.position.y = config.height - 1.05;
   sign.rotation.y = yawFromNormal(axis.clone().multiplyScalar(-1));
+  group.add(sign);
+
+  const cableMaterial = new THREE.MeshStandardMaterial({
+    color: 0x8f7748,
+    roughness: 0.44,
+    metalness: 0.46
+  });
+  const cableTopY = config.height - 0.12;
+  const cableBottomY = sign.position.y + 0.52;
+  const cableLength = Math.max(0.18, cableTopY - cableBottomY);
+  const cableGeometry = new THREE.CylinderGeometry(0.01, 0.01, cableLength, 8);
+  const cableOffset = 1.86;
+  for (const side of [-1, 1]) {
+    const cable = new THREE.Mesh(cableGeometry, cableMaterial);
+    cable.position.copy(sign.position).add(right.clone().multiplyScalar(cableOffset * side));
+    cable.position.y = cableBottomY + (cableLength / 2);
+    group.add(cable);
+  }
+}
+
+function addPrivateChamberEnvelope(group, chamber, config, wallMaterial) {
+  const center = toVecXZ(chamber.center);
+  const halfWidth = chamber.width / 2;
+  const halfLength = chamber.length / 2;
+  const wallHeight = config.height;
+
+  const sideWallGeometry = new THREE.PlaneGeometry(chamber.length, wallHeight);
+  const frontBackGeometry = new THREE.PlaneGeometry(chamber.width, wallHeight);
+
+  const leftWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+  leftWall.position.copy(center).add(new THREE.Vector3(-halfWidth, wallHeight / 2, 0));
+  leftWall.rotation.y = Math.PI / 2;
+  group.add(leftWall);
+
+  const rightWall = new THREE.Mesh(sideWallGeometry, wallMaterial);
+  rightWall.position.copy(center).add(new THREE.Vector3(halfWidth, wallHeight / 2, 0));
+  rightWall.rotation.y = -Math.PI / 2;
+  group.add(rightWall);
+
+  const entryWall = new THREE.Mesh(frontBackGeometry, wallMaterial);
+  entryWall.position.copy(center).add(new THREE.Vector3(0, wallHeight / 2, halfLength));
+  entryWall.rotation.y = Math.PI;
+  group.add(entryWall);
+
+  const backWall = new THREE.Mesh(frontBackGeometry, wallMaterial);
+  backWall.position.copy(center).add(new THREE.Vector3(0, wallHeight / 2, -halfLength));
+  group.add(backWall);
+
+  const chamberFloorAccent = new THREE.Mesh(
+    new THREE.PlaneGeometry(chamber.width - 0.4, chamber.length - 0.4),
+    new THREE.MeshStandardMaterial({
+      color: 0xdbb16a,
+      roughness: 0.72,
+      metalness: 0.08,
+      transparent: true,
+      opacity: 0.08
+    })
+  );
+  chamberFloorAccent.rotation.x = -Math.PI / 2;
+  chamberFloorAccent.position.copy(center);
+  chamberFloorAccent.position.y = 0.015;
+  group.add(chamberFloorAccent);
+
+  const sign = createRoomSign(chamber.roomTitle || 'Secreto');
+  sign.position.copy(center).add(new THREE.Vector3(0, wallHeight - 1.02, halfLength - 0.08));
+  sign.rotation.y = Math.PI;
   group.add(sign);
 }
 
@@ -181,6 +248,270 @@ function addLobbyCornerWalls(group, config, wings, wallMaterial) {
     const cornerPillar = new THREE.Mesh(cornerGeo, wallMaterial);
     cornerPillar.position.set(corner.x, config.height / 2, corner.z);
     group.add(cornerPillar);
+  }
+}
+
+function createLobbyEmblemTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return null;
+  }
+
+  const half = canvas.width / 2;
+  const radial = ctx.createRadialGradient(half, half, 40, half, half, half);
+  radial.addColorStop(0, 'rgba(252, 215, 140, 0.9)');
+  radial.addColorStop(0.45, 'rgba(191, 138, 63, 0.35)');
+  radial.addColorStop(1, 'rgba(18, 24, 40, 0.04)');
+  ctx.fillStyle = radial;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.translate(half, half);
+  ctx.strokeStyle = 'rgba(35, 17, 6, 0.65)';
+  ctx.lineWidth = 5;
+  for (let index = 0; index < 24; index += 1) {
+    ctx.rotate((Math.PI * 2) / 24);
+    ctx.beginPath();
+    ctx.moveTo(72, 0);
+    ctx.lineTo(430, 0);
+    ctx.stroke();
+  }
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.translate(half, half);
+  const rings = [140, 245, 345, 430];
+  for (const radius of rings) {
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(246, 211, 147, 0.75)';
+    ctx.lineWidth = radius > 360 ? 8 : 5;
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = 'rgba(33, 15, 6, 0.82)';
+  ctx.beginPath();
+  ctx.arc(0, 0, 84, 0, Math.PI * 2);
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function addLobbyShowpiece(group, config, zones) {
+  const lobbySize = zones?.lobby?.size || config.lobbySize;
+  const lobbyRadius = lobbySize / 2;
+
+  const stoneMaterial = new THREE.MeshStandardMaterial({
+    color: 0x3f3427,
+    roughness: 0.68,
+    metalness: 0.1
+  });
+  const polishedStoneMaterial = new THREE.MeshStandardMaterial({
+    color: 0x5b4a36,
+    roughness: 0.38,
+    metalness: 0.18
+  });
+  const brassMaterial = new THREE.MeshStandardMaterial({
+    color: 0xd2a256,
+    roughness: 0.28,
+    metalness: 0.56,
+    emissive: 0x241103,
+    emissiveIntensity: 0.22
+  });
+  const glassMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xb5d6ff,
+    roughness: 0.06,
+    metalness: 0.08,
+    transmission: 0.82,
+    transparent: true,
+    opacity: 0.7,
+    ior: 1.2,
+    thickness: 0.4
+  });
+
+  const emblemTexture = createLobbyEmblemTexture();
+  const emblemMaterial = new THREE.MeshStandardMaterial({
+    color: 0xc89e5a,
+    map: emblemTexture || null,
+    roughness: 0.46,
+    metalness: 0.22,
+    transparent: true,
+    opacity: 0.84
+  });
+  const emblem = new THREE.Mesh(
+    new THREE.CircleGeometry(lobbyRadius - 1.34, 80),
+    emblemMaterial
+  );
+  emblem.rotation.x = -Math.PI / 2;
+  emblem.position.y = 0.027;
+  group.add(emblem);
+
+  const borderRing = new THREE.Mesh(
+    new THREE.TorusGeometry(lobbyRadius - 1.18, 0.06, 16, 96),
+    brassMaterial
+  );
+  borderRing.rotation.x = Math.PI / 2;
+  borderRing.position.y = 0.052;
+  group.add(borderRing);
+
+  const innerRing = new THREE.Mesh(
+    new THREE.TorusGeometry(2.15, 0.04, 12, 84),
+    brassMaterial
+  );
+  innerRing.rotation.x = Math.PI / 2;
+  innerRing.position.y = 0.056;
+  group.add(innerRing);
+
+  for (let index = 0; index < 12; index += 1) {
+    const ray = new THREE.Mesh(
+      new THREE.BoxGeometry(lobbyRadius - 2.45, 0.022, 0.08),
+      brassMaterial
+    );
+    const angle = (index / 12) * Math.PI * 2;
+    ray.position.set(
+      Math.cos(angle) * ((lobbyRadius - 2.45) / 2),
+      0.043,
+      Math.sin(angle) * ((lobbyRadius - 2.45) / 2)
+    );
+    ray.rotation.y = angle;
+    group.add(ray);
+  }
+
+  const dais = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.82, 1.96, 0.24, 44),
+    stoneMaterial
+  );
+  dais.position.y = 0.12;
+  group.add(dais);
+
+  const daisLip = new THREE.Mesh(
+    new THREE.TorusGeometry(1.9, 0.055, 14, 72),
+    brassMaterial
+  );
+  daisLip.rotation.x = Math.PI / 2;
+  daisLip.position.y = 0.235;
+  group.add(daisLip);
+
+  const pedestalBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.96, 1.06, 0.42, 30),
+    polishedStoneMaterial
+  );
+  pedestalBase.position.y = 0.43;
+  group.add(pedestalBase);
+
+  const pedestalBody = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.52, 0.58, 1.18, 30),
+    stoneMaterial
+  );
+  pedestalBody.position.y = 1.2;
+  group.add(pedestalBody);
+
+  const pedestalCap = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.7, 0.74, 0.12, 30),
+    polishedStoneMaterial
+  );
+  pedestalCap.position.y = 1.84;
+  group.add(pedestalCap);
+
+  const sculpture = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.42, 1),
+    glassMaterial
+  );
+  sculpture.position.y = 2.27;
+  sculpture.rotation.set(0.48, 0.22, 0.36);
+  group.add(sculpture);
+
+  const haloOuter = new THREE.Mesh(
+    new THREE.TorusGeometry(0.84, 0.03, 12, 58),
+    brassMaterial
+  );
+  haloOuter.position.y = 2.29;
+  haloOuter.rotation.x = Math.PI / 2;
+  group.add(haloOuter);
+
+  const haloTilted = new THREE.Mesh(
+    new THREE.TorusGeometry(0.68, 0.024, 12, 54),
+    brassMaterial
+  );
+  haloTilted.position.y = 2.22;
+  haloTilted.rotation.set(Math.PI / 3.5, Math.PI / 5, 0);
+  group.add(haloTilted);
+
+  const haloSupportGeometry = new THREE.CylinderGeometry(0.012, 0.012, 0.44, 8);
+  for (let index = 0; index < 3; index += 1) {
+    const angle = (index / 3) * Math.PI * 2;
+    const support = new THREE.Mesh(haloSupportGeometry, brassMaterial);
+    support.position.set(
+      Math.cos(angle) * 0.34,
+      2.07,
+      Math.sin(angle) * 0.34
+    );
+    group.add(support);
+  }
+
+  const canopyDisc = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.25, 2.42, 0.1, 48),
+    polishedStoneMaterial
+  );
+  canopyDisc.position.y = config.height - 0.06;
+  group.add(canopyDisc);
+
+  const canopyRing = new THREE.Mesh(
+    new THREE.TorusGeometry(1.32, 0.05, 12, 88),
+    brassMaterial
+  );
+  canopyRing.rotation.x = Math.PI / 2;
+  canopyRing.position.y = config.height - 0.12;
+  group.add(canopyRing);
+
+  const chandelierStem = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.055, 0.055, 1.08, 12),
+    brassMaterial
+  );
+  chandelierStem.position.y = config.height - 0.62;
+  group.add(chandelierStem);
+
+  const chandelierMainRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.92, 0.045, 12, 78),
+    brassMaterial
+  );
+  chandelierMainRing.rotation.x = Math.PI / 2;
+  chandelierMainRing.position.y = config.height - 1.21;
+  group.add(chandelierMainRing);
+
+  const chandelierInnerRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.58, 0.03, 12, 62),
+    brassMaterial
+  );
+  chandelierInnerRing.rotation.x = Math.PI / 2;
+  chandelierInnerRing.position.y = config.height - 1.38;
+  group.add(chandelierInnerRing);
+
+  const pendantMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffdea9,
+    roughness: 0.18,
+    metalness: 0.3,
+    emissive: 0xa06419,
+    emissiveIntensity: 0.26
+  });
+
+  for (let index = 0; index < 10; index += 1) {
+    const angle = (index / 10) * Math.PI * 2;
+    const radius = index % 2 === 0 ? 0.92 : 0.58;
+    const pendant = new THREE.Mesh(
+      new THREE.SphereGeometry(0.055, 12, 12),
+      pendantMaterial
+    );
+    pendant.position.set(
+      Math.cos(angle) * radius,
+      config.height - 1.31 - ((index % 3) * 0.06),
+      Math.sin(angle) * radius
+    );
+    group.add(pendant);
   }
 }
 
@@ -362,7 +693,14 @@ function addPaintingNiches(group, placements, wings, config) {
 }
 
 export function createRoom(scene, woodTexture, layout) {
-  const { config, bounds, zones, wings, placements } = layout;
+  const {
+    config,
+    bounds,
+    zones,
+    wings,
+    privateChamber,
+    placements
+  } = layout;
   const group = new THREE.Group();
   const width = bounds.maxX - bounds.minX;
   const depth = bounds.maxZ - bounds.minZ;
@@ -462,6 +800,7 @@ export function createRoom(scene, woodTexture, layout) {
   lobbyFrame.position.set(0, 0.03, 0);
   group.add(lobbyFrame);
 
+  addLobbyShowpiece(group, config, zones);
   addLobbyCornerWalls(group, config, wings, wallMaterial);
 
   for (const wing of wings) {
@@ -470,7 +809,12 @@ export function createRoom(scene, woodTexture, layout) {
     addPortalFrame(group, wing, config, frameMaterial);
   }
 
-  addPaintingNiches(group, placements, wings, config);
+  if (privateChamber) {
+    addPrivateChamberEnvelope(group, privateChamber, config, wallMaterial);
+  }
+
+  const displayAreas = privateChamber ? [...wings, privateChamber] : wings;
+  addPaintingNiches(group, placements, displayAreas, config);
 
   scene.add(group);
 }

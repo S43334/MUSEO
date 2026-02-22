@@ -14,13 +14,20 @@ import {
   updateAdaptiveQuality,
   applyQualityLevel
 } from './core/performanceProfile.js';
-import { loadMuseumContent } from './services/contentRepository.js';
-import { trackEvent } from './services/backendClient.js';
+import { loadMuseumContentWithPrivate } from './services/contentRepository.js';
+import {
+  fetchPrivateCatalog,
+  isBackendConfigured,
+  trackEvent
+} from './services/backendClient.js';
 import { LAYOUT_CONFIG, buildMuseumLayout } from './museum/layout.js';
 
 const manager = new THREE.LoadingManager();
+const PRIVATE_ROOM_SLUG = 'mielito';
+const PRIVATE_CACHE_KEY = 'museo.privateCatalog.v1';
+const PRIVATE_FETCH_TIMEOUT_MS = 9000;
 
-const roomMenuButtons = Array.from(document.querySelectorAll('[data-room-id]'));
+const roomMenu = document.getElementById('room-menu');
 const artworkPanel = document.getElementById('artwork-panel');
 const panelTitle = document.getElementById('panel-title');
 const panelAuthor = document.getElementById('panel-author');
@@ -33,10 +40,86 @@ const prevPanelBtn = document.getElementById('panel-prev');
 const nextPanelBtn = document.getElementById('panel-next');
 const togglePanelBtn = document.getElementById('panel-toggle-visibility');
 const restorePanelBtn = document.getElementById('panel-restore');
+const privateRoomModal = document.getElementById('private-room-modal');
+const privateRoomPasswordInput = document.getElementById('private-room-password');
+const privateRoomError = document.getElementById('private-room-error');
+const privateRoomCancelBtn = document.getElementById('private-room-cancel');
+const privateRoomSubmitBtn = document.getElementById('private-room-submit');
 
 manager.onError = function onError(url) {
   console.error(`Error cargando: ${url}`);
 };
+
+function readPrivateCatalogCache() {
+  if (typeof window === 'undefined' || !window.sessionStorage) {
+    return null;
+  }
+
+  const raw = window.sessionStorage.getItem(PRIVATE_CACHE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    const expiresAtRaw = parsed?.expires_at;
+    const expiresAtMs = Date.parse(String(expiresAtRaw || ''));
+    if (!Number.isFinite(expiresAtMs) || expiresAtMs <= Date.now()) {
+      window.sessionStorage.removeItem(PRIVATE_CACHE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    window.sessionStorage.removeItem(PRIVATE_CACHE_KEY);
+    return null;
+  }
+}
+
+function savePrivateCatalogCache(payload) {
+  if (typeof window === 'undefined' || !window.sessionStorage) {
+    return;
+  }
+  window.sessionStorage.setItem(PRIVATE_CACHE_KEY, JSON.stringify(payload));
+}
+
+function clearPrivateCatalogCache() {
+  if (typeof window === 'undefined' || !window.sessionStorage) {
+    return;
+  }
+  window.sessionStorage.removeItem(PRIVATE_CACHE_KEY);
+}
+
+function setPrivateModalVisible(isVisible) {
+  if (!privateRoomModal) {
+    return;
+  }
+
+  if (isVisible) {
+    privateRoomModal.removeAttribute('hidden');
+  } else {
+    privateRoomModal.setAttribute('hidden', '');
+  }
+}
+
+function setPrivateModalError(message = '') {
+  if (!privateRoomError) {
+    return;
+  }
+  privateRoomError.textContent = message || '';
+}
+
+function setPrivateModalLoading(isLoading) {
+  if (privateRoomSubmitBtn) {
+    privateRoomSubmitBtn.disabled = Boolean(isLoading);
+    privateRoomSubmitBtn.textContent = isLoading ? 'Verificando...' : 'Desbloquear';
+  }
+  if (privateRoomCancelBtn) {
+    privateRoomCancelBtn.disabled = Boolean(isLoading);
+  }
+  if (privateRoomPasswordInput) {
+    privateRoomPasswordInput.disabled = Boolean(isLoading);
+  }
+}
 
 function updateToggleLabel(toggleButton, hidden) {
   if (!toggleButton) {
@@ -83,6 +166,78 @@ function setRestorePanelVisible(isVisible) {
     return;
   }
   restorePanelBtn.classList.toggle('visible', Boolean(isVisible));
+}
+
+function summarizeRoomLabel(room) {
+  const label = String(room?.title || room?.id || '').trim();
+  if (!label) {
+    return 'Sala';
+  }
+
+  const truncated = label.length > 28
+    ? `${label.slice(0, 28).trim()}...`
+    : label;
+  return truncated;
+}
+
+function renderRoomMenu({
+  rooms = [],
+  isPrivateUnlocked = false,
+  onJumpRoom,
+  onUnlockPrivate,
+  onLockPrivate,
+  backendAvailable = false
+}) {
+  if (!roomMenu) {
+    return [];
+  }
+
+  roomMenu.innerHTML = '';
+  const buttons = [];
+
+  const publicRooms = rooms.filter((room) => !room.isPrivateRoom);
+  const privateRoom = rooms.find((room) => room.isPrivateRoom || room.id === PRIVATE_ROOM_SLUG) || null;
+
+  publicRooms.forEach((room, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'room-btn';
+    button.dataset.roomId = room.id;
+    button.textContent = `${index + 1}. ${summarizeRoomLabel(room)}`;
+    button.addEventListener('click', () => onJumpRoom?.(room.id));
+    roomMenu.appendChild(button);
+    buttons.push(button);
+  });
+
+  const privateButton = document.createElement('button');
+  privateButton.type = 'button';
+  privateButton.className = 'room-btn locked';
+  privateButton.dataset.roomId = privateRoom?.id || PRIVATE_ROOM_SLUG;
+  privateButton.textContent = `${publicRooms.length + 1}. ${privateRoom?.title || 'Secreto'}${isPrivateUnlocked ? '' : ' 🔒'}`;
+
+  if (!backendAvailable && !isPrivateUnlocked) {
+    privateButton.disabled = true;
+    privateButton.title = 'Sala privada no disponible sin backend';
+  } else if (isPrivateUnlocked && privateRoom) {
+    privateButton.classList.remove('locked');
+    privateButton.addEventListener('click', () => onJumpRoom?.(privateRoom.id));
+  } else {
+    privateButton.addEventListener('click', () => onUnlockPrivate?.());
+  }
+
+  roomMenu.appendChild(privateButton);
+  buttons.push(privateButton);
+
+  if (isPrivateUnlocked) {
+    const lockButton = document.createElement('button');
+    lockButton.type = 'button';
+    lockButton.className = 'room-btn secondary';
+    lockButton.textContent = 'Bloquear sala';
+    lockButton.addEventListener('click', () => onLockPrivate?.());
+    roomMenu.appendChild(lockButton);
+  }
+
+  return buttons;
 }
 
 function createPerfOverlay(enabled) {
@@ -133,12 +288,17 @@ async function bootstrap() {
   const renderer = createRenderer({ deviceProfile });
   setupResize(camera, renderer);
 
-  const content = await loadMuseumContent({
+  const privateCachePayload = readPrivateCatalogCache();
+  const content = await loadMuseumContentWithPrivate({
     preferBackend: true,
-    backendTimeoutMs: 6000
+    backendTimeoutMs: 6000,
+    privatePayload: privateCachePayload
   });
   const rooms = content.rooms;
   const artworks = content.artworks;
+  const backendAvailable = isBackendConfigured();
+  const privateRoom = rooms.find((room) => room.isPrivateRoom || room.id === PRIVATE_ROOM_SLUG) || null;
+  let privateUnlocked = Boolean(privateRoom && privateCachePayload);
 
   const layout = buildMuseumLayout(rooms, artworks, LAYOUT_CONFIG);
   const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -176,7 +336,8 @@ async function bootstrap() {
     layout.spawn.target.z
   );
 
-  const roomOrder = rooms.slice(0, 4);
+  const publicRoomOrder = rooms.filter((room) => !room.isPrivateRoom).slice(0, 4);
+  let roomMenuButtons = [];
   let activeArtworkIndex = -1;
   let panelHiddenWhileFocused = false;
   let interactionsController = null;
@@ -227,6 +388,84 @@ async function bootstrap() {
     });
   }
 
+  function closePrivateRoomModal() {
+    setPrivateModalVisible(false);
+    setPrivateModalError('');
+    setPrivateModalLoading(false);
+    if (privateRoomPasswordInput) {
+      privateRoomPasswordInput.value = '';
+    }
+  }
+
+  async function unlockPrivateRoom() {
+    if (!backendAvailable) {
+      setPrivateModalError('Backend no disponible para desbloquear esta sala.');
+      return;
+    }
+
+    const password = privateRoomPasswordInput?.value?.trim() || '';
+    if (!password) {
+      setPrivateModalError('Ingresa una contraseña.');
+      return;
+    }
+
+    setPrivateModalError('');
+    setPrivateModalLoading(true);
+
+    try {
+      const payload = await fetchPrivateCatalog(password, { timeoutMs: PRIVATE_FETCH_TIMEOUT_MS });
+      const expiresAt = Date.parse(String(payload?.expires_at || ''));
+      if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+        throw new Error('Respuesta inválida del catálogo privado');
+      }
+
+      savePrivateCatalogCache(payload);
+      await trackEvent('private_room_unlock', {
+        source: content.source,
+        success: true
+      });
+      window.location.reload();
+    } catch (error) {
+      console.warn('[private-room] unlock failed', error);
+      setPrivateModalLoading(false);
+      setPrivateModalError('No se pudo desbloquear la sala. Verifica la contraseña.');
+      trackEvent('private_room_unlock', {
+        source: content.source,
+        success: false
+      });
+    }
+  }
+
+  function lockPrivateRoom() {
+    clearPrivateCatalogCache();
+    privateUnlocked = false;
+    trackEvent('private_room_lock', {
+      source: content.source
+    });
+    window.location.reload();
+  }
+
+  function openPrivateRoomModal() {
+    setPrivateModalVisible(true);
+    setPrivateModalError('');
+    setPrivateModalLoading(false);
+    if (privateRoomPasswordInput) {
+      privateRoomPasswordInput.value = '';
+      privateRoomPasswordInput.focus();
+    }
+  }
+
+  function rerenderRoomMenu() {
+    roomMenuButtons = renderRoomMenu({
+      rooms,
+      isPrivateUnlocked: privateUnlocked,
+      backendAvailable,
+      onJumpRoom: jumpToRoom,
+      onUnlockPrivate: openPrivateRoomModal,
+      onLockPrivate: lockPrivateRoom
+    });
+  }
+
   function highlightNearestRoomButton() {
     if (roomMenuButtons.length === 0) {
       return;
@@ -246,6 +485,9 @@ async function bootstrap() {
     }
 
     for (const btn of roomMenuButtons) {
+      if (!btn.dataset.roomId) {
+        continue;
+      }
       btn.classList.toggle('active', btn.dataset.roomId === activeRoomId);
     }
   }
@@ -363,8 +605,37 @@ async function bootstrap() {
     });
   }
 
-  for (const btn of roomMenuButtons) {
-    btn.addEventListener('click', () => jumpToRoom(btn.dataset.roomId));
+  rerenderRoomMenu();
+
+  if (privateRoomCancelBtn) {
+    privateRoomCancelBtn.addEventListener('click', closePrivateRoomModal);
+  }
+
+  if (privateRoomSubmitBtn) {
+    privateRoomSubmitBtn.addEventListener('click', () => {
+      unlockPrivateRoom();
+    });
+  }
+
+  if (privateRoomModal) {
+    privateRoomModal.addEventListener('click', (event) => {
+      if (event.target === privateRoomModal) {
+        closePrivateRoomModal();
+      }
+    });
+  }
+
+  if (privateRoomPasswordInput) {
+    privateRoomPasswordInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        unlockPrivateRoom();
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closePrivateRoomModal();
+      }
+    });
   }
 
   window.addEventListener('keydown', (event) => {
@@ -377,10 +648,20 @@ async function bootstrap() {
       return;
     }
 
-    if (event.code === 'Digit1' && roomOrder[0]) jumpToRoom(roomOrder[0].id);
-    if (event.code === 'Digit2' && roomOrder[1]) jumpToRoom(roomOrder[1].id);
-    if (event.code === 'Digit3' && roomOrder[2]) jumpToRoom(roomOrder[2].id);
-    if (event.code === 'Digit4' && roomOrder[3]) jumpToRoom(roomOrder[3].id);
+    if (event.code === 'Digit1' && publicRoomOrder[0]) jumpToRoom(publicRoomOrder[0].id);
+    if (event.code === 'Digit2' && publicRoomOrder[1]) jumpToRoom(publicRoomOrder[1].id);
+    if (event.code === 'Digit3' && publicRoomOrder[2]) jumpToRoom(publicRoomOrder[2].id);
+    if (event.code === 'Digit4' && publicRoomOrder[3]) jumpToRoom(publicRoomOrder[3].id);
+    if (event.code === 'Digit5') {
+      if (privateUnlocked && privateRoom) {
+        jumpToRoom(privateRoom.id);
+      } else if (backendAvailable) {
+        openPrivateRoomModal();
+      }
+    }
+    if (event.code === 'Escape' && !privateRoomModal?.hasAttribute('hidden')) {
+      closePrivateRoomModal();
+    }
   });
 
   updateToggleLabel(togglePanelBtn, panelHiddenWhileFocused);

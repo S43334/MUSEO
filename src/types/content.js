@@ -19,6 +19,22 @@
  */
 
 /**
+ * @typedef {Object} ArtworkPrivateMediaDTO
+ * @property {string|null} [original_path]
+ * @property {string|null} [original_url]
+ * @property {number|null} [original_width]
+ * @property {number|null} [original_height]
+ * @property {string|null} [web_path]
+ * @property {string|null} [web_url]
+ * @property {number|null} [web_width]
+ * @property {number|null} [web_height]
+ * @property {string|null} [thumb_path]
+ * @property {string|null} [thumb_url]
+ * @property {number|null} [thumb_width]
+ * @property {number|null} [thumb_height]
+ */
+
+/**
  * @typedef {Object} ArtworkDTO
  * @property {string} id
  * @property {number} legacy_numeric_id
@@ -32,6 +48,10 @@
  * @property {string} [section_id]
  * @property {number} sort_order
  * @property {boolean} is_published
+ * @property {string|null} [image_web_url]
+ * @property {string|null} [image_thumb_url]
+ * @property {string|null} [image_original_url]
+ * @property {ArtworkPrivateMediaDTO} [media]
  */
 
 /**
@@ -43,9 +63,18 @@
  * @property {string} event_at
  */
 
+/**
+ * @typedef {Object} PrivateCatalogDTO
+ * @property {'supabase-private'} source
+ * @property {string} expires_at
+ * @property {RoomDTO[]} rooms
+ * @property {ArtworkDTO[]} artworks
+ */
+
 export const CONTENT_TYPES = Object.freeze({
   room: 'RoomDTO',
   artwork: 'ArtworkDTO',
+  privateCatalog: 'PrivateCatalogDTO',
   media: 'ArtworkMediaDTO',
   event: 'SessionEventDTO'
 });

@@ -116,6 +116,21 @@ export async function fetchPublicCatalog({ force = false, timeoutMs } = {}) {
   return catalogInFlight;
 }
 
+export async function fetchPrivateCatalog(password, { timeoutMs } = {}) {
+  const normalizedPassword = typeof password === 'string' ? password.trim() : '';
+  if (!normalizedPassword) {
+    throw new Error('Password requerida');
+  }
+
+  return requestEdge('get_private_catalog', {
+    method: 'POST',
+    timeoutMs,
+    body: JSON.stringify({
+      password: normalizedPassword
+    })
+  });
+}
+
 export async function fetchPublishedRooms(options = {}) {
   const payload = await fetchPublicCatalog(options);
   return Array.isArray(payload.rooms) ? payload.rooms : [];

@@ -7,6 +7,19 @@ const WING_VECTORS = {
   right: { x: 1, z: 0 },
   back: { x: 0, z: 1 }
 };
+const PUBLIC_ROOM_BY_WING = {
+  front: 'retratos',
+  left: 'fantasia',
+  right: 'pop',
+  back: 'tradicion'
+};
+const PRIVATE_ROOM_SLUG = 'mielito';
+const PRIVATE_CHAMBER_DEFAULT_CENTER = Object.freeze({ x: 46, z: 0 });
+const PRIVATE_CHAMBER_WIDTH = 10.8;
+const PRIVATE_CHAMBER_MIN_LENGTH = 16;
+const PRIVATE_CHAMBER_SPACING = 2.35;
+const PRIVATE_CHAMBER_BASE_LENGTH = 4;
+const PRIVATE_CHAMBER_CLEARANCE = 12;
 
 export const LAYOUT_CONFIG = {
   height: 7,
@@ -20,6 +33,28 @@ export const LAYOUT_CONFIG = {
   playerRadius: 0.35,
   wallPadding: 0.24
 };
+
+function isPrivateRoom(room) {
+  if (!room) {
+    return false;
+  }
+
+  if (room.isPrivateRoom) {
+    return true;
+  }
+
+  const id = String(room.id || '').trim();
+  const slug = String(room.slug || '').trim();
+  return id === PRIVATE_ROOM_SLUG || slug === PRIVATE_ROOM_SLUG;
+}
+
+function compareByArtworkOrder(a, b) {
+  const bySort = (a.sortOrder ?? a.sort_order ?? 0) - (b.sortOrder ?? b.sort_order ?? 0);
+  if (bySort !== 0) {
+    return bySort;
+  }
+  return (a.id ?? 0) - (b.id ?? 0);
+}
 
 export function getPortalHalf(config = LAYOUT_CONFIG, wingWidth = config.wingWidth) {
   const lobbyHalf = config.lobbySize / 2;
@@ -42,10 +77,6 @@ export function getCorridorHalf(config = LAYOUT_CONFIG, wingWidth = config.wingW
   );
 }
 
-function getRoomById(rooms, roomId) {
-  return rooms.find((room) => room.id === roomId) || null;
-}
-
 function vecLength(value) {
   return Math.sqrt((value.x * value.x) + (value.z * value.z));
 }
@@ -62,45 +93,136 @@ function buildRightVector(axis) {
   return normalizeVec({ x: -axis.z, z: axis.x });
 }
 
-function buildWingDefinitions(rooms, artworks, config) {
-  return WING_DIRECTION_ORDER.map((directionId) => {
-    const axis = WING_VECTORS[directionId];
-    const room = getRoomById(rooms, directionId === 'front'
-      ? 'retratos'
-      : directionId === 'left'
-        ? 'fantasia'
-        : directionId === 'right'
-          ? 'pop'
-          : 'tradicion');
-
-    const wingArtworks = artworks
-      .filter((artwork) => artwork.themeId === room.id)
-      .sort((a, b) => a.id - b.id);
-
-    const length =
-      (config.wingPadding * 2) +
-      (wingArtworks.length * config.nicheLength);
-
-    const lobbyHalf = config.lobbySize / 2;
-    const centerOffset = lobbyHalf + (length / 2);
-    const right = buildRightVector(axis);
-
+function computeWingExtents(wings) {
+  if (!Array.isArray(wings) || wings.length === 0) {
     return {
-      id: room.id,
-      roomTitle: room.title,
-      color: room.color,
-      directionId,
-      axis,
-      right,
-      width: config.wingWidth,
-      length,
-      center: {
-        x: axis.x * centerOffset,
-        z: axis.z * centerOffset
-      },
-      artworks: wingArtworks
+      minX: 0,
+      maxX: 0,
+      minZ: 0,
+      maxZ: 0
     };
-  });
+  }
+
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minZ = Number.POSITIVE_INFINITY;
+  let maxZ = Number.NEGATIVE_INFINITY;
+
+  for (const wing of wings) {
+    const halfWidth = wing.width / 2;
+    const halfLength = wing.length / 2;
+    const xExtent = Math.abs(wing.axis.x * halfLength) + Math.abs(wing.right.x * halfWidth);
+    const zExtent = Math.abs(wing.axis.z * halfLength) + Math.abs(wing.right.z * halfWidth);
+
+    minX = Math.min(minX, wing.center.x - xExtent);
+    maxX = Math.max(maxX, wing.center.x + xExtent);
+    minZ = Math.min(minZ, wing.center.z - zExtent);
+    maxZ = Math.max(maxZ, wing.center.z + zExtent);
+  }
+
+  return { minX, maxX, minZ, maxZ };
+}
+
+function resolvePrivateChamberCenter(wings, width) {
+  const extents = computeWingExtents(wings);
+  const halfWidth = width / 2;
+  const minSafeCenterX = extents.maxX + halfWidth + PRIVATE_CHAMBER_CLEARANCE;
+
+  return {
+    x: Math.max(PRIVATE_CHAMBER_DEFAULT_CENTER.x, minSafeCenterX),
+    z: PRIVATE_CHAMBER_DEFAULT_CENTER.z
+  };
+}
+
+function buildWingDefinitions(rooms, artworks, config) {
+  const publicRooms = rooms
+    .filter((room) => !isPrivateRoom(room))
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const usedRoomIds = new Set();
+
+  return WING_DIRECTION_ORDER
+    .map((directionId) => {
+      const axis = WING_VECTORS[directionId];
+
+      let room = publicRooms.find(
+        (entry) => entry.id === PUBLIC_ROOM_BY_WING[directionId] && !usedRoomIds.has(entry.id)
+      );
+
+      if (!room) {
+        room = publicRooms.find((entry) => !usedRoomIds.has(entry.id)) || null;
+      }
+
+      if (!room) {
+        return null;
+      }
+
+      usedRoomIds.add(room.id);
+
+      const wingArtworks = artworks
+        .filter((artwork) => artwork.themeId === room.id && !artwork.isPrivateRoom)
+        .slice()
+        .sort(compareByArtworkOrder);
+
+      const length =
+        (config.wingPadding * 2) +
+        (wingArtworks.length * config.nicheLength);
+
+      const lobbyHalf = config.lobbySize / 2;
+      const centerOffset = lobbyHalf + (length / 2);
+      const right = buildRightVector(axis);
+
+      return {
+        id: room.id,
+        roomTitle: room.title,
+        color: room.color,
+        directionId,
+        axis,
+        right,
+        width: config.wingWidth,
+        length,
+        center: {
+          x: axis.x * centerOffset,
+          z: axis.z * centerOffset
+        },
+        artworks: wingArtworks,
+        isPrivateRoom: false
+      };
+    })
+    .filter(Boolean);
+}
+
+function buildPrivateChamber(rooms, artworks, wings, config) {
+  const room = rooms.find((entry) => isPrivateRoom(entry));
+  if (!room) {
+    return null;
+  }
+
+  const chamberArtworks = artworks
+    .filter((artwork) => artwork.themeId === room.id || artwork.isPrivateRoom)
+    .slice()
+    .sort(compareByArtworkOrder);
+
+  const length = Math.max(
+    PRIVATE_CHAMBER_MIN_LENGTH,
+    PRIVATE_CHAMBER_BASE_LENGTH + (chamberArtworks.length * PRIVATE_CHAMBER_SPACING)
+  );
+  const center = resolvePrivateChamberCenter(wings, PRIVATE_CHAMBER_WIDTH);
+
+  return {
+    id: room.id,
+    roomTitle: room.title,
+    color: room.color,
+    directionId: 'private',
+    axis: { x: 0, z: -1 },
+    right: { x: 1, z: 0 },
+    width: PRIVATE_CHAMBER_WIDTH,
+    length,
+    center,
+    artworks: chamberArtworks,
+    spacing: PRIVATE_CHAMBER_SPACING,
+    isPrivateRoom: true
+  };
 }
 
 export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
@@ -134,6 +256,52 @@ export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
     return {
       artwork,
       wingId: wing.id,
+      side,
+      nicheIndex: index,
+      sectionId: artwork.sectionId,
+      sectionTitle: artwork.sectionTitle,
+      sectionColor: artwork.sectionColor,
+      isSectionStart: false,
+      nicheCenter,
+      inwardNormal,
+      rotationY,
+      position: paintingPosition
+    };
+  });
+}
+
+function buildPrivatePaintingNiches(privateChamber, config = LAYOUT_CONFIG) {
+  const halfWidth = privateChamber.width / 2;
+  const halfLength = privateChamber.length / 2;
+  const entryPadding = 2;
+
+  return privateChamber.artworks.map((artwork, index) => {
+    const side = index % 2 === 0 ? 'left' : 'right';
+    const sideSign = side === 'left' ? -1 : 1;
+    const distanceFromEntry = entryPadding + ((index + 0.5) * PRIVATE_CHAMBER_SPACING);
+
+    const nicheCenter = {
+      x: privateChamber.center.x,
+      z: privateChamber.center.z + halfLength - distanceFromEntry
+    };
+
+    const inwardNormal = {
+      x: -sideSign,
+      z: 0
+    };
+
+    const paintingOffset = (halfWidth - config.paintingInset) * sideSign;
+    const paintingPosition = {
+      x: nicheCenter.x + paintingOffset,
+      y: config.paintingY,
+      z: nicheCenter.z
+    };
+
+    const rotationY = Math.atan2(inwardNormal.x, inwardNormal.z);
+
+    return {
+      artwork,
+      wingId: privateChamber.id,
       side,
       nicheIndex: index,
       sectionId: artwork.sectionId,
@@ -208,6 +376,20 @@ export function buildWalkableZones(layout, config = LAYOUT_CONFIG) {
     }
   }
 
+  if (layout.privateChamber) {
+    const chamber = layout.privateChamber;
+    const halfWidth = chamber.width / 2;
+    const halfLength = chamber.length / 2;
+
+    zones.push({
+      id: chamber.id,
+      minX: chamber.center.x - halfWidth + config.playerRadius,
+      maxX: chamber.center.x + halfWidth - config.playerRadius,
+      minZ: chamber.center.z - halfLength + config.playerRadius,
+      maxZ: chamber.center.z + halfLength - config.playerRadius
+    });
+  }
+
   return zones;
 }
 
@@ -230,6 +412,16 @@ function buildBounds(layout, config = LAYOUT_CONFIG) {
     maxZ = Math.max(maxZ, wing.center.z + zExtent);
   }
 
+  if (layout.privateChamber) {
+    const chamber = layout.privateChamber;
+    const halfWidth = chamber.width / 2;
+    const halfLength = chamber.length / 2;
+    minX = Math.min(minX, chamber.center.x - halfWidth);
+    maxX = Math.max(maxX, chamber.center.x + halfWidth);
+    minZ = Math.min(minZ, chamber.center.z - halfLength);
+    maxZ = Math.max(maxZ, chamber.center.z + halfLength);
+  }
+
   return {
     minX: minX - 2,
     maxX: maxX + 2,
@@ -238,7 +430,7 @@ function buildBounds(layout, config = LAYOUT_CONFIG) {
   };
 }
 
-function buildWaypoints(wings, config = LAYOUT_CONFIG) {
+function buildWaypoints(wings, privateChamber, config = LAYOUT_CONFIG) {
   const lobbyHalf = config.lobbySize / 2;
   const map = {};
 
@@ -259,6 +451,21 @@ function buildWaypoints(wings, config = LAYOUT_CONFIG) {
     };
   }
 
+  if (privateChamber) {
+    const entryZ = privateChamber.center.z + (privateChamber.length / 2) - 2.6;
+    map[privateChamber.id] = {
+      roomId: privateChamber.id,
+      position: {
+        x: privateChamber.center.x,
+        z: entryZ
+      },
+      target: {
+        x: privateChamber.center.x,
+        z: entryZ - 4
+      }
+    };
+  }
+
   return map;
 }
 
@@ -268,12 +475,14 @@ export function buildMuseumLayout(
   config = LAYOUT_CONFIG
 ) {
   const wings = buildWingDefinitions(rooms, artworks, config);
+  const privateChamber = buildPrivateChamber(rooms, artworks, wings, config);
   const zones = {
     lobby: {
       center: { x: 0, z: 0 },
       size: config.lobbySize
     },
-    wings
+    wings,
+    privateChamber
   };
 
   const placements = [];
@@ -305,7 +514,41 @@ export function buildMuseumLayout(
         wingWidth: wing.width,
         focusDistance: 5.6,
         position: niche.position,
-        rotationY: niche.rotationY
+        rotationY: niche.rotationY,
+        isPrivateRoom: false
+      });
+    }
+  }
+
+  if (privateChamber) {
+    const niches = buildPrivatePaintingNiches(privateChamber, config);
+    privateChamber.niches = niches;
+
+    for (const niche of niches) {
+      const sectionMeta = SECTION_DEFINITIONS[niche.sectionId] || {};
+      placements.push({
+        ...niche.artwork,
+        roomId: privateChamber.id,
+        roomTitle: privateChamber.roomTitle,
+        wingId: privateChamber.id,
+        wingTitle: privateChamber.roomTitle,
+        wingColor: privateChamber.color,
+        side: niche.side,
+        nicheIndex: niche.nicheIndex,
+        sectionId: niche.sectionId,
+        sectionTitle: niche.sectionTitle || sectionMeta.title || 'Colecci\u00f3n privada',
+        sectionColor: niche.sectionColor || sectionMeta.color || privateChamber.color,
+        isSectionStart: false,
+        nicheCenter: niche.nicheCenter,
+        inwardNormal: niche.inwardNormal,
+        axis: privateChamber.axis,
+        right: privateChamber.right,
+        nicheLength: PRIVATE_CHAMBER_SPACING,
+        wingWidth: privateChamber.width,
+        focusDistance: 4.8,
+        position: niche.position,
+        rotationY: niche.rotationY,
+        isPrivateRoom: true
       });
     }
   }
@@ -314,15 +557,16 @@ export function buildMuseumLayout(
     config,
     zones,
     wings,
+    privateChamber,
     placements
   };
 
   layout.walkableZones = buildWalkableZones(layout, config);
   layout.bounds = buildBounds(layout, config);
-  layout.waypoints = buildWaypoints(wings, config);
+  layout.waypoints = buildWaypoints(wings, privateChamber, config);
   layout.spawn = {
-    position: { x: 0, z: 0.8 },
-    target: { x: 0, z: -4 }
+    position: { x: -4.6, z: 6.8 },
+    target: { x: 2, z: 2 }
   };
 
   return layout;

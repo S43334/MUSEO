@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
 const FOCUS_FOV = 35;
-const FOCUS_MIN_DISTANCE = 3.7;
-const FOCUS_MAX_DISTANCE = 5.8;
-const FOCUS_TARGET_Y_OFFSET = 0.12;
+const FOCUS_MIN_DISTANCE = 2.45;
+const FOCUS_MAX_DISTANCE = 5.45;
+const FOCUS_TARGET_Y_OFFSET = 0.1;
 const QUALITY_SPOT_INTENSITY = {
   high: 1.5,
   balanced: 1.05,
@@ -35,15 +35,16 @@ function resolvePaintingGroup(object) {
 
 function getFocusDistance(camera, paintingGroup) {
   const baseDistance = paintingGroup.userData?.artwork?.focusDistance ?? FOCUS_MIN_DISTANCE;
-  const frameHeight = 2.15;
-  const frameWidth = 1.65;
+  const frameSize = paintingGroup.userData?.frameSize || {};
+  const frameHeight = Number(frameSize.height) || 2.15;
+  const frameWidth = Number(frameSize.width) || 1.65;
   const vFov = THREE.MathUtils.degToRad(FOCUS_FOV);
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
 
-  const fitByHeight = (frameHeight / 2) / Math.tan(vFov / 2);
-  const fitByWidth = (frameWidth / 2) / Math.tan(hFov / 2);
+  const fitByHeight = ((frameHeight * 0.5) * 1.08) / Math.tan(vFov / 2);
+  const fitByWidth = ((frameWidth * 0.5) * 1.14) / Math.tan(hFov / 2);
 
-  const calculated = Math.max(baseDistance, fitByHeight + 0.7, fitByWidth + 0.86);
+  const calculated = Math.max(baseDistance, fitByHeight + 0.34, fitByWidth + 0.46);
   return THREE.MathUtils.clamp(calculated, FOCUS_MIN_DISTANCE, FOCUS_MAX_DISTANCE);
 }
 
@@ -166,8 +167,10 @@ export function setupInteractions({
     selectedPainting = paintingGroup;
 
     const artwork = paintingGroup.userData?.artwork || {};
+    const frameSize = paintingGroup.userData?.frameSize || {};
+    const frameHeight = Number(frameSize.height) || 2.15;
     const target = paintingGroup.position.clone();
-    target.y += FOCUS_TARGET_Y_OFFSET;
+    target.y += FOCUS_TARGET_Y_OFFSET + Math.min(0.16, frameHeight * 0.04);
 
     const focusDistance = getFocusDistance(camera, paintingGroup);
     const inwardNormal = artwork.inwardNormal
@@ -176,7 +179,7 @@ export function setupInteractions({
 
     const offset = inwardNormal.multiplyScalar(focusDistance);
     const destination = target.clone().add(offset);
-    destination.y = Math.max(1.64, target.y + 0.1);
+    destination.y = Math.max(1.58, target.y + (frameHeight * 0.06));
 
     setTransitionTargets(destination, target, FOCUS_FOV);
     updateFocusSpot(target, inwardNormal);

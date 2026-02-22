@@ -98,6 +98,23 @@
       font-weight: 700;
     }
 
+    .room-btn.locked {
+      border-color: rgba(244, 178, 65, 0.55);
+      color: #f6d6a0;
+      background: rgba(244, 178, 65, 0.12);
+    }
+
+    .room-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .room-btn.secondary {
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #d3d7df;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
     #artwork-panel {
       right: 14px;
       bottom: 14px;
@@ -138,6 +155,92 @@
 
     #panel-restore.visible {
       display: block;
+    }
+
+    #private-room-modal[hidden] {
+      display: none;
+    }
+
+    #private-room-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 5, 12, 0.7);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      padding: 14px;
+    }
+
+    .private-modal-card {
+      width: min(420px, calc(100% - 28px));
+      border-radius: 14px;
+      border: 1px solid var(--panel-border);
+      background: rgba(7, 10, 18, 0.95);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.48);
+      padding: 16px;
+    }
+
+    .private-modal-card h3 {
+      margin: 0 0 8px 0;
+      color: var(--accent);
+      font-size: 1.06rem;
+    }
+
+    .private-modal-card p {
+      margin: 0 0 12px 0;
+      color: #d4d9e0;
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    #private-room-password {
+      width: 100%;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    #private-room-password:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(244, 178, 65, 0.2);
+    }
+
+    #private-room-error {
+      min-height: 18px;
+      margin: 8px 0 0 0;
+      color: #ff8a8a;
+      font-size: 0.84rem;
+    }
+
+    .private-modal-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .private-modal-actions button {
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    #private-room-submit {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(244, 178, 65, 0.14);
     }
 
     .panel-header {
@@ -300,12 +403,7 @@
   </style>
 </head>
 <body>
-  <div id="room-menu" class="overlay-card" aria-label="Salto de salas">
-    <button class="room-btn" data-room-id="retratos">1. Retratos</button>
-    <button class="room-btn" data-room-id="fantasia">2. Fantas&iacute;a</button>
-    <button class="room-btn" data-room-id="pop">3. Cultura pop</button>
-    <button class="room-btn" data-room-id="tradicion">4. Tradici&oacute;n</button>
-  </div>
+  <div id="room-menu" class="overlay-card" aria-label="Salto de salas"></div>
 
   <aside id="artwork-panel" class="overlay-card" aria-live="polite">
     <div class="panel-header">
@@ -327,6 +425,19 @@
   </aside>
 
   <button id="panel-restore" type="button">Mostrar ficha</button>
+
+  <div id="private-room-modal" hidden>
+    <div class="private-modal-card" role="dialog" aria-modal="true" aria-labelledby="private-room-title">
+      <h3 id="private-room-title">Desbloquear sala privada</h3>
+      <p>Ingresa la contraseña para abrir la sala secreta en esta sesión.</p>
+      <input id="private-room-password" type="password" autocomplete="off" placeholder="Contraseña" />
+      <p id="private-room-error"></p>
+      <div class="private-modal-actions">
+        <button id="private-room-cancel" type="button">Cancelar</button>
+        <button id="private-room-submit" type="button">Desbloquear</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     window.__MUSEO_CONFIG__ = {

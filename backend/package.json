@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "sync:catalog-media": "node scripts/sync_catalog_media.mjs"
+    "sync:catalog-media": "node scripts/sync_catalog_media.mjs",
+    "select:couple-photos": "node scripts/select_couple_photos.mjs",
+    "sync:private-room": "node scripts/sync_private_room_catalog.mjs"
   },
   "devDependencies": {
     "supabase": "^2.76.12"

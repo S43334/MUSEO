@@ -159,12 +159,12 @@ function levelPixelRatioLimit(level, deviceProfile) {
   const desktopLike = Boolean(deviceProfile?.isDesktopLike);
 
   if (level === 'high') {
-    return desktopLike ? 1.7 : 1.2;
+    return desktopLike ? 1.5 : 1.15;
   }
   if (level === 'balanced') {
-    return desktopLike ? 1.35 : 1.0;
+    return desktopLike ? 1.22 : 0.95;
   }
-  return desktopLike ? 1.1 : 0.85;
+  return desktopLike ? 1.0 : 0.82;
 }
 
 function levelFog(level) {

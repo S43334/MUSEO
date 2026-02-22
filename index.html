@@ -120,6 +120,26 @@
       pointer-events: auto;
     }
 
+    #panel-restore {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      z-index: 35;
+      display: none;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    #panel-restore.visible {
+      display: block;
+    }
+
     .panel-header {
       display: flex;
       align-items: flex-start;
@@ -210,6 +230,11 @@
         max-height: min(52dvh, 430px);
       }
 
+      #panel-restore {
+        right: 10px;
+        bottom: 82px;
+      }
+
       #joystick-zone {
         left: 2px;
         bottom: 10px;
@@ -241,6 +266,12 @@
         bottom: 8px;
         width: min(405px, 48vw);
         max-height: none;
+      }
+
+      #panel-restore {
+        top: 8px;
+        right: 8px;
+        bottom: auto;
       }
 
       #joystick-zone {
@@ -294,6 +325,16 @@
       <button id="panel-next" type="button">Siguiente</button>
     </div>
   </aside>
+
+  <button id="panel-restore" type="button">Mostrar ficha</button>
+
+  <script>
+    window.__MUSEO_CONFIG__ = {
+      supabaseUrl: 'https://eupvlwgljhcemsfepous.supabase.co',
+      supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1cHZsd2dsamhjZW1zZmVwb3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzUzNDIsImV4cCI6MjA4NzMxMTM0Mn0.X_9VIJkw3Tx9GLZ91CFfygeqr9sZWtHSvTP0lWn5O8Y',
+      functionsBaseUrl: 'https://eupvlwgljhcemsfepous.supabase.co/functions/v1'
+    };
+  </script>
 
   <div id="joystick-zone"></div>
   <script type="module" src="./src/main.js"></script>

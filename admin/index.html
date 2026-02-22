@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Museo</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0f1b;
+      color: #e8ebf2;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: 100vh;
+    }
+
+    aside {
+      border-right: 1px solid rgba(255,255,255,0.12);
+      padding: 16px;
+      background: #111a2d;
+    }
+
+    main {
+      padding: 16px;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 12px;
+    }
+
+    .card {
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    label { display: block; margin: 8px 0 4px; font-size: 13px; }
+    input, textarea, select, button {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: #0d1527;
+      color: #fff;
+      padding: 8px;
+    }
+
+    button { cursor: pointer; margin-top: 8px; }
+    button.primary { background: #2d5ecf; border-color: #2d5ecf; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #08101f;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 10px;
+      max-height: 300px;
+      overflow: auto;
+    }
+
+    .muted { opacity: 0.72; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <h2>Admin Museo</h2>
+      <div class="card">
+        <h3>Auth</h3>
+        <label>Email</label>
+        <input id="email" type="email" />
+        <label>Password</label>
+        <input id="password" type="password" />
+        <button id="login-btn" class="primary">Iniciar sesión</button>
+        <button id="logout-btn">Cerrar sesión</button>
+        <p id="auth-status" class="muted">No autenticado</p>
+      </div>
+
+      <div class="card">
+        <h3>Carga de imagen</h3>
+        <label>Artwork ID (uuid)</label>
+        <input id="upload-artwork-id" type="text" />
+        <label>Imagen original</label>
+        <input id="upload-file" type="file" accept="image/*" />
+        <button id="upload-btn" class="primary">Subir original + derivados</button>
+        <p class="muted">Genera y sube original/web/thumb usando signed URLs.</p>
+      </div>
+    </aside>
+
+    <main>
+      <div class="card">
+        <h3>Config runtime</h3>
+        <p class="muted">Define <code>window.__MUSEO_ADMIN_CONFIG__</code> en este HTML antes de usar.</p>
+      </div>
+
+      <div class="card">
+        <h3>Room CRUD</h3>
+        <div class="row">
+          <div>
+            <label>Slug</label>
+            <input id="room-slug" placeholder="retratos" />
+          </div>
+          <div>
+            <label>Título</label>
+            <input id="room-title" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Color (#hex)</label>
+            <input id="room-color" value="#30405f" />
+          </div>
+          <div>
+            <label>Orden</label>
+            <input id="room-order" type="number" value="0" />
+          </div>
+        </div>
+        <button id="save-room-btn" class="primary">Guardar sala</button>
+      </div>
+
+      <div class="card">
+        <h3>Artwork CRUD</h3>
+        <label>ID UUID (vacío para crear)</label>
+        <input id="artwork-id" />
+        <div class="row">
+          <div>
+            <label>Legacy ID</label>
+            <input id="artwork-legacy" type="number" />
+          </div>
+          <div>
+            <label>Room slug</label>
+            <input id="artwork-room-slug" />
+          </div>
+        </div>
+        <label>Título</label>
+        <input id="artwork-title" />
+        <label>Autor</label>
+        <input id="artwork-author" value="Dinorah Isabella Domínguez Ruiz" />
+        <div class="row">
+          <div>
+            <label>Año</label>
+            <input id="artwork-year" />
+          </div>
+          <div>
+            <label>Técnica</label>
+            <input id="artwork-technique" />
+          </div>
+        </div>
+        <label>Descripción</label>
+        <textarea id="artwork-description" rows="3"></textarea>
+        <div class="row">
+          <div>
+            <label>Theme ID</label>
+            <input id="artwork-theme-id" />
+          </div>
+          <div>
+            <label>Section ID</label>
+            <input id="artwork-section-id" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Orden</label>
+            <input id="artwork-order" type="number" value="0" />
+          </div>
+          <div>
+            <label>Publicado</label>
+            <select id="artwork-published">
+              <option value="true">true</option>
+              <option value="false">false</option>
+            </select>
+          </div>
+        </div>
+        <button id="save-artwork-btn" class="primary">Guardar obra</button>
+      </div>
+
+      <div class="card">
+        <h3>Catálogo publicado</h3>
+        <button id="refresh-catalog-btn">Refrescar</button>
+        <pre id="catalog-output"></pre>
+      </div>
+
+      <div class="card">
+        <h3>Analítica avanzada</h3>
+        <button id="refresh-analytics-btn">Cargar métricas</button>
+        <pre id="analytics-output"></pre>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    window.__MUSEO_ADMIN_CONFIG__ = {
+      supabaseUrl: 'https://eupvlwgljhcemsfepous.supabase.co',
+      supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1cHZsd2dsamhjZW1zZmVwb3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MzUzNDIsImV4cCI6MjA4NzMxMTM0Mn0.X_9VIJkw3Tx9GLZ91CFfygeqr9sZWtHSvTP0lWn5O8Y',
+      functionsBaseUrl: 'https://eupvlwgljhcemsfepous.supabase.co/functions/v1'
+    };
+  </script>
+  <script type="module" src="./app/main.js"></script>
+</body>
+</html>

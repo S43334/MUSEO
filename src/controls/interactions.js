@@ -4,6 +4,11 @@ const FOCUS_FOV = 56;
 const FOCUS_MIN_DISTANCE = 5.2;
 const FOCUS_MAX_DISTANCE = 7.2;
 const FOCUS_TARGET_Y_OFFSET = 0.08;
+const QUALITY_SPOT_INTENSITY = {
+  high: 1.35,
+  balanced: 0.92,
+  low: 0
+};
 
 function easeInOut(t) {
   return t < 0.5
@@ -83,6 +88,7 @@ export function setupInteractions({
   const duration = 0.74;
   let isZoomed = false;
   let panelVisible = true;
+  let qualityLevel = 'balanced';
 
   function getPointer(event) {
     const rect = renderer.domElement.getBoundingClientRect();
@@ -132,6 +138,12 @@ export function setupInteractions({
   }
 
   function updateFocusSpot(target, inwardNormal) {
+    if (qualityLevel === 'low') {
+      focusSpot.visible = false;
+      return;
+    }
+
+    focusSpot.intensity = QUALITY_SPOT_INTENSITY[qualityLevel] || QUALITY_SPOT_INTENSITY.balanced;
     focusSpotTarget.position.copy(target);
     focusSpot.position.copy(target).add(inwardNormal.clone().multiplyScalar(2.05));
     focusSpot.position.y = target.y + 3.15;
@@ -252,6 +264,14 @@ export function setupInteractions({
   return {
     focusPainting,
     clearSelection,
+    setQuality(level = 'balanced') {
+      qualityLevel = level;
+      if (qualityLevel === 'low') {
+        hideFocusSpot();
+      } else {
+        focusSpot.intensity = QUALITY_SPOT_INTENSITY[qualityLevel] || QUALITY_SPOT_INTENSITY.balanced;
+      }
+    },
     setPanelVisibility(isVisible) {
       panelVisible = Boolean(isVisible);
     },

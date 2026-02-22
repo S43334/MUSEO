@@ -1,0 +1,13 @@
+project_id = "museo"
+
+[functions.get_public_catalog]
+verify_jwt = false
+
+[functions.track_event]
+verify_jwt = false
+
+[functions.admin_issue_upload_urls]
+verify_jwt = true
+
+[functions.admin_upsert_content]
+verify_jwt = true

@@ -1,0 +1,679 @@
+{
+  "generatedAt": "2026-02-22T05:33:33.513Z",
+  "rooms": [
+    {
+      "id": "retratos",
+      "title": "Retratos y personas queridas",
+      "themeIds": [
+        "retratos"
+      ],
+      "color": 2968179
+    },
+    {
+      "id": "fantasia",
+      "title": "Fantasía y color",
+      "themeIds": [
+        "fantasia"
+      ],
+      "color": 3497802
+    },
+    {
+      "id": "pop",
+      "title": "Cultura pop y héroes",
+      "themeIds": [
+        "pop"
+      ],
+      "color": 6963030
+    },
+    {
+      "id": "tradicion",
+      "title": "Tradición, fe y estudio",
+      "themeIds": [
+        "tradicion"
+      ],
+      "color": 7035442
+    }
+  ],
+  "artworks": [
+    {
+      "id": 1,
+      "title": "Sebastián",
+      "file": "dibujo1.png",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "fantasia_luminosa",
+      "sectionTitle": "Fantasía luminosa",
+      "sectionColor": 9356767,
+      "image": "textures/paintings/dibujo1.png",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 1,
+      "media": {
+        "original": "legacy/dibujo1.png",
+        "web": "legacy/dibujo1.web.webp",
+        "thumb": "legacy/dibujo1.thumb.webp"
+      }
+    },
+    {
+      "id": 2,
+      "title": "La reina de los pájaros canta...",
+      "file": "dibujo2.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo2.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 2,
+      "media": {
+        "original": "legacy/dibujo2.jpg",
+        "web": "legacy/dibujo2.web.webp",
+        "thumb": "legacy/dibujo2.thumb.webp"
+      }
+    },
+    {
+      "id": 3,
+      "title": "WANDAVISION 50s",
+      "file": "dibujo3.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "aventura_pop",
+      "sectionTitle": "Aventura pop",
+      "sectionColor": 9406173,
+      "image": "textures/paintings/dibujo3.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 3,
+      "media": {
+        "original": "legacy/dibujo3.jpg",
+        "web": "legacy/dibujo3.web.webp",
+        "thumb": "legacy/dibujo3.thumb.webp"
+      }
+    },
+    {
+      "id": 4,
+      "title": "\"I KNOW WHO I AM...\" - Wanda Maximoff / Scarlet Witch",
+      "file": "dibujo4.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "noches_heroicas",
+      "sectionTitle": "Noches heroicas",
+      "sectionColor": 6250438,
+      "image": "textures/paintings/dibujo4.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 4,
+      "media": {
+        "original": "legacy/dibujo4.jpg",
+        "web": "legacy/dibujo4.web.webp",
+        "thumb": "legacy/dibujo4.thumb.webp"
+      }
+    },
+    {
+      "id": 5,
+      "title": "El gallo",
+      "file": "dibujo5.jpg",
+      "themeId": "tradicion",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "retrato_legado",
+      "sectionTitle": "Retrato y legado",
+      "sectionColor": 14137741,
+      "image": "textures/paintings/dibujo5.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 5,
+      "media": {
+        "original": "legacy/dibujo5.jpg",
+        "web": "legacy/dibujo5.web.webp",
+        "thumb": "legacy/dibujo5.thumb.webp"
+      }
+    },
+    {
+      "id": 6,
+      "title": "Pendiente",
+      "file": "dibujo6.png",
+      "themeId": "tradicion",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo6.png",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 6,
+      "media": {
+        "original": "legacy/dibujo6.png",
+        "web": "legacy/dibujo6.web.webp",
+        "thumb": "legacy/dibujo6.thumb.webp"
+      }
+    },
+    {
+      "id": 7,
+      "title": "Loki y Sylvie",
+      "file": "dibujo7.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "aventura_pop",
+      "sectionTitle": "Aventura pop",
+      "sectionColor": 9406173,
+      "image": "textures/paintings/dibujo7.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 7,
+      "media": {
+        "original": "legacy/dibujo7.jpg",
+        "web": "legacy/dibujo7.web.webp",
+        "thumb": "legacy/dibujo7.thumb.webp"
+      }
+    },
+    {
+      "id": 8,
+      "title": "Vision (Disfraz de Vision)",
+      "file": "dibujo8.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "noches_heroicas",
+      "sectionTitle": "Noches heroicas",
+      "sectionColor": 6250438,
+      "image": "textures/paintings/dibujo8.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 8,
+      "media": {
+        "original": "legacy/dibujo8.jpg",
+        "web": "legacy/dibujo8.web.webp",
+        "thumb": "legacy/dibujo8.thumb.webp"
+      }
+    },
+    {
+      "id": 9,
+      "title": "Batgirl",
+      "file": "dibujo9.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "aventura_pop",
+      "sectionTitle": "Aventura pop",
+      "sectionColor": 9406173,
+      "image": "textures/paintings/dibujo9.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 9,
+      "media": {
+        "original": "legacy/dibujo9.jpg",
+        "web": "legacy/dibujo9.web.webp",
+        "thumb": "legacy/dibujo9.thumb.webp"
+      }
+    },
+    {
+      "id": 10,
+      "title": "Claus y Charlotte: la magia de la Navidad",
+      "file": "dibujo10.jpg",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "fantasia_luminosa",
+      "sectionTitle": "Fantasía luminosa",
+      "sectionColor": 9356767,
+      "image": "textures/paintings/dibujo10.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 10,
+      "media": {
+        "original": "legacy/dibujo10.jpg",
+        "web": "legacy/dibujo10.web.webp",
+        "thumb": "legacy/dibujo10.thumb.webp"
+      }
+    },
+    {
+      "id": 11,
+      "title": "Planeta de pizza",
+      "file": "dibujo11.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "aventura_pop",
+      "sectionTitle": "Aventura pop",
+      "sectionColor": 9406173,
+      "image": "textures/paintings/dibujo11.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 11,
+      "media": {
+        "original": "legacy/dibujo11.jpg",
+        "web": "legacy/dibujo11.web.webp",
+        "thumb": "legacy/dibujo11.thumb.webp"
+      }
+    },
+    {
+      "id": 12,
+      "title": "Lizzie in the Emmys",
+      "file": "dibujo12.jpg",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "retrato_legado",
+      "sectionTitle": "Retrato y legado",
+      "sectionColor": 14137741,
+      "image": "textures/paintings/dibujo12.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 12,
+      "media": {
+        "original": "legacy/dibujo12.jpg",
+        "web": "legacy/dibujo12.web.webp",
+        "thumb": "legacy/dibujo12.thumb.webp"
+      }
+    },
+    {
+      "id": 13,
+      "title": "Flowers with girl's Redhead",
+      "file": "dibujo13.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "color_celebracion",
+      "sectionTitle": "Color y celebración",
+      "sectionColor": 15966147,
+      "image": "textures/paintings/dibujo13.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 13,
+      "media": {
+        "original": "legacy/dibujo13.jpg",
+        "web": "legacy/dibujo13.web.webp",
+        "thumb": "legacy/dibujo13.thumb.webp"
+      }
+    },
+    {
+      "id": 14,
+      "title": "NASA",
+      "file": "dibujo14.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "aventura_pop",
+      "sectionTitle": "Aventura pop",
+      "sectionColor": 9406173,
+      "image": "textures/paintings/dibujo14.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 14,
+      "media": {
+        "original": "legacy/dibujo14.jpg",
+        "web": "legacy/dibujo14.web.webp",
+        "thumb": "legacy/dibujo14.thumb.webp"
+      }
+    },
+    {
+      "id": 15,
+      "title": "La sirena",
+      "file": "dibujo15.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "fantasia_luminosa",
+      "sectionTitle": "Fantasía luminosa",
+      "sectionColor": 9356767,
+      "image": "textures/paintings/dibujo15.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 15,
+      "media": {
+        "original": "legacy/dibujo15.jpg",
+        "web": "legacy/dibujo15.web.webp",
+        "thumb": "legacy/dibujo15.thumb.webp"
+      }
+    },
+    {
+      "id": 16,
+      "title": "El paraguas",
+      "file": "dibujo16.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "fantasia_luminosa",
+      "sectionTitle": "Fantasía luminosa",
+      "sectionColor": 9356767,
+      "image": "textures/paintings/dibujo16.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 16,
+      "media": {
+        "original": "legacy/dibujo16.jpg",
+        "web": "legacy/dibujo16.web.webp",
+        "thumb": "legacy/dibujo16.thumb.webp"
+      }
+    },
+    {
+      "id": 17,
+      "title": "El Catrín",
+      "file": "dibujo17.jpg",
+      "themeId": "tradicion",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "retrato_legado",
+      "sectionTitle": "Retrato y legado",
+      "sectionColor": 14137741,
+      "image": "textures/paintings/dibujo17.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 17,
+      "media": {
+        "original": "legacy/dibujo17.jpg",
+        "web": "legacy/dibujo17.web.webp",
+        "thumb": "legacy/dibujo17.thumb.webp"
+      }
+    },
+    {
+      "id": 18,
+      "title": "La dama",
+      "file": "dibujo18.jpg",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "retrato_legado",
+      "sectionTitle": "Retrato y legado",
+      "sectionColor": 14137741,
+      "image": "textures/paintings/dibujo18.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 18,
+      "media": {
+        "original": "legacy/dibujo18.jpg",
+        "web": "legacy/dibujo18.web.webp",
+        "thumb": "legacy/dibujo18.thumb.webp"
+      }
+    },
+    {
+      "id": 19,
+      "title": "Cómic",
+      "file": "dibujo19.jpg",
+      "themeId": "tradicion",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo19.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 19,
+      "media": {
+        "original": "legacy/dibujo19.jpg",
+        "web": "legacy/dibujo19.web.webp",
+        "thumb": "legacy/dibujo19.thumb.webp"
+      }
+    },
+    {
+      "id": 20,
+      "title": "Virgen María",
+      "file": "dibujo20.jpg",
+      "themeId": "tradicion",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo20.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 20,
+      "media": {
+        "original": "legacy/dibujo20.jpg",
+        "web": "legacy/dibujo20.web.webp",
+        "thumb": "legacy/dibujo20.thumb.webp"
+      }
+    },
+    {
+      "id": 21,
+      "title": "Anne of Green Gables",
+      "file": "dibujo21.jpg",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "fantasia_luminosa",
+      "sectionTitle": "Fantasía luminosa",
+      "sectionColor": 9356767,
+      "image": "textures/paintings/dibujo21.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 21,
+      "media": {
+        "original": "legacy/dibujo21.jpg",
+        "web": "legacy/dibujo21.web.webp",
+        "thumb": "legacy/dibujo21.thumb.webp"
+      }
+    },
+    {
+      "id": 22,
+      "title": "¡Donaaaa!",
+      "file": "dibujo22.jpg",
+      "themeId": "tradicion",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "color_celebracion",
+      "sectionTitle": "Color y celebración",
+      "sectionColor": 15966147,
+      "image": "textures/paintings/dibujo22.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 22,
+      "media": {
+        "original": "legacy/dibujo22.jpg",
+        "web": "legacy/dibujo22.web.webp",
+        "thumb": "legacy/dibujo22.thumb.webp"
+      }
+    },
+    {
+      "id": 23,
+      "title": "Jesucristo",
+      "file": "dibujo23.jpg",
+      "themeId": "tradicion",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo23.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 23,
+      "media": {
+        "original": "legacy/dibujo23.jpg",
+        "web": "legacy/dibujo23.web.webp",
+        "thumb": "legacy/dibujo23.thumb.webp"
+      }
+    },
+    {
+      "id": 24,
+      "title": "Los héroes también toman leche",
+      "file": "dibujo24.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo24.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 24,
+      "media": {
+        "original": "legacy/dibujo24.jpg",
+        "web": "legacy/dibujo24.web.webp",
+        "thumb": "legacy/dibujo24.thumb.webp"
+      }
+    },
+    {
+      "id": 25,
+      "title": "Walt Disney",
+      "file": "dibujo25.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "retrato_legado",
+      "sectionTitle": "Retrato y legado",
+      "sectionColor": 14137741,
+      "image": "textures/paintings/dibujo25.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 25,
+      "media": {
+        "original": "legacy/dibujo25.jpg",
+        "web": "legacy/dibujo25.web.webp",
+        "thumb": "legacy/dibujo25.thumb.webp"
+      }
+    },
+    {
+      "id": 26,
+      "title": "Dibujo de mi abuelita",
+      "file": "dibujo26.jpg",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "retrato_legado",
+      "sectionTitle": "Retrato y legado",
+      "sectionColor": 14137741,
+      "image": "textures/paintings/dibujo26.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 26,
+      "media": {
+        "original": "legacy/dibujo26.jpg",
+        "web": "legacy/dibujo26.web.webp",
+        "thumb": "legacy/dibujo26.thumb.webp"
+      }
+    },
+    {
+      "id": 27,
+      "title": "Sueños de cuarentena",
+      "file": "dibujo27.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo27.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 27,
+      "media": {
+        "original": "legacy/dibujo27.jpg",
+        "web": "legacy/dibujo27.web.webp",
+        "thumb": "legacy/dibujo27.thumb.webp"
+      }
+    },
+    {
+      "id": 28,
+      "title": "Dos granitos de arena",
+      "file": "dibujo28.jpg",
+      "themeId": "fantasia",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "color_celebracion",
+      "sectionTitle": "Color y celebración",
+      "sectionColor": 15966147,
+      "image": "textures/paintings/dibujo28.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 28,
+      "media": {
+        "original": "legacy/dibujo28.jpg",
+        "web": "legacy/dibujo28.web.webp",
+        "thumb": "legacy/dibujo28.thumb.webp"
+      }
+    },
+    {
+      "id": 29,
+      "title": "¡Yodaaaaaa!",
+      "file": "dibujo29.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "color_celebracion",
+      "sectionTitle": "Color y celebración",
+      "sectionColor": 15966147,
+      "image": "textures/paintings/dibujo29.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 29,
+      "media": {
+        "original": "legacy/dibujo29.jpg",
+        "web": "legacy/dibujo29.web.webp",
+        "thumb": "legacy/dibujo29.thumb.webp"
+      }
+    },
+    {
+      "id": 30,
+      "title": "¡Mi perrita Cherry!",
+      "file": "dibujo30.jpg",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "memorias_grafito",
+      "sectionTitle": "Memorias en grafito",
+      "sectionColor": 11122633,
+      "image": "textures/paintings/dibujo30.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 30,
+      "media": {
+        "original": "legacy/dibujo30.jpg",
+        "web": "legacy/dibujo30.web.webp",
+        "thumb": "legacy/dibujo30.thumb.webp"
+      }
+    },
+    {
+      "id": 31,
+      "title": "Sheldon Cooper",
+      "file": "dibujo31.jpg",
+      "themeId": "pop",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "fantasia_luminosa",
+      "sectionTitle": "Fantasía luminosa",
+      "sectionColor": 9356767,
+      "image": "textures/paintings/dibujo31.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 31,
+      "media": {
+        "original": "legacy/dibujo31.jpg",
+        "web": "legacy/dibujo31.web.webp",
+        "thumb": "legacy/dibujo31.thumb.webp"
+      }
+    },
+    {
+      "id": 32,
+      "title": "Mona Lisa",
+      "file": "dibujo32.jpg",
+      "themeId": "retratos",
+      "author": "Dinorah Isabella Domínguez Ruiz",
+      "sectionId": "retrato_legado",
+      "sectionTitle": "Retrato y legado",
+      "sectionColor": 14137741,
+      "image": "textures/paintings/dibujo32.jpg",
+      "year": "Sin fecha",
+      "technique": "Grafito y color",
+      "description": "Parte de una colección personal creada con dedicación y amor.",
+      "sort_order": 32,
+      "media": {
+        "original": "legacy/dibujo32.jpg",
+        "web": "legacy/dibujo32.web.webp",
+        "thumb": "legacy/dibujo32.thumb.webp"
+      }
+    }
+  ]
+}

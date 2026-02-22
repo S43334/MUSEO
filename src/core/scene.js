@@ -10,9 +10,12 @@ export function createScene() {
 export function createRenderer(options = {}) {
   const deviceProfile = options.deviceProfile || {};
   const isDesktopLike = Boolean(deviceProfile.isDesktopLike);
+  const memoryGb = Number(deviceProfile.memoryGb || 4);
+  const cpuCores = Number(deviceProfile.cpuCores || 4);
   const dpr = window.devicePixelRatio || 1;
-  const initialPixelRatioLimit = isDesktopLike ? 1.5 : 0.95;
-  const useAntialias = isDesktopLike && dpr <= 1.6;
+  const ultraLowMobile = !isDesktopLike && (memoryGb <= 1 || cpuCores <= 2);
+  const initialPixelRatioLimit = isDesktopLike ? 1.5 : (ultraLowMobile ? 0.95 : 1.15);
+  const useAntialias = ultraLowMobile ? (dpr <= 1.2) : true;
 
   const renderer = new THREE.WebGLRenderer({
     antialias: useAntialias,

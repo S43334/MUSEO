@@ -131,11 +131,10 @@ function updateToggleLabel(toggleButton, hidden) {
   toggleButton.innerText = hidden ? 'Mostrar ficha' : 'Ocultar ficha';
 }
 
-function showArtworkPanel(artwork) {
-  if (!artworkPanel || !artwork) {
+function renderArtworkPanelContent(artwork) {
+  if (!artwork) {
     return;
   }
-
   if (panelTitle) {
     panelTitle.innerText = artwork.title || 'Sin t\u00edtulo';
   }
@@ -154,6 +153,14 @@ function showArtworkPanel(artwork) {
   if (panelDescription) {
     panelDescription.innerText = artwork.description || 'Sin descripci\u00f3n adicional.';
   }
+}
+
+function showArtworkPanel(artwork) {
+  if (!artworkPanel || !artwork) {
+    return;
+  }
+
+  renderArtworkPanelContent(artwork);
 
   artworkPanel.classList.add('visible');
 }
@@ -526,10 +533,13 @@ async function bootstrap() {
         });
       }
 
+      renderArtworkPanelContent(artwork);
       if (panelHiddenWhileFocused) {
-        resetPanelHiddenState();
+        hideArtworkPanel();
+        setRestorePanelVisible(true);
+      } else {
+        showArtworkPanel(artwork);
       }
-      showArtworkPanel(artwork);
       setArtworkNavVisible(true);
 
       trackEvent('artwork_focus', {

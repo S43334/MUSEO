@@ -16,6 +16,8 @@ export function createFramedPainting({ texture, woodTexture }) {
   const painting = new THREE.Mesh(sharedPaintingGeo, paintingMaterial);
   
   painting.position.z = 0.01;
+  painting.userData.isPaintingSurface = true;
+  painting.userData.paintingGroup = group;
   group.add(painting);
 
   const frameMaterial = new THREE.MeshStandardMaterial({
@@ -29,6 +31,7 @@ export function createFramedPainting({ texture, woodTexture }) {
   const frame = new THREE.Mesh(sharedFrameGeo, frameMaterial);
   
   frame.userData.isFrame = true;
+  frame.userData.paintingGroup = group;
   frame.position.z = -frameDepth / 2 + 0.005; 
   group.add(frame);
 

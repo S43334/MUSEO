@@ -1,41 +1,43 @@
 import * as THREE from 'three';
-import { paintings } from './data.js';
 import { createFramedPainting } from './frame.js';
 import { createPlaque } from './plaque.js';
 
-export function loadPaintings(scene) {
-  const loader = new THREE.TextureLoader();
+export function loadPaintings(scene, { placements, manager, woodTexture }) {
+  const loader = new THREE.TextureLoader(manager);
+  const instances = [];
 
-  paintings.forEach((data) => {
-    const texture = loader.load(data.image);
+  placements.forEach((artwork, index) => {
+    const texture = loader.load(artwork.image);
     texture.colorSpace = THREE.SRGBColorSpace;
 
-    const paintingGroup = createFramedPainting({ 
-        texture: texture, 
-        width: 1.5, 
-        height: 2 
+    const paintingGroup = createFramedPainting({
+      texture,
+      woodTexture
     });
 
-    if (data.title) {
-      const plaque = createPlaque({ 
-        title: data.title, 
-        author: data.author || "Artista" 
+    if (artwork.title) {
+      const plaque = createPlaque({
+        title: artwork.title,
+        author: artwork.author || 'Artista'
       });
-      
-      plaque.position.y = -1.4; 
-      plaque.position.z = 0.06; 
-      
-      plaque.rotation.x = -Math.PI / 12; 
-      
+
+      plaque.position.y = -1.4;
+      plaque.position.z = 0.06;
+      plaque.rotation.x = -Math.PI / 12;
       paintingGroup.add(plaque);
     }
 
-    paintingGroup.position.set(data.position.x, data.position.y, data.position.z);
-    
-    if (data.rotationY) {
-      paintingGroup.rotation.y = data.rotationY;
+    paintingGroup.position.set(artwork.position.x, artwork.position.y, artwork.position.z);
+    if (typeof artwork.rotationY === 'number') {
+      paintingGroup.rotation.y = artwork.rotationY;
     }
 
+    paintingGroup.userData.artwork = artwork;
+    paintingGroup.userData.placementIndex = index;
+
     scene.add(paintingGroup);
+    instances.push({ artwork, group: paintingGroup });
   });
+
+  return instances;
 }

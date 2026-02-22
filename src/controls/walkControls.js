@@ -1,19 +1,19 @@
 import * as THREE from 'three';
 
-export function createWalkControls(camera, controls) {
+export function createWalkControls(camera, controls, customBounds = {}) {
   const velocity = new THREE.Vector3();
   const direction = new THREE.Vector3();
   const keys = { forward: false, backward: false, left: false, right: false };
   
   let joystickInput = { x: 0, y: 0 };
   
-  const speed = 10.0;
+  const speed = 8.5;
 
   const BOUNDS = {
-    minX: -4.8, 
-    maxX: 4.8,  
-    minZ: -168.0,
-    maxZ: 15.0 
+    minX: customBounds.minX ?? -4.8,
+    maxX: customBounds.maxX ?? 4.8,
+    minZ: customBounds.minZ ?? -120.0,
+    maxZ: customBounds.maxZ ?? 16.0
   };
 
   window.addEventListener('keydown', e => {

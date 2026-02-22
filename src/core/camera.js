@@ -5,8 +5,8 @@ export function createCamera() {
     65,
     window.innerWidth / window.innerHeight,
     0.1,
-    100
+    220
   );
-  camera.position.set(0, 1.6, 4);
+  camera.position.set(0, 1.6, 8);
   return camera;
 }

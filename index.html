@@ -164,33 +164,48 @@
     }
 
     #artwork-nav {
-      left: 50%;
+      left: 0;
+      right: 0;
       bottom: 14px;
-      transform: translate(-50%, 14px);
-      display: flex;
-      gap: 8px;
-      padding: 8px;
+      height: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       opacity: 0;
       pointer-events: none;
+      transform: translateY(12px);
       transition: opacity 0.22s ease, transform 0.22s ease;
     }
 
     #artwork-nav.visible {
       opacity: 1;
-      transform: translate(-50%, 0);
-      pointer-events: auto;
+      transform: translateY(0);
     }
 
     #artwork-nav button {
-      min-width: 120px;
+      position: absolute;
+      bottom: 0;
+      width: 56px;
+      min-width: 56px;
+      height: 44px;
       border: 1px solid var(--accent);
       color: var(--accent);
       background: var(--accent-soft);
       border-radius: 8px;
-      padding: 9px 12px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       transition: all 0.22s ease;
-      font-weight: 700;
+      font-size: 18px;
+      line-height: 1;
+      font-weight: 800;
+      pointer-events: auto;
     }
 
     #artwork-nav button:hover:not(:disabled) {
@@ -201,6 +216,14 @@
     #artwork-nav button:disabled {
       opacity: 0.45;
       cursor: not-allowed;
+    }
+
+    #nav-prev {
+      left: 14px;
+    }
+
+    #nav-next {
+      right: 14px;
     }
 
     #private-room-modal[hidden] {
@@ -360,13 +383,22 @@
       }
 
       #artwork-nav {
-        left: 50%;
         bottom: 16px;
       }
 
       #artwork-nav button {
-        min-width: 108px;
-        padding: 8px 10px;
+        width: 52px;
+        min-width: 52px;
+        height: 42px;
+        font-size: 17px;
+      }
+
+      #nav-prev {
+        left: 10px;
+      }
+
+      #nav-next {
+        right: 10px;
       }
 
       #joystick-zone {
@@ -409,7 +441,6 @@
       }
 
       #artwork-nav {
-        left: 50%;
         bottom: 8px;
       }
 
@@ -459,8 +490,8 @@
   <button id="panel-restore" type="button">Mostrar ficha</button>
 
   <div id="artwork-nav" class="overlay-card" aria-label="Navegaci&oacute;n de obras">
-    <button id="nav-prev" type="button">Anterior</button>
-    <button id="nav-next" type="button">Siguiente</button>
+    <button id="nav-prev" type="button" aria-label="Anterior">&lt;-</button>
+    <button id="nav-next" type="button" aria-label="Siguiente">-&gt;</button>
   </div>
 
   <div id="private-room-modal" hidden>

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
-const FOCUS_FOV = 62;
-const FOCUS_MIN_DISTANCE = 6.8;
-const FOCUS_MAX_DISTANCE = 9.8;
-const FOCUS_TARGET_Y_OFFSET = 0.2;
+const FOCUS_FOV = 35;
+const FOCUS_MIN_DISTANCE = 3.7;
+const FOCUS_MAX_DISTANCE = 5.8;
+const FOCUS_TARGET_Y_OFFSET = 0.12;
 const QUALITY_SPOT_INTENSITY = {
   high: 1.5,
   balanced: 1.05,
@@ -43,7 +43,7 @@ function getFocusDistance(camera, paintingGroup) {
   const fitByHeight = (frameHeight / 2) / Math.tan(vFov / 2);
   const fitByWidth = (frameWidth / 2) / Math.tan(hFov / 2);
 
-  const calculated = Math.max(baseDistance, fitByHeight + 2.15, fitByWidth + 2.35);
+  const calculated = Math.max(baseDistance, fitByHeight + 0.7, fitByWidth + 0.86);
   return THREE.MathUtils.clamp(calculated, FOCUS_MIN_DISTANCE, FOCUS_MAX_DISTANCE);
 }
 
@@ -176,7 +176,7 @@ export function setupInteractions({
 
     const offset = inwardNormal.multiplyScalar(focusDistance);
     const destination = target.clone().add(offset);
-    destination.y = Math.max(1.74, target.y + 0.22);
+    destination.y = Math.max(1.64, target.y + 0.1);
 
     setTransitionTargets(destination, target, FOCUS_FOV);
     updateFocusSpot(target, inwardNormal);
@@ -289,6 +289,10 @@ export function setupInteractions({
         controls.target.lerpVectors(startTarget, endTarget, t);
         camera.fov = THREE.MathUtils.lerp(startFov, endFov, t);
         camera.updateProjectionMatrix();
+      }
+
+      if (!controls.enabled) {
+        camera.lookAt(controls.target);
       }
     }
   };

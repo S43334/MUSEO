@@ -124,36 +124,6 @@ function addWingAccents(group, wing, config) {
   group.add(sign);
 }
 
-function addWingPrismBands(group, wing, config) {
-  const axis = toVecXZ(wing.axis);
-  const right = toVecXZ(wing.right);
-  const center = toVecXZ(wing.center);
-  const halfWidth = wing.width / 2;
-
-  const bandLength = Math.max(4, wing.length - 1.4);
-  const sideOffset = halfWidth - 0.42;
-
-  const bandMaterial = new THREE.MeshStandardMaterial({
-    color: 0x31538a,
-    roughness: 0.34,
-    metalness: 0.42,
-    emissive: 0x0c1d3b,
-    emissiveIntensity: 0.22,
-    transparent: true,
-    opacity: 0.72
-  });
-
-  const bandGeometry = new THREE.BoxGeometry(0.16, 2.8, bandLength);
-
-  for (const sideSign of [-1, 1]) {
-    const band = new THREE.Mesh(bandGeometry, bandMaterial);
-    band.position.copy(center).add(right.clone().multiplyScalar(sideSign * sideOffset));
-    band.position.y = 2.02;
-    band.rotation.y = yawFromNormal(axis);
-    group.add(band);
-  }
-}
-
 function addLobbyCornerWalls(group, config, wings, wallMaterial) {
   const lobbyHalf = config.lobbySize / 2;
   const maxWingWidth = wings.reduce((acc, wing) => Math.max(acc, wing.width), 0);
@@ -217,12 +187,53 @@ function addLobbyCornerWalls(group, config, wings, wallMaterial) {
 function addPaintingNiches(group, placements, wings, config) {
   const wingMap = new Map(wings.map((wing) => [wing.id, wing]));
   const dividerMaterial = new THREE.MeshStandardMaterial({
-    color: 0x172238,
-    roughness: 0.68,
-    metalness: 0.08,
-    transparent: true,
-    opacity: 0.62
+    color: 0x1d2d4a,
+    roughness: 0.58,
+    metalness: 0.16
   });
+  const nicheBackMaterial = new THREE.MeshStandardMaterial({
+    color: 0x132846,
+    roughness: 0.62,
+    metalness: 0.08
+  });
+  const nicheInsetMaterial = new THREE.MeshStandardMaterial({
+    color: 0x0d1f3a,
+    roughness: 0.56,
+    metalness: 0.06
+  });
+  const trimMaterial = new THREE.MeshStandardMaterial({
+    color: 0x3a5478,
+    roughness: 0.38,
+    metalness: 0.32
+  });
+  const brassMaterial = new THREE.MeshStandardMaterial({
+    color: 0xc69141,
+    roughness: 0.42,
+    metalness: 0.58,
+    emissive: 0x2a1705,
+    emissiveIntensity: 0.2
+  });
+  const lampLensMaterial = new THREE.MeshStandardMaterial({
+    color: 0xf3d5a4,
+    roughness: 0.18,
+    metalness: 0.08,
+    emissive: 0xae6f22,
+    emissiveIntensity: 0.28,
+    side: THREE.DoubleSide
+  });
+
+  const dividerGeometry = new THREE.BoxGeometry(0.13, config.height - 0.5, 0.14);
+  const backPanelGeometry = new THREE.BoxGeometry(2.34, 3.0, 0.08);
+  const insetPanelGeometry = new THREE.BoxGeometry(1.96, 2.58, 0.04);
+  const sideTrimGeometry = new THREE.BoxGeometry(0.1, 2.58, 0.06);
+  const crownGeometry = new THREE.BoxGeometry(2.28, 0.13, 0.1);
+  const baseTrimGeometry = new THREE.BoxGeometry(2.2, 0.08, 0.08);
+  const lampMountGeometry = new THREE.BoxGeometry(0.22, 0.1, 0.06);
+  const lampArmGeometry = new THREE.BoxGeometry(0.04, 0.18, 0.04);
+  const lampHeadGeometry = new THREE.BoxGeometry(0.38, 0.08, 0.12);
+  const lampCapGeometry = new THREE.ConeGeometry(0.1, 0.18, 14, 1, true);
+  const lampLensGeometry = new THREE.CircleGeometry(0.082, 14);
+  const accentPinGeometry = new THREE.SphereGeometry(0.026, 10, 10);
 
   for (const placement of placements) {
     const wing = wingMap.get(placement.wingId);
@@ -238,30 +249,115 @@ function addPaintingNiches(group, placements, wings, config) {
     const inwardNormal = right.clone().multiplyScalar(-sideSign);
     const nicheWidth = placement.nicheLength * 0.72;
     const yaw = yawFromNormal(inwardNormal);
+    const wallAnchor = nicheCenter.clone().add(wallOffset);
 
-    const dividerGeometry = new THREE.BoxGeometry(0.14, config.height - 0.4, 0.28);
     const edgeOffset = (placement.nicheLength / 2) - 0.12;
 
     for (const edgeSign of [-1, 1]) {
       const divider = new THREE.Mesh(dividerGeometry, dividerMaterial);
       divider.position
-        .copy(nicheCenter)
+        .copy(wallAnchor)
         .add(axis.clone().multiplyScalar(edgeSign * edgeOffset))
-        .add(wallOffset)
-        .add(inwardNormal.clone().multiplyScalar(0.16));
-      divider.position.y = (config.height - 0.4) / 2;
+        .add(inwardNormal.clone().multiplyScalar(0.08));
+      divider.position.y = (config.height - 0.5) / 2;
       divider.rotation.y = yaw;
       group.add(divider);
     }
 
     const canopy = new THREE.Mesh(
-      new THREE.BoxGeometry(nicheWidth, 0.09, 0.28),
+      new THREE.BoxGeometry(nicheWidth, 0.1, 0.12),
       dividerMaterial
     );
-    canopy.position.copy(nicheCenter).add(wallOffset).add(inwardNormal.clone().multiplyScalar(0.2));
-    canopy.position.y = 3.4;
+    canopy.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.08));
+    canopy.position.y = 3.46;
     canopy.rotation.y = yaw;
     group.add(canopy);
+
+    const backPanel = new THREE.Mesh(backPanelGeometry, nicheBackMaterial);
+    backPanel.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.045));
+    backPanel.position.y = 1.95;
+    backPanel.rotation.y = yaw;
+    group.add(backPanel);
+
+    const insetPanel = new THREE.Mesh(insetPanelGeometry, nicheInsetMaterial);
+    insetPanel.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.082));
+    insetPanel.position.y = 1.95;
+    insetPanel.rotation.y = yaw;
+    group.add(insetPanel);
+
+    for (const trimSign of [-1, 1]) {
+      const sideTrim = new THREE.Mesh(sideTrimGeometry, trimMaterial);
+      sideTrim.position
+        .copy(wallAnchor)
+        .add(axis.clone().multiplyScalar(trimSign * 0.98))
+        .add(inwardNormal.clone().multiplyScalar(0.09));
+      sideTrim.position.y = 1.95;
+      sideTrim.rotation.y = yaw;
+      group.add(sideTrim);
+
+      const accentPin = new THREE.Mesh(accentPinGeometry, brassMaterial);
+      accentPin.position
+        .copy(wallAnchor)
+        .add(axis.clone().multiplyScalar(trimSign * 0.87))
+        .add(inwardNormal.clone().multiplyScalar(0.11));
+      accentPin.position.y = 2.98;
+      group.add(accentPin);
+    }
+
+    const crown = new THREE.Mesh(crownGeometry, trimMaterial);
+    crown.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.092));
+    crown.position.y = 3.12;
+    crown.rotation.y = yaw;
+    group.add(crown);
+
+    const baseTrim = new THREE.Mesh(baseTrimGeometry, trimMaterial);
+    baseTrim.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.088));
+    baseTrim.position.y = 0.72;
+    baseTrim.rotation.y = yaw;
+    group.add(baseTrim);
+
+    const lampMount = new THREE.Mesh(lampMountGeometry, brassMaterial);
+    lampMount.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.1));
+    lampMount.position.y = 3.33;
+    lampMount.rotation.y = yaw;
+    group.add(lampMount);
+
+    const lampArm = new THREE.Mesh(lampArmGeometry, brassMaterial);
+    lampArm.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.16));
+    lampArm.position.y = 3.2;
+    lampArm.rotation.y = yaw;
+    group.add(lampArm);
+
+    const lampHead = new THREE.Mesh(lampHeadGeometry, brassMaterial);
+    lampHead.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.23));
+    lampHead.position.y = 3.08;
+    lampHead.rotation.y = yaw;
+    lampHead.rotation.x = -0.12;
+    group.add(lampHead);
+
+    const lampCap = new THREE.Mesh(lampCapGeometry, brassMaterial);
+    lampCap.position.copy(wallAnchor).add(inwardNormal.clone().multiplyScalar(0.22));
+    lampCap.position.y = 2.99;
+    const lampAimDirection = inwardNormal
+      .clone()
+      .multiplyScalar(-0.56)
+      .add(new THREE.Vector3(0, -0.84, 0))
+      .normalize();
+    lampCap.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0, -1, 0),
+      lampAimDirection
+    );
+    group.add(lampCap);
+
+    const lampLens = new THREE.Mesh(lampLensGeometry, lampLensMaterial);
+    lampLens.position
+      .copy(lampCap.position)
+      .add(lampAimDirection.clone().multiplyScalar(0.092));
+    lampLens.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0, 0, 1),
+      lampAimDirection
+    );
+    group.add(lampLens);
   }
 }
 
@@ -371,7 +467,6 @@ export function createRoom(scene, woodTexture, layout) {
   for (const wing of wings) {
     addWingEnvelope(group, wing, config, wallMaterial);
     addWingAccents(group, wing, config);
-    addWingPrismBands(group, wing, config);
     addPortalFrame(group, wing, config, frameMaterial);
   }
 

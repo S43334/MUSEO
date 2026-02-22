@@ -435,7 +435,9 @@ async function bootstrap() {
 
     walkControls.update(delta);
     interactionsController.update(delta);
-    orbitControls.update();
+    if (orbitControls.enabled) {
+      orbitControls.update();
+    }
     highlightNearestRoomButton();
     renderer.render(scene, camera);
 

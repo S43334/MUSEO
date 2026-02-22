@@ -41,10 +41,10 @@ function getFocusDistance(camera, paintingGroup) {
   const vFov = THREE.MathUtils.degToRad(FOCUS_FOV);
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
 
-  const fitByHeight = ((frameHeight * 0.5) * 1.08) / Math.tan(vFov / 2);
-  const fitByWidth = ((frameWidth * 0.5) * 1.14) / Math.tan(hFov / 2);
+  const fitByHeight = ((frameHeight * 0.5) * 1.05) / Math.tan(vFov / 2);
+  const fitByWidth = ((frameWidth * 0.5) * 1.1) / Math.tan(hFov / 2);
 
-  const calculated = Math.max(baseDistance, fitByHeight + 0.34, fitByWidth + 0.46);
+  const calculated = Math.max(baseDistance, fitByHeight + 0.28, fitByWidth + 0.38);
   return THREE.MathUtils.clamp(calculated, FOCUS_MIN_DISTANCE, FOCUS_MAX_DISTANCE);
 }
 

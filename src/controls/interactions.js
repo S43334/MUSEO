@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
-const FOCUS_FOV = 45;
+const FOCUS_VIEW_FOV = 40;
+const FOCUS_FIT_FOV = 44;
 const FOCUS_MIN_DISTANCE = 2.45;
 const FOCUS_MAX_DISTANCE = 5.45;
 const FOCUS_TARGET_Y_OFFSET = 0.1;
@@ -38,7 +39,7 @@ function getFocusDistance(camera, paintingGroup) {
   const frameSize = paintingGroup.userData?.frameSize || {};
   const frameHeight = Number(frameSize.height) || 2.15;
   const frameWidth = Number(frameSize.width) || 1.65;
-  const vFov = THREE.MathUtils.degToRad(FOCUS_FOV);
+  const vFov = THREE.MathUtils.degToRad(FOCUS_FIT_FOV);
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
 
   const fitByHeight = ((frameHeight * 0.5) * 1.05) / Math.tan(vFov / 2);
@@ -181,7 +182,7 @@ export function setupInteractions({
     const destination = target.clone().add(offset);
     destination.y = Math.max(1.58, target.y + (frameHeight * 0.06));
 
-    setTransitionTargets(destination, target, FOCUS_FOV);
+    setTransitionTargets(destination, target, FOCUS_VIEW_FOV);
     updateFocusSpot(target, inwardNormal);
     isZoomed = true;
     controls.enabled = false;

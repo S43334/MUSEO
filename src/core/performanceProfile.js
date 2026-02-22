@@ -165,6 +165,9 @@ export function applyQualityLevel(context, level, deviceProfile) {
 
   if (renderer) {
     const limit = levelPixelRatioLimit(safeLevel, deviceProfile);
+    if (!renderer.userData) {
+      renderer.userData = {};
+    }
     renderer.userData.pixelRatioLimit = limit;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, limit));
   }

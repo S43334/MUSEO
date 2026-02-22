@@ -17,6 +17,9 @@ export function createRenderer(options = {}) {
     powerPreference: 'high-performance'
   });
 
+  if (!renderer.userData) {
+    renderer.userData = {};
+  }
   renderer.userData.pixelRatioLimit = initialPixelRatioLimit;
 
   renderer.setSize(window.innerWidth, window.innerHeight);

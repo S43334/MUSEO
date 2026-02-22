@@ -19,11 +19,11 @@
   <style>
     :root {
       --accent: #f4b241;
-      --accent-muted: rgba(244, 178, 65, 0.18);
-      --text-main: #f2f2f2;
-      --text-soft: #cfcfcf;
-      --panel-bg: rgba(8, 11, 20, 0.84);
-      --panel-border: rgba(255, 255, 255, 0.22);
+      --accent-soft: rgba(244, 178, 65, 0.18);
+      --text-main: #f1f1f1;
+      --text-soft: #cdcdcd;
+      --panel-bg: rgba(8, 11, 20, 0.86);
+      --panel-border: rgba(255, 255, 255, 0.18);
     }
 
     * {
@@ -55,7 +55,7 @@
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       border-radius: 12px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.44);
       backdrop-filter: blur(5px);
       -webkit-backdrop-filter: blur(5px);
       pointer-events: auto;
@@ -64,22 +64,23 @@
     #room-menu {
       top: 14px;
       left: 14px;
-      width: min(420px, calc(100% - 28px));
+      width: min(410px, calc(100% - 28px));
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      padding: 10px;
+      gap: 7px;
+      padding: 8px;
+      opacity: 0.86;
     }
 
     .room-btn {
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.04);
       color: var(--text-main);
-      padding: 8px 10px;
+      padding: 7px 9px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 13px;
-      transition: all 0.22s ease;
+      font-size: 12px;
+      transition: all 0.2s ease;
     }
 
     .room-btn:hover {
@@ -89,7 +90,7 @@
 
     .room-btn.active {
       background: var(--accent);
-      color: #111;
+      color: #121212;
       border-color: var(--accent);
       font-weight: 700;
     }
@@ -97,12 +98,12 @@
     #artwork-panel {
       right: 14px;
       bottom: 14px;
-      width: min(390px, calc(100% - 28px));
+      width: min(405px, calc(100% - 28px));
       padding: 14px;
       opacity: 0;
       transform: translateY(14px);
       pointer-events: none;
-      transition: opacity 0.28s ease, transform 0.28s ease;
+      transition: opacity 0.26s ease, transform 0.26s ease;
     }
 
     #artwork-panel.visible {
@@ -126,14 +127,26 @@
       line-height: 1.25;
     }
 
-    #panel-close {
-      border: 1px solid rgba(255, 255, 255, 0.25);
+    .panel-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .panel-header-actions button {
+      border: 1px solid rgba(255, 255, 255, 0.24);
       background: rgba(255, 255, 255, 0.08);
       color: #fff;
       border-radius: 8px;
       padding: 6px 10px;
       cursor: pointer;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    #panel-toggle-visibility {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
     }
 
     #artwork-panel p {
@@ -153,7 +166,7 @@
       flex: 1;
       border: 1px solid var(--accent);
       color: var(--accent);
-      background: var(--accent-muted);
+      background: var(--accent-soft);
       border-radius: 8px;
       padding: 9px 10px;
       cursor: pointer;
@@ -237,7 +250,7 @@
       display: none;
       padding: 14px 40px;
       font-size: 1.05rem;
-      background: var(--accent-muted);
+      background: var(--accent-soft);
       color: var(--accent);
       border: 2px solid var(--accent);
       cursor: pointer;
@@ -283,8 +296,8 @@
       }
 
       .room-btn {
-        font-size: 12px;
-        padding: 7px 8px;
+        font-size: 11.5px;
+        padding: 6px 8px;
       }
     }
   </style>
@@ -292,20 +305,23 @@
 <body>
   <div id="room-menu" class="overlay-card" aria-label="Salto de salas">
     <button class="room-btn" data-room-id="retratos">1. Retratos</button>
-    <button class="room-btn" data-room-id="fantasia">2. Fantasia</button>
-    <button class="room-btn" data-room-id="pop">3. Cultura Pop</button>
-    <button class="room-btn" data-room-id="tradicion">4. Tradicion</button>
+    <button class="room-btn" data-room-id="fantasia">2. Fantasía</button>
+    <button class="room-btn" data-room-id="pop">3. Cultura pop</button>
+    <button class="room-btn" data-room-id="tradicion">4. Tradición</button>
   </div>
 
   <aside id="artwork-panel" class="overlay-card" aria-live="polite">
     <div class="panel-header">
       <h2 id="panel-title">Obra</h2>
-      <button id="panel-close" type="button">Cerrar</button>
+      <div class="panel-header-actions">
+        <button id="panel-toggle-visibility" type="button">Ocultar ficha</button>
+        <button id="panel-close" type="button">Cerrar</button>
+      </div>
     </div>
     <p id="panel-author">Artista:</p>
-    <p id="panel-technique">Tecnica:</p>
-    <p id="panel-year">Ano:</p>
-    <p id="panel-description">Descripcion:</p>
+    <p id="panel-technique">Técnica:</p>
+    <p id="panel-year">Año:</p>
+    <p id="panel-description">Descripción:</p>
     <div class="panel-actions">
       <button id="panel-prev" type="button">Anterior</button>
       <button id="panel-next" type="button">Siguiente</button>
@@ -314,14 +330,14 @@
 
   <div id="intro-screen">
     <div id="intro-content">
-      <h1>GALERIA DE ARTE PARA ISABELLA</h1>
+      <h1>GALERÍA DE ARTE PARA ISABELLA</h1>
       <p>
-        Espero que cada vez que entres aqui te sientas inspirada para seguir dibujando.
+        Espero que cada vez que entres aquí te sientas inspirada para seguir dibujando.
       </p>
 
       <div id="loading-container"><div id="loading-bar"></div></div>
       <div id="loading-text">PREPARANDO LA SALA...</div>
-      <button id="start-btn">ENTRAR A LA GALERIA</button>
+      <button id="start-btn">ENTRAR A LA GALERÍA</button>
     </div>
   </div>
 

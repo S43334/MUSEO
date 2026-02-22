@@ -1,186 +1,295 @@
 import { ARTWORKS, ROOMS } from './data.js';
 
-export const LAYOUT_CONFIG = {
-  width: 10,
-  height: 7,
-  entranceZ: 8,
-  entrancePadding: 8,
-  exitPadding: 8,
-  roomPadding: 4,
-  roomGap: 6,
-  slotSpacing: 4,
-  slotsPerSide: 5,
-  sideOffset: 4.9,
-  paintingY: 1.8
+const WING_DIRECTION_ORDER = ['front', 'left', 'right', 'back'];
+const WING_VECTORS = {
+  front: { x: 0, z: -1 },
+  left: { x: -1, z: 0 },
+  right: { x: 1, z: 0 },
+  back: { x: 0, z: 1 }
 };
 
-export function getRoomDepth(config = LAYOUT_CONFIG) {
-  return (config.roomPadding * 2) + ((config.slotsPerSide - 1) * config.slotSpacing);
+export const LAYOUT_CONFIG = {
+  height: 7,
+  lobbySize: 16,
+  wingWidth: 8.8,
+  wingPadding: 3.4,
+  nicheLength: 4.7,
+  paintingY: 1.8,
+  paintingInset: 0.24,
+  playerRadius: 0.35,
+  wallPadding: 0.24
+};
+
+function getRoomById(rooms, roomId) {
+  return rooms.find((room) => room.id === roomId) || null;
 }
 
-function normalizeRoom(room) {
+function vecLength(value) {
+  return Math.sqrt((value.x * value.x) + (value.z * value.z));
+}
+
+function normalizeVec(value) {
+  const length = vecLength(value);
+  if (length === 0) {
+    return { x: 0, z: 0 };
+  }
+  return { x: value.x / length, z: value.z / length };
+}
+
+function buildRightVector(axis) {
+  return normalizeVec({ x: -axis.z, z: axis.x });
+}
+
+function buildWingDefinitions(rooms, artworks, config) {
+  return WING_DIRECTION_ORDER.map((directionId) => {
+    const axis = WING_VECTORS[directionId];
+    const room = getRoomById(rooms, directionId === 'front'
+      ? 'retratos'
+      : directionId === 'left'
+        ? 'fantasia'
+        : directionId === 'right'
+          ? 'pop'
+          : 'tradicion');
+
+    const wingArtworks = artworks
+      .filter((artwork) => artwork.themeId === room.id)
+      .sort((a, b) => a.id - b.id);
+
+    const length = (config.wingPadding * 2) + (wingArtworks.length * config.nicheLength);
+    const lobbyHalf = config.lobbySize / 2;
+    const centerOffset = lobbyHalf + (length / 2);
+    const right = buildRightVector(axis);
+
+    return {
+      id: room.id,
+      roomTitle: room.title,
+      color: room.color,
+      directionId,
+      axis,
+      right,
+      width: config.wingWidth,
+      length,
+      center: {
+        x: axis.x * centerOffset,
+        z: axis.z * centerOffset
+      },
+      artworks: wingArtworks
+    };
+  });
+}
+
+export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
+  const halfWidth = wing.width / 2;
+  const lobbyHalf = config.lobbySize / 2;
+
+  return wing.artworks.map((artwork, index) => {
+    const side = index % 2 === 0 ? 'left' : 'right';
+    const sideSign = side === 'left' ? -1 : 1;
+    const distanceFromLobby = config.wingPadding + ((index + 0.5) * config.nicheLength);
+
+    const nicheCenter = {
+      x: wing.axis.x * (lobbyHalf + distanceFromLobby),
+      z: wing.axis.z * (lobbyHalf + distanceFromLobby)
+    };
+
+    const inwardNormal = {
+      x: wing.right.x * -sideSign,
+      z: wing.right.z * -sideSign
+    };
+
+    const paintingOffset = (halfWidth - config.paintingInset) * sideSign;
+    const paintingPosition = {
+      x: nicheCenter.x + (wing.right.x * paintingOffset),
+      y: config.paintingY,
+      z: nicheCenter.z + (wing.right.z * paintingOffset)
+    };
+
+    const rotationY = Math.atan2(inwardNormal.x, inwardNormal.z);
+
+    return {
+      artwork,
+      wingId: wing.id,
+      side,
+      nicheIndex: index,
+      nicheCenter,
+      inwardNormal,
+      rotationY,
+      position: paintingPosition
+    };
+  });
+}
+
+export function buildWalkableZones(layout, config = LAYOUT_CONFIG) {
+  const halfLobby = config.lobbySize / 2;
+  const corridorHalf = (config.wingWidth / 2) - config.wallPadding - config.playerRadius;
+  const overlap = 1;
+  const zones = [
+    {
+      id: 'lobby',
+      minX: -halfLobby + config.playerRadius,
+      maxX: halfLobby - config.playerRadius,
+      minZ: -halfLobby + config.playerRadius,
+      maxZ: halfLobby - config.playerRadius
+    }
+  ];
+
+  for (const wing of layout.wings) {
+    const wingHalfLength = wing.length / 2;
+    const startDistance = (config.lobbySize / 2) - overlap;
+    const endDistance = (config.lobbySize / 2) + wingHalfLength + wingHalfLength;
+
+    if (wing.directionId === 'front') {
+      zones.push({
+        id: wing.id,
+        minX: -corridorHalf,
+        maxX: corridorHalf,
+        minZ: -endDistance,
+        maxZ: -startDistance
+      });
+    }
+
+    if (wing.directionId === 'back') {
+      zones.push({
+        id: wing.id,
+        minX: -corridorHalf,
+        maxX: corridorHalf,
+        minZ: startDistance,
+        maxZ: endDistance
+      });
+    }
+
+    if (wing.directionId === 'left') {
+      zones.push({
+        id: wing.id,
+        minX: -endDistance,
+        maxX: -startDistance,
+        minZ: -corridorHalf,
+        maxZ: corridorHalf
+      });
+    }
+
+    if (wing.directionId === 'right') {
+      zones.push({
+        id: wing.id,
+        minX: startDistance,
+        maxX: endDistance,
+        minZ: -corridorHalf,
+        maxZ: corridorHalf
+      });
+    }
+  }
+
+  return zones;
+}
+
+function buildBounds(layout, config = LAYOUT_CONFIG) {
+  const halfLobby = config.lobbySize / 2;
+  let minX = -halfLobby;
+  let maxX = halfLobby;
+  let minZ = -halfLobby;
+  let maxZ = halfLobby;
+
+  for (const wing of layout.wings) {
+    const halfWidth = wing.width / 2;
+    const halfLength = wing.length / 2;
+    const xExtent = Math.abs(wing.axis.x * halfLength) + Math.abs(wing.right.x * halfWidth);
+    const zExtent = Math.abs(wing.axis.z * halfLength) + Math.abs(wing.right.z * halfWidth);
+
+    minX = Math.min(minX, wing.center.x - xExtent);
+    maxX = Math.max(maxX, wing.center.x + xExtent);
+    minZ = Math.min(minZ, wing.center.z - zExtent);
+    maxZ = Math.max(maxZ, wing.center.z + zExtent);
+  }
+
   return {
-    ...room,
-    themeIds: room.themeIds && room.themeIds.length > 0 ? room.themeIds : [room.id],
-    capacity: room.capacity || LAYOUT_CONFIG.slotsPerSide * 2
+    minX: minX - 2,
+    maxX: maxX + 2,
+    minZ: minZ - 2,
+    maxZ: maxZ + 2
   };
 }
 
-export function buildRoomSequence(
+function buildWaypoints(wings, config = LAYOUT_CONFIG) {
+  const lobbyHalf = config.lobbySize / 2;
+  const map = {};
+
+  for (const wing of wings) {
+    const waypointDistance = lobbyHalf + config.wingPadding + (config.nicheLength * 0.75);
+    const targetDistance = waypointDistance + 3;
+
+    map[wing.id] = {
+      roomId: wing.id,
+      position: {
+        x: wing.axis.x * waypointDistance,
+        z: wing.axis.z * waypointDistance
+      },
+      target: {
+        x: wing.axis.x * targetDistance,
+        z: wing.axis.z * targetDistance
+      }
+    };
+  }
+
+  return map;
+}
+
+export function buildMuseumLayout(
   rooms = ROOMS,
   artworks = ARTWORKS,
   config = LAYOUT_CONFIG
 ) {
-  const normalizedRooms = rooms.map(normalizeRoom);
-  const roomDepth = getRoomDepth(config);
-  const firstStartZ = normalizedRooms[0]?.startZ ?? config.entranceZ;
-
-  const expandedRooms = [];
-  let currentStartZ = firstStartZ;
-
-  for (const room of normalizedRooms) {
-    const matchingArtworks = artworks.filter((artwork) => room.themeIds.includes(artwork.themeId));
-    const requiredBlocks = Math.max(1, Math.ceil(matchingArtworks.length / room.capacity));
-
-    for (let blockIndex = 0; blockIndex < requiredBlocks; blockIndex += 1) {
-      const blockId = blockIndex === 0 ? room.id : `${room.id}-${blockIndex + 1}`;
-      const frontZ = currentStartZ;
-      const backZ = frontZ - roomDepth;
-
-      expandedRooms.push({
-        ...room,
-        id: blockId,
-        sourceRoomId: room.id,
-        blockIndex,
-        isOverflow: blockIndex > 0,
-        frontZ,
-        backZ,
-        centerZ: (frontZ + backZ) / 2,
-        startZ: frontZ
-      });
-
-      currentStartZ -= roomDepth + config.roomGap;
-    }
-  }
-
-  const lastBackZ = expandedRooms.length > 0
-    ? expandedRooms[expandedRooms.length - 1].backZ
-    : firstStartZ - roomDepth;
-
-  return {
-    rooms: expandedRooms,
-    bounds: {
-      minX: -4.8,
-      maxX: 4.8,
-      minZ: lastBackZ - config.exitPadding,
-      maxZ: firstStartZ + config.entrancePadding
-    }
+  const wings = buildWingDefinitions(rooms, artworks, config);
+  const zones = {
+    lobby: {
+      center: { x: 0, z: 0 },
+      size: config.lobbySize
+    },
+    wings
   };
-}
 
-export function buildRoomSlots(rooms, config = LAYOUT_CONFIG) {
-  const slots = [];
-  let globalOrder = 0;
-
-  for (const room of rooms) {
-    let row = 0;
-    let localOrder = 0;
-
-    while (localOrder < room.capacity) {
-      const z = room.startZ - config.roomPadding - (row * config.slotSpacing);
-      const leftSlot = {
-        roomId: room.id,
-        sourceRoomId: room.sourceRoomId || room.id,
-        side: 'left',
-        x: -config.sideOffset,
-        y: config.paintingY,
-        z,
-        rotationY: Math.PI / 2,
-        localOrder,
-        order: globalOrder
-      };
-      slots.push(leftSlot);
-      localOrder += 1;
-      globalOrder += 1;
-
-      if (localOrder < room.capacity) {
-        const rightSlot = {
-          roomId: room.id,
-          sourceRoomId: room.sourceRoomId || room.id,
-          side: 'right',
-          x: config.sideOffset,
-          y: config.paintingY,
-          z,
-          rotationY: -Math.PI / 2,
-          localOrder,
-          order: globalOrder
-        };
-        slots.push(rightSlot);
-        localOrder += 1;
-        globalOrder += 1;
-      }
-
-      row += 1;
-    }
-  }
-
-  return slots;
-}
-
-export function placeArtworksByTheme(artworks, rooms, slots) {
-  const queueBySourceRoom = new Map();
-  const slotByRoom = new Map();
   const placements = [];
 
-  for (const room of rooms) {
-    if (queueBySourceRoom.has(room.sourceRoomId)) {
-      continue;
-    }
+  for (const wing of wings) {
+    const niches = buildPaintingNiches(wing, config);
+    wing.niches = niches;
 
-    const queue = artworks
-      .filter((artwork) => room.themeIds.includes(artwork.themeId))
-      .sort((a, b) => a.id - b.id);
-
-    queueBySourceRoom.set(room.sourceRoomId, queue);
-  }
-
-  for (const slot of slots) {
-    if (!slotByRoom.has(slot.roomId)) {
-      slotByRoom.set(slot.roomId, []);
-    }
-    slotByRoom.get(slot.roomId).push(slot);
-  }
-
-  for (const room of rooms) {
-    const roomSlots = (slotByRoom.get(room.id) || []).sort((a, b) => a.order - b.order);
-    const queue = queueBySourceRoom.get(room.sourceRoomId) || [];
-
-    for (const slot of roomSlots) {
-      const artwork = queue.shift();
-      if (!artwork) {
-        continue;
-      }
-
+    for (const niche of niches) {
       placements.push({
-        ...artwork,
-        roomId: room.id,
-        roomTitle: room.title,
-        position: { x: slot.x, y: slot.y, z: slot.z },
-        rotationY: slot.rotationY
+        ...niche.artwork,
+        roomId: wing.id,
+        roomTitle: wing.roomTitle,
+        wingId: wing.id,
+        wingTitle: wing.roomTitle,
+        wingColor: wing.color,
+        side: niche.side,
+        nicheIndex: niche.nicheIndex,
+        nicheCenter: niche.nicheCenter,
+        inwardNormal: niche.inwardNormal,
+        axis: wing.axis,
+        right: wing.right,
+        nicheLength: config.nicheLength,
+        wingWidth: wing.width,
+        focusDistance: 3.2,
+        position: niche.position,
+        rotationY: niche.rotationY
       });
     }
   }
 
-  if (placements.length < artworks.length) {
-    const placedIds = new Set(placements.map((placement) => placement.id));
-    const missingIds = artworks
-      .filter((artwork) => !placedIds.has(artwork.id))
-      .map((artwork) => artwork.id);
+  const layout = {
+    config,
+    zones,
+    wings,
+    placements
+  };
 
-    if (missingIds.length > 0) {
-      console.warn('Artworks sin sala asignada:', missingIds);
-    }
-  }
+  layout.walkableZones = buildWalkableZones(layout, config);
+  layout.bounds = buildBounds(layout, config);
+  layout.waypoints = buildWaypoints(wings, config);
+  layout.spawn = {
+    position: { x: 0, z: 0.8 },
+    target: { x: 0, z: -4 }
+  };
 
-  return placements;
+  return layout;
 }

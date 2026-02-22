@@ -9,12 +9,7 @@ import { setupInteractions } from './controls/interactions.js';
 import { createWalkControls } from './controls/walkControls.js';
 import { createJoystick } from './controls/joysticks.js';
 import { ARTWORKS, ROOMS } from './museum/data.js';
-import {
-  LAYOUT_CONFIG,
-  buildRoomSequence,
-  buildRoomSlots,
-  placeArtworksByTheme
-} from './museum/layout.js';
+import { LAYOUT_CONFIG, buildMuseumLayout } from './museum/layout.js';
 
 const manager = new THREE.LoadingManager();
 
@@ -33,6 +28,7 @@ const panelDescription = document.getElementById('panel-description');
 const closePanelBtn = document.getElementById('panel-close');
 const prevPanelBtn = document.getElementById('panel-prev');
 const nextPanelBtn = document.getElementById('panel-next');
+const togglePanelBtn = document.getElementById('panel-toggle-visibility');
 
 manager.onProgress = function onProgress(url, itemsLoaded, itemsTotal) {
   if (itemsTotal > 0 && loadingBar) {
@@ -43,7 +39,7 @@ manager.onProgress = function onProgress(url, itemsLoaded, itemsTotal) {
 
 manager.onLoad = function onLoad() {
   if (loadingText) {
-    loadingText.innerText = 'LISTO PARA ENTRAR!';
+    loadingText.innerText = '¡LISTO PARA ENTRAR!';
   }
   if (loadingContainer) {
     loadingContainer.style.display = 'none';
@@ -71,58 +67,68 @@ const camera = createCamera();
 const renderer = createRenderer();
 setupResize(camera, renderer);
 
-const layout = buildRoomSequence(ROOMS, ARTWORKS, LAYOUT_CONFIG);
-const slots = buildRoomSlots(layout.rooms, LAYOUT_CONFIG);
-const placements = placeArtworksByTheme(ARTWORKS, layout.rooms, slots);
+const layout = buildMuseumLayout(ROOMS, ARTWORKS, LAYOUT_CONFIG);
 
 const textureLoader = new THREE.TextureLoader(manager);
 const woodTexture = textureLoader.load('textures/wood.webp');
 woodTexture.colorSpace = THREE.SRGBColorSpace;
 woodTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-createRoom(scene, woodTexture, { ...layout, config: LAYOUT_CONFIG });
-createLights(scene, layout.rooms);
+createRoom(scene, woodTexture, layout);
+createLights(scene, layout);
 
 const paintingItems = loadPaintings(scene, {
-  placements,
+  placements: layout.placements,
   manager,
   woodTexture
 });
 
 const orbitControls = createControls(camera, renderer.domElement);
-const walkControls = createWalkControls(camera, orbitControls, layout.bounds);
+const walkControls = createWalkControls(camera, orbitControls, {
+  bounds: layout.bounds,
+  walkableZones: layout.walkableZones,
+  playerRadius: layout.config.playerRadius
+});
 createJoystick(walkControls);
 
-const roomWaypointMap = new Map();
-for (const template of ROOMS) {
-  const roomBlock = layout.rooms.find((room) => room.sourceRoomId === template.id);
-  if (roomBlock) {
-    roomWaypointMap.set(template.id, roomBlock);
-  }
-}
+const roomWaypointMap = new Map(Object.entries(layout.waypoints));
+walkControls.teleportTo(
+  layout.spawn.position.x,
+  layout.spawn.position.z,
+  layout.spawn.target.x,
+  layout.spawn.target.z
+);
 
 let activeArtworkIndex = -1;
+let panelHiddenWhileFocused = false;
 let interactionsController = null;
 
+function updateToggleLabel() {
+  if (!togglePanelBtn) {
+    return;
+  }
+  togglePanelBtn.innerText = panelHiddenWhileFocused ? 'Mostrar ficha' : 'Ocultar ficha';
+}
+
 function showArtworkPanel(artwork) {
-  if (!artworkPanel || !artwork) {
+  if (!artworkPanel || !artwork || panelHiddenWhileFocused) {
     return;
   }
 
   if (panelTitle) {
-    panelTitle.innerText = artwork.title || 'Sin titulo';
+    panelTitle.innerText = artwork.title || 'Sin título';
   }
   if (panelAuthor) {
     panelAuthor.innerText = `Artista: ${artwork.author || 'Artista'}`;
   }
   if (panelTechnique) {
-    panelTechnique.innerText = `Tecnica: ${artwork.technique || 'No especificada'}`;
+    panelTechnique.innerText = `Técnica: ${artwork.technique || 'No especificada'}`;
   }
   if (panelYear) {
-    panelYear.innerText = `Ano: ${artwork.year || 'Sin fecha'}`;
+    panelYear.innerText = `Año: ${artwork.year || 'Sin fecha'}`;
   }
   if (panelDescription) {
-    panelDescription.innerText = artwork.description || 'Sin descripcion adicional.';
+    panelDescription.innerText = artwork.description || 'Sin descripción adicional.';
   }
 
   artworkPanel.classList.add('visible');
@@ -135,16 +141,11 @@ function hideArtworkPanel() {
 }
 
 function focusArtworkByIndex(index) {
-  if (!interactionsController) {
+  if (!interactionsController || index < 0 || index >= paintingItems.length) {
     return;
   }
 
-  if (index < 0 || index >= paintingItems.length) {
-    return;
-  }
-
-  const selected = paintingItems[index];
-  interactionsController.focusPainting(selected.group, true);
+  interactionsController.focusPainting(paintingItems[index].group, true);
 }
 
 function jumpToRoom(roomId) {
@@ -153,14 +154,16 @@ function jumpToRoom(roomId) {
     return;
   }
 
-  if (interactionsController && interactionsController.isZoomed()) {
+  if (interactionsController?.isFocused()) {
     interactionsController.clearSelection({ animate: false, notify: true });
   }
 
-  const viewZ = waypoint.centerZ + 8;
-  camera.position.set(0, 1.6, viewZ);
-  orbitControls.target.set(0, 1.6, waypoint.centerZ);
-  orbitControls.update();
+  walkControls.teleportTo(
+    waypoint.position.x,
+    waypoint.position.z,
+    waypoint.target.x,
+    waypoint.target.z
+  );
 }
 
 function highlightNearestRoomButton() {
@@ -172,7 +175,9 @@ function highlightNearestRoomButton() {
   let shortestDistance = Number.POSITIVE_INFINITY;
 
   for (const [roomId, waypoint] of roomWaypointMap.entries()) {
-    const distance = Math.abs(camera.position.z - waypoint.centerZ);
+    const dx = camera.position.x - waypoint.position.x;
+    const dz = camera.position.z - waypoint.position.z;
+    const distance = Math.sqrt((dx * dx) + (dz * dz));
     if (distance < shortestDistance) {
       shortestDistance = distance;
       activeRoomId = roomId;
@@ -180,8 +185,7 @@ function highlightNearestRoomButton() {
   }
 
   for (const btn of roomMenuButtons) {
-    const isActive = btn.dataset.roomId === activeRoomId;
-    btn.classList.toggle('active', isActive);
+    btn.classList.toggle('active', btn.dataset.roomId === activeRoomId);
   }
 }
 
@@ -192,7 +196,11 @@ interactionsController = setupInteractions({
   renderer,
   onSelect(artwork) {
     activeArtworkIndex = paintingItems.findIndex((item) => item.artwork.id === artwork.id);
-    showArtworkPanel(artwork);
+    if (panelHiddenWhileFocused) {
+      hideArtworkPanel();
+    } else {
+      showArtworkPanel(artwork);
+    }
   },
   onDeselect() {
     activeArtworkIndex = -1;
@@ -202,11 +210,29 @@ interactionsController = setupInteractions({
 
 if (closePanelBtn) {
   closePanelBtn.addEventListener('click', () => {
-    if (!interactionsController) {
+    interactionsController?.clearSelection({ animate: true, notify: true });
+  });
+}
+
+if (togglePanelBtn) {
+  togglePanelBtn.addEventListener('click', () => {
+    if (!interactionsController?.isFocused()) {
+      return;
+    }
+
+    panelHiddenWhileFocused = !panelHiddenWhileFocused;
+    interactionsController.setPanelVisibility(!panelHiddenWhileFocused);
+    updateToggleLabel();
+
+    if (panelHiddenWhileFocused) {
       hideArtworkPanel();
       return;
     }
-    interactionsController.clearSelection({ animate: true, notify: true });
+
+    const selectedArtwork = interactionsController.getSelectedArtwork();
+    if (selectedArtwork) {
+      showArtworkPanel(selectedArtwork);
+    }
   });
 }
 
@@ -231,9 +257,7 @@ if (nextPanelBtn) {
 }
 
 for (const btn of roomMenuButtons) {
-  btn.addEventListener('click', () => {
-    jumpToRoom(btn.dataset.roomId);
-  });
+  btn.addEventListener('click', () => jumpToRoom(btn.dataset.roomId));
 }
 
 window.addEventListener('keydown', (event) => {
@@ -251,6 +275,8 @@ window.addEventListener('keydown', (event) => {
   if (event.code === 'Digit3' && ROOMS[2]) jumpToRoom(ROOMS[2].id);
   if (event.code === 'Digit4' && ROOMS[3]) jumpToRoom(ROOMS[3].id);
 });
+
+updateToggleLabel();
 
 const clock = new THREE.Clock();
 

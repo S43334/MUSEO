@@ -23,6 +23,20 @@ function resolvePaintingGroup(object) {
   return null;
 }
 
+function getFocusDistance(camera, paintingGroup) {
+  const baseDistance = paintingGroup.userData?.artwork?.focusDistance ?? 3.2;
+  const frameHeight = 2.15;
+  const frameWidth = 1.65;
+  const focusFov = 46;
+  const vFov = THREE.MathUtils.degToRad(focusFov);
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+
+  const fitByHeight = (frameHeight / 2) / Math.tan(vFov / 2);
+  const fitByWidth = (frameWidth / 2) / Math.tan(hFov / 2);
+
+  return Math.max(baseDistance, fitByHeight + 0.5, fitByWidth + 0.6);
+}
+
 export function setupInteractions({
   camera,
   controls,
@@ -51,16 +65,17 @@ export function setupInteractions({
 
   let selectedPainting = null;
   let progress = 1;
-  const duration = 0.7;
+  const duration = 0.74;
   let isZoomed = false;
+  let panelVisible = true;
 
   function getPointer(event) {
     const rect = renderer.domElement.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width;
     const y = (event.clientY - rect.top) / rect.height;
 
-    pointer.x = x * 2 - 1;
-    pointer.y = -(y * 2 - 1);
+    pointer.x = (x * 2) - 1;
+    pointer.y = -((y * 2) - 1);
   }
 
   function clearHighlight() {
@@ -82,8 +97,8 @@ export function setupInteractions({
 
     highlightedFrame = frame;
     originalEmissive.copy(frame.material.emissive || new THREE.Color());
-    frame.material.emissive = new THREE.Color(0x232323);
-    frame.material.emissiveIntensity = 1.15;
+    frame.material.emissive = new THREE.Color(0x242424);
+    frame.material.emissiveIntensity = 1.2;
   }
 
   function setTransitionTargets(nextPosition, nextTarget, nextFov) {
@@ -113,16 +128,17 @@ export function setupInteractions({
     selectedPainting = paintingGroup;
 
     const target = paintingGroup.position.clone();
-    const offset = new THREE.Vector3(0, 0, 2.7);
+    const focusDistance = getFocusDistance(camera, paintingGroup);
+    const offset = new THREE.Vector3(0, 0, focusDistance);
     offset.applyQuaternion(paintingGroup.quaternion);
     const destination = target.clone().add(offset);
 
-    setTransitionTargets(destination, target, 44);
+    setTransitionTargets(destination, target, 46);
     isZoomed = true;
     controls.enabled = false;
 
     if (notify && onSelect) {
-      onSelect(paintingGroup.userData.artwork);
+      onSelect(paintingGroup.userData.artwork, { panelVisible });
     }
   }
 
@@ -201,6 +217,10 @@ export function setupInteractions({
   return {
     focusPainting,
     clearSelection,
+    setPanelVisibility(isVisible) {
+      panelVisible = Boolean(isVisible);
+    },
+    isFocused: () => isZoomed,
     isZoomed: () => isZoomed,
     getSelectedArtwork: () => selectedPainting?.userData?.artwork || null,
     update(delta = 0.016) {

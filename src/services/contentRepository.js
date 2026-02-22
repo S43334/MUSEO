@@ -41,13 +41,36 @@ function normalizeBackendRooms(rawRooms = []) {
     .map(({ sortOrder, ...room }) => room);
 }
 
-function pickArtworkImage(artwork) {
-  if (artwork.image) return artwork.image;
-  if (artwork.image_web_url) return artwork.image_web_url;
-  if (artwork.media?.web_url) return artwork.media.web_url;
-  if (artwork.media?.original_url) return artwork.media.original_url;
-  if (artwork.media?.thumb_url) return artwork.media.thumb_url;
-  return '';
+function toUrlOrNull(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized ? normalized : null;
+}
+
+function resolveArtworkImageSources(artwork) {
+  const imageWebUrl = toUrlOrNull(artwork.image_web_url)
+    || toUrlOrNull(artwork.media?.web_url);
+  const imageOriginalUrl = toUrlOrNull(artwork.image_original_url)
+    || toUrlOrNull(artwork.media?.original_url);
+  const imageThumbUrl = toUrlOrNull(artwork.image_thumb_url)
+    || toUrlOrNull(artwork.media?.thumb_url);
+  const inlineImage = toUrlOrNull(artwork.image);
+
+  const image = imageWebUrl
+    || inlineImage
+    || imageOriginalUrl
+    || imageThumbUrl
+    || '';
+
+  return {
+    image,
+    imageWebUrl: imageWebUrl || inlineImage,
+    imageOriginalUrl,
+    imageThumbUrl
+  };
 }
 
 function normalizeBackendArtworks(rawArtworks = [], normalizedRooms = []) {
@@ -65,8 +88,8 @@ function normalizeBackendArtworks(rawArtworks = [], normalizedRooms = []) {
         ? legacyId
         : Number.parseInt(artwork.id, 10);
 
-      const image = pickArtworkImage(artwork);
-      if (!image) {
+      const imageSources = resolveArtworkImageSources(artwork);
+      if (!imageSources.image) {
         return null;
       }
 
@@ -75,7 +98,10 @@ function normalizeBackendArtworks(rawArtworks = [], normalizedRooms = []) {
         title: artwork.title || 'Sin t\u00edtulo',
         file: artwork.file || '',
         author: artwork.author || 'Artista',
-        image,
+        image: imageSources.image,
+        imageWebUrl: imageSources.imageWebUrl,
+        imageOriginalUrl: imageSources.imageOriginalUrl,
+        imageThumbUrl: imageSources.imageThumbUrl,
         themeId: roomSlug,
         sectionId: artwork.section_id || artwork.sectionId || 'principal',
         sectionTitle: artwork.section_title || artwork.sectionTitle || 'Colecci\u00f3n principal',
@@ -87,6 +113,15 @@ function normalizeBackendArtworks(rawArtworks = [], normalizedRooms = []) {
     })
     .filter(Boolean)
     .sort((a, b) => a.id - b.id);
+}
+
+function normalizeLocalArtworks(rawArtworks = []) {
+  return rawArtworks.map((artwork) => ({
+    ...artwork,
+    imageWebUrl: artwork.image || null,
+    imageOriginalUrl: artwork.imageOriginalUrl || null,
+    imageThumbUrl: artwork.imageThumbUrl || null
+  }));
 }
 
 export async function loadMuseumContent({
@@ -116,7 +151,7 @@ export async function loadMuseumContent({
 
   return {
     rooms: ROOMS,
-    artworks: ARTWORKS,
+    artworks: normalizeLocalArtworks(ARTWORKS),
     source: 'local-fallback'
   };
 }

@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
-const FOCUS_FOV = 56;
-const FOCUS_MIN_DISTANCE = 5.2;
-const FOCUS_MAX_DISTANCE = 7.2;
-const FOCUS_TARGET_Y_OFFSET = 0.08;
+const FOCUS_FOV = 62;
+const FOCUS_MIN_DISTANCE = 6.8;
+const FOCUS_MAX_DISTANCE = 9.8;
+const FOCUS_TARGET_Y_OFFSET = 0.2;
 const QUALITY_SPOT_INTENSITY = {
-  high: 1.35,
-  balanced: 0.92,
+  high: 1.5,
+  balanced: 1.05,
   low: 0
 };
 
@@ -43,7 +43,7 @@ function getFocusDistance(camera, paintingGroup) {
   const fitByHeight = (frameHeight / 2) / Math.tan(vFov / 2);
   const fitByWidth = (frameWidth / 2) / Math.tan(hFov / 2);
 
-  const calculated = Math.max(baseDistance, fitByHeight + 1.2, fitByWidth + 1.35);
+  const calculated = Math.max(baseDistance, fitByHeight + 2.15, fitByWidth + 2.35);
   return THREE.MathUtils.clamp(calculated, FOCUS_MIN_DISTANCE, FOCUS_MAX_DISTANCE);
 }
 
@@ -176,7 +176,7 @@ export function setupInteractions({
 
     const offset = inwardNormal.multiplyScalar(focusDistance);
     const destination = target.clone().add(offset);
-    destination.y = Math.max(1.58, target.y + 0.05);
+    destination.y = Math.max(1.74, target.y + 0.22);
 
     setTransitionTargets(destination, target, FOCUS_FOV);
     updateFocusSpot(target, inwardNormal);
@@ -278,6 +278,7 @@ export function setupInteractions({
     isFocused: () => isZoomed,
     isZoomed: () => isZoomed,
     getSelectedArtwork: () => selectedPainting?.userData?.artwork || null,
+    getSelectedPaintingGroup: () => selectedPainting,
     update(delta = 0.016) {
       if (progress < 1) {
         progress += delta / duration;

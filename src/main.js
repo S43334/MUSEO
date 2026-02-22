@@ -109,15 +109,19 @@ function createPerfOverlay(enabled) {
   return panel;
 }
 
-function updatePerfOverlay(panel, qualityState) {
+function updatePerfOverlay(panel, qualityState, renderer, focusedTextureSource = '-') {
   if (!panel || !qualityState) {
     return;
   }
+
+  const pixelRatio = renderer?.getPixelRatio ? renderer.getPixelRatio() : 0;
 
   panel.innerText = [
     `nivel: ${qualityState.level}`,
     `fps~: ${qualityState.averageFps.toFixed(1)}`,
     `ms~: ${qualityState.averageMs.toFixed(2)}`,
+    `pr: ${pixelRatio.toFixed(2)}`,
+    `tex: ${focusedTextureSource}`,
     `muestras: ${qualityState.history.length}`
   ].join('\n');
 }
@@ -137,11 +141,12 @@ async function bootstrap() {
   const artworks = content.artworks;
 
   const layout = buildMuseumLayout(rooms, artworks, LAYOUT_CONFIG);
+  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 
   const textureLoader = new THREE.TextureLoader(manager);
   const woodTexture = textureLoader.load('textures/wood.webp', (loadedTexture) => {
     loadedTexture.colorSpace = THREE.SRGBColorSpace;
-    loadedTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    loadedTexture.anisotropy = maxAnisotropy;
   });
 
   createRoom(scene, woodTexture, layout);
@@ -150,7 +155,8 @@ async function bootstrap() {
   const paintingItems = loadPaintings(scene, {
     placements: layout.placements,
     manager,
-    woodTexture
+    woodTexture,
+    maxAnisotropy
   });
   const interactiveObjects = paintingItems.map((item) => item.group);
 
@@ -174,6 +180,14 @@ async function bootstrap() {
   let activeArtworkIndex = -1;
   let panelHiddenWhileFocused = false;
   let interactionsController = null;
+
+  function getFocusedTextureSource() {
+    if (activeArtworkIndex < 0) {
+      return '-';
+    }
+
+    return paintingItems[activeArtworkIndex]?.group?.userData?.textureState?.current || '-';
+  }
 
   function resetPanelHiddenState() {
     panelHiddenWhileFocused = false;
@@ -244,6 +258,14 @@ async function bootstrap() {
     interactiveObjects,
     onSelect(artwork) {
       activeArtworkIndex = paintingItems.findIndex((item) => item.artwork.id === artwork.id);
+      const selectedItem = activeArtworkIndex >= 0 ? paintingItems[activeArtworkIndex] : null;
+
+      if (deviceProfile.isDesktopLike && selectedItem?.ensureOriginalTexture) {
+        selectedItem.ensureOriginalTexture().catch((error) => {
+          console.warn('[paintings] fallback a textura web por error en original', error);
+        });
+      }
+
       if (panelHiddenWhileFocused) {
         resetPanelHiddenState();
       }
@@ -417,7 +439,7 @@ async function bootstrap() {
     highlightNearestRoomButton();
     renderer.render(scene, camera);
 
-    updatePerfOverlay(perfPanel, qualityState);
+    updatePerfOverlay(perfPanel, qualityState, renderer, getFocusedTextureSource());
   }
 
   animate();

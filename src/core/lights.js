@@ -6,22 +6,22 @@ function toVecXZ(value) {
 
 const QUALITY_LIGHT_PRESETS = {
   high: {
-    ambient: 0.34,
-    hemi: 0.3,
-    lobby: 0.78,
-    wing: 0.36
+    ambient: 0.46,
+    hemi: 0.42,
+    lobby: 1.05,
+    wing: 0.52
   },
   balanced: {
-    ambient: 0.26,
-    hemi: 0.24,
-    lobby: 0.58,
-    wing: 0.24
+    ambient: 0.34,
+    hemi: 0.31,
+    lobby: 0.78,
+    wing: 0.34
   },
   low: {
-    ambient: 0.18,
-    hemi: 0.18,
-    lobby: 0.4,
-    wing: 0.14
+    ambient: 0.2,
+    hemi: 0.2,
+    lobby: 0.46,
+    wing: 0.16
   }
 };
 

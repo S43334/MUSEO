@@ -3,14 +3,14 @@ import * as THREE from 'three';
 export function createScene() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
-  scene.fog = new THREE.Fog(0x000000, 26, 165);
+  scene.fog = new THREE.Fog(0x000000, 24, 190);
   return scene;
 }
 
 export function createRenderer(options = {}) {
   const deviceProfile = options.deviceProfile || {};
   const isDesktopLike = Boolean(deviceProfile.isDesktopLike);
-  const initialPixelRatioLimit = isDesktopLike ? 1.35 : 1.0;
+  const initialPixelRatioLimit = isDesktopLike ? 1.7 : 1.0;
 
   const renderer = new THREE.WebGLRenderer({
     antialias: isDesktopLike,

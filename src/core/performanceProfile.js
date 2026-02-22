@@ -9,9 +9,19 @@ function clampQuality(level) {
 
 export function detectDeviceProfile(win = window) {
   const nav = win.navigator || {};
+  const coarsePointer = typeof win.matchMedia === 'function'
+    ? win.matchMedia('(pointer: coarse)').matches
+    : false;
+  const hasFinePointer = typeof win.matchMedia === 'function'
+    ? (win.matchMedia('(pointer: fine)').matches || win.matchMedia('(any-pointer: fine)').matches)
+    : false;
+  const canHover = typeof win.matchMedia === 'function'
+    ? (win.matchMedia('(hover: hover)').matches || win.matchMedia('(any-hover: hover)').matches)
+    : false;
+
   const isTouch = Boolean(
     nav.maxTouchPoints > 0 ||
-    (typeof win.matchMedia === 'function' && win.matchMedia('(pointer: coarse)').matches) ||
+    coarsePointer ||
     'ontouchstart' in win
   );
 
@@ -19,19 +29,21 @@ export function detectDeviceProfile(win = window) {
   const dpr = win.devicePixelRatio || 1;
   const memoryGb = nav.deviceMemory || 4;
   const cpuCores = nav.hardwareConcurrency || 4;
-  const isDesktopLike = !isTouch && width >= 900;
+  const isDesktopLike = width >= 900 && hasFinePointer && canHover;
 
-  let initialQuality = 'balanced';
-  if (isDesktopLike && memoryGb >= 8 && cpuCores >= 6) {
+  let initialQuality = 'low';
+  if (isDesktopLike) {
     initialQuality = 'high';
-  } else if (isTouch || memoryGb <= 4) {
-    initialQuality = 'low';
+  } else if (!isTouch && width >= 760 && memoryGb >= 4 && cpuCores >= 4) {
+    initialQuality = 'balanced';
   }
 
   return {
     deviceClass: isDesktopLike ? 'desktop' : 'mobile',
     isTouch,
     isDesktopLike,
+    hasFinePointer,
+    canHover,
     width,
     dpr,
     memoryGb,
@@ -41,14 +53,20 @@ export function detectDeviceProfile(win = window) {
 }
 
 export function createAdaptiveQualityState(initialProfile = 'balanced') {
-  const isTouchProfile = typeof initialProfile === 'object' && Boolean(initialProfile?.isTouch);
+  const isDesktopLikeProfile = typeof initialProfile === 'object'
+    ? Boolean(initialProfile?.isDesktopLike)
+    : initialProfile === 'high';
   const initialQuality = typeof initialProfile === 'string'
     ? initialProfile
     : (initialProfile?.initialQuality || 'balanced');
 
-  const maxLevel = isTouchProfile ? 'balanced' : 'high';
+  const minLevel = isDesktopLikeProfile ? 'balanced' : 'low';
+  const maxLevel = isDesktopLikeProfile ? 'high' : 'balanced';
 
   let safeInitial = clampQuality(initialQuality);
+  if (QUALITY_ORDER.indexOf(safeInitial) < QUALITY_ORDER.indexOf(minLevel)) {
+    safeInitial = minLevel;
+  }
   if (QUALITY_ORDER.indexOf(safeInitial) > QUALITY_ORDER.indexOf(maxLevel)) {
     safeInitial = maxLevel;
   }
@@ -58,15 +76,15 @@ export function createAdaptiveQualityState(initialProfile = 'balanced') {
     history: [],
     averageMs: 0,
     averageFps: 0,
-    windowSize: 90,
-    minSamples: 45,
-    evaluateEveryFrames: 30,
+    windowSize: isDesktopLikeProfile ? 120 : 90,
+    minSamples: isDesktopLikeProfile ? 60 : 45,
+    evaluateEveryFrames: isDesktopLikeProfile ? 36 : 30,
     frameSinceEval: 0,
-    highFpsThresholdMs: 14,
-    lowFpsThresholdMs: 22,
-    cooldownMs: 2600,
+    highFpsThresholdMs: isDesktopLikeProfile ? 14 : 15,
+    lowFpsThresholdMs: isDesktopLikeProfile ? 26 : 23,
+    cooldownMs: isDesktopLikeProfile ? 4200 : 3000,
     lastChangeAt: 0,
-    minLevel: 'low',
+    minLevel,
     maxLevel
   };
 }
@@ -141,22 +159,22 @@ function levelPixelRatioLimit(level, deviceProfile) {
   const desktopLike = Boolean(deviceProfile?.isDesktopLike);
 
   if (level === 'high') {
-    return desktopLike ? 1.35 : 1.1;
+    return desktopLike ? 1.7 : 1.2;
   }
   if (level === 'balanced') {
-    return desktopLike ? 1.1 : 1.0;
+    return desktopLike ? 1.35 : 1.0;
   }
-  return 0.92;
+  return desktopLike ? 1.1 : 0.85;
 }
 
 function levelFog(level) {
   if (level === 'high') {
-    return { near: 26, far: 165 };
+    return { near: 24, far: 190 };
   }
   if (level === 'balanced') {
-    return { near: 24, far: 145 };
+    return { near: 22, far: 172 };
   }
-  return { near: 20, far: 120 };
+  return { near: 18, far: 135 };
 }
 
 export function applyQualityLevel(context, level, deviceProfile) {

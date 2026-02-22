@@ -42,9 +42,9 @@
     #joystick-zone {
       position: absolute;
       bottom: 20px;
-      left: 20px;
-      width: 40%;
-      height: 50%;
+      left: 6px;
+      width: 34%;
+      height: 46%;
       z-index: 20;
       touch-action: none;
     }
@@ -64,12 +64,15 @@
     #room-menu {
       top: 14px;
       left: 14px;
-      width: min(410px, calc(100% - 28px));
+      width: min(500px, calc(100% - 28px));
+      max-height: min(30dvh, 150px);
+      overflow-y: auto;
       display: flex;
       flex-wrap: wrap;
       gap: 7px;
       padding: 8px;
       opacity: 0.86;
+      scrollbar-width: thin;
     }
 
     .room-btn {
@@ -99,11 +102,16 @@
       right: 14px;
       bottom: 14px;
       width: min(405px, calc(100% - 28px));
+      max-height: min(72dvh, 560px);
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 14px;
       opacity: 0;
       transform: translateY(14px);
       pointer-events: none;
+      overscroll-behavior: contain;
       transition: opacity 0.26s ease, transform 0.26s ease;
+      scrollbar-width: thin;
     }
 
     #artwork-panel.visible {
@@ -117,6 +125,7 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 8px;
+      flex-wrap: wrap;
       margin-bottom: 8px;
     }
 
@@ -131,6 +140,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
     .panel-header-actions button {
@@ -141,6 +151,7 @@
       padding: 6px 10px;
       cursor: pointer;
       font-size: 0.75rem;
+      white-space: nowrap;
     }
 
     #panel-toggle-visibility {
@@ -154,16 +165,19 @@
       color: var(--text-soft);
       font-size: 0.95rem;
       line-height: 1.35;
+      overflow-wrap: anywhere;
     }
 
     .panel-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
       margin-top: 12px;
     }
 
     .panel-actions button {
       flex: 1;
+      min-width: 120px;
       border: 1px solid var(--accent);
       color: var(--accent);
       background: var(--accent-soft);
@@ -179,125 +193,77 @@
       color: #121212;
     }
 
-    #intro-screen {
-      position: absolute;
-      inset: 0;
-      background-color: #000;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      color: white;
-      text-align: center;
-      transition: opacity 1s ease;
-    }
-
-    #intro-content {
-      width: 90%;
-      max-width: 620px;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 30px;
-      border: 1px solid #334;
-      background: rgba(12, 16, 30, 0.96);
-      box-shadow: 0 0 46px rgba(0, 0, 0, 0.82);
-      border-radius: 12px;
-      touch-action: pan-y;
-      -webkit-overflow-scrolling: touch;
-      pointer-events: auto;
-    }
-
-    #intro-content h1 {
-      font-size: 1.8rem;
-      margin: 0 0 14px;
-      color: var(--accent);
-      letter-spacing: 2px;
-    }
-
-    #intro-content p {
-      font-size: 1.05rem;
-      line-height: 1.5;
-      color: #cbcbcb;
-      margin: 0 0 22px;
-      text-align: left;
-    }
-
-    #loading-container {
-      width: 100%;
-      height: 4px;
-      background: #3d3d3d;
-      margin-bottom: 20px;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    #loading-bar {
-      width: 0%;
-      height: 100%;
-      background: var(--accent);
-      transition: width 0.2s ease;
-    }
-
-    #loading-text {
-      color: #949494;
-      font-size: 0.9rem;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
-    }
-
-    #start-btn {
-      display: none;
-      padding: 14px 40px;
-      font-size: 1.05rem;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 2px solid var(--accent);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 280px;
-      touch-action: manipulation;
-      font-weight: 700;
-    }
-
-    #start-btn:hover {
-      background: var(--accent);
-      color: #0d0d0d;
-      box-shadow: 0 0 18px rgba(244, 178, 65, 0.6);
-    }
-
     @media (max-width: 900px) {
-      #artwork-panel {
-        left: 14px;
-        right: 14px;
-        bottom: 88px;
+      #room-menu {
+        top: 10px;
+        left: 10px;
+        right: 10px;
         width: auto;
+        max-height: min(26dvh, 130px);
+      }
+
+      #artwork-panel {
+        left: 10px;
+        right: 10px;
+        bottom: 82px;
+        width: auto;
+        max-height: min(52dvh, 430px);
       }
 
       #joystick-zone {
-        left: 10px;
+        left: 2px;
         bottom: 10px;
-        width: 55%;
-        height: 42%;
+        width: 48%;
+        height: 40%;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 560px) {
+      #room-menu {
+        left: 8px;
+        top: 8px;
+        right: calc(min(405px, 48vw) + 18px);
+        width: auto;
+        max-height: 64px;
+        overflow-y: hidden;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+
+      .room-btn {
+        white-space: nowrap;
+      }
+
+      #artwork-panel {
+        left: auto;
+        top: 8px;
+        right: 8px;
+        bottom: 8px;
+        width: min(405px, 48vw);
+        max-height: none;
+      }
+
+      #joystick-zone {
+        left: 0;
+        bottom: 4px;
+        width: 44%;
+        height: 56%;
       }
     }
 
     @media (max-width: 600px) {
-      #intro-content {
-        padding: 22px;
-      }
-
-      #intro-content h1 {
-        font-size: 1.35rem;
-      }
-
       .room-btn {
         font-size: 11.5px;
         padding: 6px 8px;
+      }
+
+      .panel-header-actions button {
+        padding: 6px 8px;
+        font-size: 0.72rem;
+      }
+
+      #artwork-panel p {
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -305,9 +271,9 @@
 <body>
   <div id="room-menu" class="overlay-card" aria-label="Salto de salas">
     <button class="room-btn" data-room-id="retratos">1. Retratos</button>
-    <button class="room-btn" data-room-id="fantasia">2. Fantasía</button>
+    <button class="room-btn" data-room-id="fantasia">2. Fantas&iacute;a</button>
     <button class="room-btn" data-room-id="pop">3. Cultura pop</button>
-    <button class="room-btn" data-room-id="tradicion">4. Tradición</button>
+    <button class="room-btn" data-room-id="tradicion">4. Tradici&oacute;n</button>
   </div>
 
   <aside id="artwork-panel" class="overlay-card" aria-live="polite">
@@ -319,43 +285,17 @@
       </div>
     </div>
     <p id="panel-author">Artista:</p>
-    <p id="panel-technique">Técnica:</p>
-    <p id="panel-year">Año:</p>
-    <p id="panel-description">Descripción:</p>
+    <p id="panel-section">Secci&oacute;n:</p>
+    <p id="panel-technique">T&eacute;cnica:</p>
+    <p id="panel-year">A&ntilde;o:</p>
+    <p id="panel-description">Descripci&oacute;n:</p>
     <div class="panel-actions">
       <button id="panel-prev" type="button">Anterior</button>
       <button id="panel-next" type="button">Siguiente</button>
     </div>
   </aside>
 
-  <div id="intro-screen">
-    <div id="intro-content">
-      <h1>GALERÍA DE ARTE PARA ISABELLA</h1>
-      <p>
-        Espero que cada vez que entres aquí te sientas inspirada para seguir dibujando.
-      </p>
-
-      <div id="loading-container"><div id="loading-bar"></div></div>
-      <div id="loading-text">PREPARANDO LA SALA...</div>
-      <button id="start-btn">ENTRAR A LA GALERÍA</button>
-    </div>
-  </div>
-
   <div id="joystick-zone"></div>
   <script type="module" src="./src/main.js"></script>
-
-  <script>
-    const startBtn = document.getElementById('start-btn');
-    const introScreen = document.getElementById('intro-screen');
-
-    const startGame = (event) => {
-      if (event) event.preventDefault();
-      introScreen.style.opacity = '0';
-      setTimeout(() => { introScreen.style.display = 'none'; }, 1000);
-    };
-
-    startBtn.addEventListener('click', startGame);
-    startBtn.addEventListener('touchend', startGame);
-  </script>
 </body>
 </html>

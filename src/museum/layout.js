@@ -1,4 +1,4 @@
-import { ARTWORKS, ROOMS } from './data.js';
+import { ARTWORKS, ROOMS, SECTION_DEFINITIONS, SECTION_ORDER } from './data.js';
 
 const WING_DIRECTION_ORDER = ['front', 'left', 'right', 'back'];
 const WING_VECTORS = {
@@ -14,6 +14,7 @@ export const LAYOUT_CONFIG = {
   wingWidth: 8.8,
   wingPadding: 3.4,
   nicheLength: 4.7,
+  sectionGap: 2.2,
   paintingY: 1.8,
   paintingInset: 0.24,
   playerRadius: 0.35,
@@ -41,6 +42,8 @@ function buildRightVector(axis) {
 }
 
 function buildWingDefinitions(rooms, artworks, config) {
+  const sectionPriority = new Map(SECTION_ORDER.map((id, index) => [id, index]));
+
   return WING_DIRECTION_ORDER.map((directionId) => {
     const axis = WING_VECTORS[directionId];
     const room = getRoomById(rooms, directionId === 'front'
@@ -53,9 +56,28 @@ function buildWingDefinitions(rooms, artworks, config) {
 
     const wingArtworks = artworks
       .filter((artwork) => artwork.themeId === room.id)
-      .sort((a, b) => a.id - b.id);
+      .sort((a, b) => {
+        const aOrder = sectionPriority.get(a.sectionId) ?? 999;
+        const bOrder = sectionPriority.get(b.sectionId) ?? 999;
+        if (aOrder !== bOrder) {
+          return aOrder - bOrder;
+        }
+        return a.id - b.id;
+      });
 
-    const length = (config.wingPadding * 2) + (wingArtworks.length * config.nicheLength);
+    const sectionIds = [];
+    for (const artwork of wingArtworks) {
+      if (sectionIds.length === 0 || sectionIds[sectionIds.length - 1] !== artwork.sectionId) {
+        sectionIds.push(artwork.sectionId);
+      }
+    }
+
+    const sectionGapCount = Math.max(0, sectionIds.length - 1);
+    const length = (
+      (config.wingPadding * 2) +
+      (wingArtworks.length * config.nicheLength) +
+      (sectionGapCount * config.sectionGap)
+    );
     const lobbyHalf = config.lobbySize / 2;
     const centerOffset = lobbyHalf + (length / 2);
     const right = buildRightVector(axis);
@@ -73,7 +95,8 @@ function buildWingDefinitions(rooms, artworks, config) {
         x: axis.x * centerOffset,
         z: axis.z * centerOffset
       },
-      artworks: wingArtworks
+      artworks: wingArtworks,
+      sectionIds
     };
   });
 }
@@ -81,11 +104,19 @@ function buildWingDefinitions(rooms, artworks, config) {
 export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
   const halfWidth = wing.width / 2;
   const lobbyHalf = config.lobbySize / 2;
+  let accumulatedSectionGap = 0;
+  let previousSectionId = null;
 
   return wing.artworks.map((artwork, index) => {
+    const isSectionStart = index === 0 || artwork.sectionId !== previousSectionId;
+    if (index > 0 && isSectionStart) {
+      accumulatedSectionGap += config.sectionGap;
+    }
+    previousSectionId = artwork.sectionId;
+
     const side = index % 2 === 0 ? 'left' : 'right';
     const sideSign = side === 'left' ? -1 : 1;
-    const distanceFromLobby = config.wingPadding + ((index + 0.5) * config.nicheLength);
+    const distanceFromLobby = config.wingPadding + accumulatedSectionGap + ((index + 0.5) * config.nicheLength);
 
     const nicheCenter = {
       x: wing.axis.x * (lobbyHalf + distanceFromLobby),
@@ -111,6 +142,10 @@ export function buildPaintingNiches(wing, config = LAYOUT_CONFIG) {
       wingId: wing.id,
       side,
       nicheIndex: index,
+      sectionId: artwork.sectionId,
+      sectionTitle: artwork.sectionTitle,
+      sectionColor: artwork.sectionColor,
+      isSectionStart,
       nicheCenter,
       inwardNormal,
       rotationY,
@@ -254,6 +289,7 @@ export function buildMuseumLayout(
     wing.niches = niches;
 
     for (const niche of niches) {
+      const sectionMeta = SECTION_DEFINITIONS[niche.sectionId] || {};
       placements.push({
         ...niche.artwork,
         roomId: wing.id,
@@ -263,13 +299,17 @@ export function buildMuseumLayout(
         wingColor: wing.color,
         side: niche.side,
         nicheIndex: niche.nicheIndex,
+        sectionId: niche.sectionId,
+        sectionTitle: niche.sectionTitle || sectionMeta.title || 'Sección',
+        sectionColor: niche.sectionColor || sectionMeta.color || wing.color,
+        isSectionStart: niche.isSectionStart,
         nicheCenter: niche.nicheCenter,
         inwardNormal: niche.inwardNormal,
         axis: wing.axis,
         right: wing.right,
         nicheLength: config.nicheLength,
         wingWidth: wing.width,
-        focusDistance: 3.2,
+        focusDistance: 4.2,
         position: niche.position,
         rotationY: niche.rotationY
       });

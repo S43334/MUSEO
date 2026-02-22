@@ -122,6 +122,96 @@ function addWingAccents(group, wing, config) {
   group.add(sign);
 }
 
+function addLobbyCornerWalls(group, config, wings, wallMaterial) {
+  const lobbyHalf = config.lobbySize / 2;
+  const maxWingWidth = wings.reduce((acc, wing) => Math.max(acc, wing.width), 0);
+  const portalHalf = Math.min((maxWingWidth / 2) + 0.2, lobbyHalf - 0.9);
+  const segmentLength = Math.max(0.5, lobbyHalf - portalHalf);
+  const segmentGeo = new THREE.PlaneGeometry(segmentLength, config.height);
+  const cornerGeo = new THREE.BoxGeometry(0.22, config.height, 0.22);
+
+  const northLeft = new THREE.Mesh(segmentGeo, wallMaterial);
+  northLeft.position.set(-(portalHalf + (segmentLength / 2)), config.height / 2, -lobbyHalf);
+  group.add(northLeft);
+
+  const northRight = new THREE.Mesh(segmentGeo, wallMaterial);
+  northRight.position.set(portalHalf + (segmentLength / 2), config.height / 2, -lobbyHalf);
+  group.add(northRight);
+
+  const southLeft = new THREE.Mesh(segmentGeo, wallMaterial);
+  southLeft.rotation.y = Math.PI;
+  southLeft.position.set(-(portalHalf + (segmentLength / 2)), config.height / 2, lobbyHalf);
+  group.add(southLeft);
+
+  const southRight = new THREE.Mesh(segmentGeo, wallMaterial);
+  southRight.rotation.y = Math.PI;
+  southRight.position.set(portalHalf + (segmentLength / 2), config.height / 2, lobbyHalf);
+  group.add(southRight);
+
+  const westTop = new THREE.Mesh(segmentGeo, wallMaterial);
+  westTop.rotation.y = Math.PI / 2;
+  westTop.position.set(-lobbyHalf, config.height / 2, -(portalHalf + (segmentLength / 2)));
+  group.add(westTop);
+
+  const westBottom = new THREE.Mesh(segmentGeo, wallMaterial);
+  westBottom.rotation.y = Math.PI / 2;
+  westBottom.position.set(-lobbyHalf, config.height / 2, portalHalf + (segmentLength / 2));
+  group.add(westBottom);
+
+  const eastTop = new THREE.Mesh(segmentGeo, wallMaterial);
+  eastTop.rotation.y = -Math.PI / 2;
+  eastTop.position.set(lobbyHalf, config.height / 2, -(portalHalf + (segmentLength / 2)));
+  group.add(eastTop);
+
+  const eastBottom = new THREE.Mesh(segmentGeo, wallMaterial);
+  eastBottom.rotation.y = -Math.PI / 2;
+  eastBottom.position.set(lobbyHalf, config.height / 2, portalHalf + (segmentLength / 2));
+  group.add(eastBottom);
+
+  const corners = [
+    { x: -lobbyHalf, z: -lobbyHalf },
+    { x: lobbyHalf, z: -lobbyHalf },
+    { x: -lobbyHalf, z: lobbyHalf },
+    { x: lobbyHalf, z: lobbyHalf }
+  ];
+
+  for (const corner of corners) {
+    const cornerPillar = new THREE.Mesh(cornerGeo, wallMaterial);
+    cornerPillar.position.set(corner.x, config.height / 2, corner.z);
+    group.add(cornerPillar);
+  }
+}
+
+function createSectionBadge(text, colorHex) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 768;
+  canvas.height = 170;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = 'rgba(6, 10, 18, 0.9)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
+  ctx.fillStyle = '#f4f4f4';
+  ctx.font = 'bold 44px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+
+  return new THREE.Mesh(
+    new THREE.PlaneGeometry(3.2, 0.72),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      color: colorHex
+    })
+  );
+}
+
 function addPaintingNiches(group, placements, wings, config) {
   const wingMap = new Map(wings.map((wing) => [wing.id, wing]));
   const dividerMaterial = new THREE.MeshStandardMaterial({
@@ -144,11 +234,12 @@ function addPaintingNiches(group, placements, wings, config) {
     const inwardNormal = right.clone().multiplyScalar(-sideSign);
     const nicheWidth = placement.nicheLength * 0.78;
     const yaw = yawFromNormal(inwardNormal);
+    const sectionColor = placement.sectionColor || wing.color;
 
     const panel = new THREE.Mesh(
       new THREE.PlaneGeometry(nicheWidth, 3.25),
       new THREE.MeshStandardMaterial({
-        color: wing.color,
+        color: sectionColor,
         roughness: 0.62,
         metalness: 0.08,
         transparent: true,
@@ -182,6 +273,14 @@ function addPaintingNiches(group, placements, wings, config) {
     canopy.position.y = 3.45;
     canopy.rotation.y = yaw;
     group.add(canopy);
+
+    if (placement.isSectionStart) {
+      const sectionLabel = createSectionBadge(placement.sectionTitle || 'Sección', sectionColor);
+      const markerPos = nicheCenter.clone().add(axis.clone().multiplyScalar(-0.5));
+      sectionLabel.position.set(markerPos.x, 3.0, markerPos.z);
+      sectionLabel.rotation.y = yawFromNormal(axis.clone().multiplyScalar(-1));
+      group.add(sectionLabel);
+    }
   }
 }
 
@@ -251,19 +350,36 @@ export function createRoom(scene, woodTexture, layout) {
   group.add(frontWall);
 
   const lobbyAccent = new THREE.Mesh(
-    new THREE.RingGeometry((zones.lobby.size / 2) - 2.8, (zones.lobby.size / 2) - 1.8, 96),
+    new THREE.PlaneGeometry(zones.lobby.size - 1.2, zones.lobby.size - 1.2),
     new THREE.MeshStandardMaterial({
       color: 0xf4b241,
       roughness: 0.6,
       metalness: 0.08,
       transparent: true,
-      opacity: 0.16,
-      side: THREE.DoubleSide
+      opacity: 0.12
     })
   );
   lobbyAccent.rotation.x = -Math.PI / 2;
   lobbyAccent.position.set(0, 0.02, 0);
   group.add(lobbyAccent);
+
+  const lobbyFrame = new THREE.Mesh(
+    new THREE.RingGeometry((zones.lobby.size / 2) - 0.5, (zones.lobby.size / 2) - 0.15, 4),
+    new THREE.MeshStandardMaterial({
+      color: 0xf4b241,
+      roughness: 0.52,
+      metalness: 0.12,
+      transparent: true,
+      opacity: 0.2,
+      side: THREE.DoubleSide
+    })
+  );
+  lobbyFrame.rotation.x = -Math.PI / 2;
+  lobbyFrame.rotation.z = Math.PI / 4;
+  lobbyFrame.position.set(0, 0.03, 0);
+  group.add(lobbyFrame);
+
+  addLobbyCornerWalls(group, config, wings, wallMaterial);
 
   for (const wing of wings) {
     addWingEnvelope(group, wing, config, wallMaterial);

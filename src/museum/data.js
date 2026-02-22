@@ -27,7 +27,78 @@ export const ROOMS = [
   }
 ];
 
-export const ARTWORKS = [
+export const SECTION_DEFINITIONS = {
+  memorias_grafito: {
+    title: 'Memorias en grafito',
+    color: 0xa9b7c9
+  },
+  retrato_legado: {
+    title: 'Retrato y legado',
+    color: 0xd7b98d
+  },
+  fantasia_luminosa: {
+    title: 'Fantasía luminosa',
+    color: 0x8ec5df
+  },
+  aventura_pop: {
+    title: 'Aventura pop',
+    color: 0x8f86dd
+  },
+  color_celebracion: {
+    title: 'Color y celebración',
+    color: 0xf39fc3
+  },
+  noches_heroicas: {
+    title: 'Noches heroicas',
+    color: 0x5f5fc6
+  }
+};
+
+export const SECTION_ORDER = [
+  'memorias_grafito',
+  'retrato_legado',
+  'fantasia_luminosa',
+  'aventura_pop',
+  'color_celebracion',
+  'noches_heroicas'
+];
+
+const SECTION_BY_ARTWORK_ID = {
+  1: 'fantasia_luminosa',
+  2: 'memorias_grafito',
+  3: 'aventura_pop',
+  4: 'noches_heroicas',
+  5: 'retrato_legado',
+  6: 'memorias_grafito',
+  7: 'aventura_pop',
+  8: 'noches_heroicas',
+  9: 'aventura_pop',
+  10: 'fantasia_luminosa',
+  11: 'aventura_pop',
+  12: 'retrato_legado',
+  13: 'color_celebracion',
+  14: 'aventura_pop',
+  15: 'fantasia_luminosa',
+  16: 'fantasia_luminosa',
+  17: 'retrato_legado',
+  18: 'retrato_legado',
+  19: 'memorias_grafito',
+  20: 'memorias_grafito',
+  21: 'fantasia_luminosa',
+  22: 'color_celebracion',
+  23: 'memorias_grafito',
+  24: 'memorias_grafito',
+  25: 'retrato_legado',
+  26: 'retrato_legado',
+  27: 'memorias_grafito',
+  28: 'color_celebracion',
+  29: 'color_celebracion',
+  30: 'memorias_grafito',
+  31: 'fantasia_luminosa',
+  32: 'retrato_legado'
+};
+
+const ARTWORK_BASE = [
   { id: 1, title: 'Sebastián', file: 'dibujo1.png', themeId: 'retratos' },
   { id: 2, title: 'La reina de los pájaros canta...', file: 'dibujo2.jpg', themeId: 'fantasia' },
   { id: 3, title: 'WANDAVISION 50s', file: 'dibujo3.jpg', themeId: 'pop' },
@@ -60,11 +131,21 @@ export const ARTWORKS = [
   { id: 30, title: '¡Mi perrita Cherry!', file: 'dibujo30.jpg', themeId: 'retratos' },
   { id: 31, title: 'Sheldon Cooper', file: 'dibujo31.jpg', themeId: 'pop' },
   { id: 32, title: 'Mona Lisa', file: 'dibujo32.jpg', themeId: 'retratos' }
-].map((artwork) => ({
-  ...artwork,
-  author: AUTHOR_NAME,
-  image: `textures/paintings/${artwork.file}`,
-  year: 'Sin fecha',
-  technique: 'Grafito y color',
-  description: 'Parte de una colección personal creada con dedicación y amor.'
-}));
+];
+
+export const ARTWORKS = ARTWORK_BASE.map((artwork) => {
+  const sectionId = SECTION_BY_ARTWORK_ID[artwork.id] || 'memorias_grafito';
+  const section = SECTION_DEFINITIONS[sectionId];
+
+  return {
+    ...artwork,
+    author: AUTHOR_NAME,
+    sectionId,
+    sectionTitle: section.title,
+    sectionColor: section.color,
+    image: `textures/paintings/${artwork.file}`,
+    year: 'Sin fecha',
+    technique: 'Grafito y color',
+    description: 'Parte de una colección personal creada con dedicación y amor.'
+  };
+});

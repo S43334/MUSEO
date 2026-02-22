@@ -13,15 +13,11 @@ import { LAYOUT_CONFIG, buildMuseumLayout } from './museum/layout.js';
 
 const manager = new THREE.LoadingManager();
 
-const loadingBar = document.getElementById('loading-bar');
-const loadingText = document.getElementById('loading-text');
-const startBtn = document.getElementById('start-btn');
-const loadingContainer = document.getElementById('loading-container');
-
 const roomMenuButtons = Array.from(document.querySelectorAll('[data-room-id]'));
 const artworkPanel = document.getElementById('artwork-panel');
 const panelTitle = document.getElementById('panel-title');
 const panelAuthor = document.getElementById('panel-author');
+const panelSection = document.getElementById('panel-section');
 const panelTechnique = document.getElementById('panel-technique');
 const panelYear = document.getElementById('panel-year');
 const panelDescription = document.getElementById('panel-description');
@@ -30,36 +26,8 @@ const prevPanelBtn = document.getElementById('panel-prev');
 const nextPanelBtn = document.getElementById('panel-next');
 const togglePanelBtn = document.getElementById('panel-toggle-visibility');
 
-manager.onProgress = function onProgress(url, itemsLoaded, itemsTotal) {
-  if (itemsTotal > 0 && loadingBar) {
-    const progress = (itemsLoaded / itemsTotal) * 100;
-    loadingBar.style.width = `${progress}%`;
-  }
-};
-
-manager.onLoad = function onLoad() {
-  if (loadingText) {
-    loadingText.innerText = '¡LISTO PARA ENTRAR!';
-  }
-  if (loadingContainer) {
-    loadingContainer.style.display = 'none';
-  }
-  if (startBtn) {
-    startBtn.style.display = 'inline-block';
-  }
-};
-
 manager.onError = function onError(url) {
   console.error(`Error cargando: ${url}`);
-  if (loadingText) {
-    loadingText.innerText = 'CARGA COMPLETADA (CON AVISOS)';
-  }
-  if (loadingContainer) {
-    loadingContainer.style.display = 'none';
-  }
-  if (startBtn) {
-    startBtn.style.display = 'inline-block';
-  }
 };
 
 const scene = createScene();
@@ -111,24 +79,27 @@ function updateToggleLabel() {
 }
 
 function showArtworkPanel(artwork) {
-  if (!artworkPanel || !artwork || panelHiddenWhileFocused) {
+  if (!artworkPanel || !artwork) {
     return;
   }
 
   if (panelTitle) {
-    panelTitle.innerText = artwork.title || 'Sin título';
+    panelTitle.innerText = artwork.title || 'Sin t\u00edtulo';
   }
   if (panelAuthor) {
     panelAuthor.innerText = `Artista: ${artwork.author || 'Artista'}`;
   }
+  if (panelSection) {
+    panelSection.innerText = `Secci\u00f3n: ${artwork.sectionTitle || 'Colecci\u00f3n principal'}`;
+  }
   if (panelTechnique) {
-    panelTechnique.innerText = `Técnica: ${artwork.technique || 'No especificada'}`;
+    panelTechnique.innerText = `T\u00e9cnica: ${artwork.technique || 'No especificada'}`;
   }
   if (panelYear) {
-    panelYear.innerText = `Año: ${artwork.year || 'Sin fecha'}`;
+    panelYear.innerText = `A\u00f1o: ${artwork.year || 'Sin fecha'}`;
   }
   if (panelDescription) {
-    panelDescription.innerText = artwork.description || 'Sin descripción adicional.';
+    panelDescription.innerText = artwork.description || 'Sin descripci\u00f3n adicional.';
   }
 
   artworkPanel.classList.add('visible');
@@ -138,6 +109,12 @@ function hideArtworkPanel() {
   if (artworkPanel) {
     artworkPanel.classList.remove('visible');
   }
+}
+
+function resetPanelHiddenState() {
+  panelHiddenWhileFocused = false;
+  interactionsController?.setPanelVisibility(true);
+  updateToggleLabel();
 }
 
 function focusArtworkByIndex(index) {
@@ -197,14 +174,14 @@ interactionsController = setupInteractions({
   onSelect(artwork) {
     activeArtworkIndex = paintingItems.findIndex((item) => item.artwork.id === artwork.id);
     if (panelHiddenWhileFocused) {
-      hideArtworkPanel();
-    } else {
-      showArtworkPanel(artwork);
+      resetPanelHiddenState();
     }
+    showArtworkPanel(artwork);
   },
   onDeselect() {
     activeArtworkIndex = -1;
     hideArtworkPanel();
+    resetPanelHiddenState();
   }
 });
 

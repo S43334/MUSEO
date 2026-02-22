@@ -27,14 +27,14 @@ function getFocusDistance(camera, paintingGroup) {
   const baseDistance = paintingGroup.userData?.artwork?.focusDistance ?? 3.2;
   const frameHeight = 2.15;
   const frameWidth = 1.65;
-  const focusFov = 46;
+  const focusFov = 48;
   const vFov = THREE.MathUtils.degToRad(focusFov);
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
 
   const fitByHeight = (frameHeight / 2) / Math.tan(vFov / 2);
   const fitByWidth = (frameWidth / 2) / Math.tan(hFov / 2);
 
-  return Math.max(baseDistance, fitByHeight + 0.5, fitByWidth + 0.6);
+  return Math.max(baseDistance, fitByHeight + 0.9, fitByWidth + 1.1);
 }
 
 export function setupInteractions({
@@ -127,13 +127,16 @@ export function setupInteractions({
 
     selectedPainting = paintingGroup;
 
+    const artwork = paintingGroup.userData?.artwork || {};
     const target = paintingGroup.position.clone();
     const focusDistance = getFocusDistance(camera, paintingGroup);
-    const offset = new THREE.Vector3(0, 0, focusDistance);
-    offset.applyQuaternion(paintingGroup.quaternion);
+    const inwardNormal = artwork.inwardNormal
+      ? new THREE.Vector3(artwork.inwardNormal.x, 0, artwork.inwardNormal.z).normalize()
+      : new THREE.Vector3(0, 0, 1).applyQuaternion(paintingGroup.quaternion).normalize();
+    const offset = inwardNormal.multiplyScalar(focusDistance);
     const destination = target.clone().add(offset);
 
-    setTransitionTargets(destination, target, 46);
+    setTransitionTargets(destination, target, 48);
     isZoomed = true;
     controls.enabled = false;
 

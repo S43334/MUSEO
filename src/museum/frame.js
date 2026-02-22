@@ -10,7 +10,7 @@ export function createFramedPainting({ texture, woodTexture }) {
   const paintingMaterial = new THREE.MeshStandardMaterial({
     map: texture,
     roughness: 0.4,
-    side: THREE.FrontSide
+    side: THREE.DoubleSide
   });
   
   const painting = new THREE.Mesh(sharedPaintingGeo, paintingMaterial);
